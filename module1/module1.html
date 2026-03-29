@@ -59,6 +59,9 @@
   .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
   .lesson-body strong { color: var(--green-deep); }
 
+  .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 2rem 0; border: 4px solid var(--green-pale); }
+  .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
   /* ─── READING PASSAGE BOX ─── */
   .reading-box { background: white; border-left: 5px solid var(--green-bright); padding: 2rem; border-radius: 0 12px 12px 0; margin-bottom: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
   .reading-box p { font-size: 1.05rem; margin-bottom: 1rem; }
@@ -263,6 +266,13 @@
             </li>
           </ol>
         </div>
+        
+        <h2 style="color: var(--green-deep); margin: 2.5rem 0 1rem 0;">Watch to Learn More</h2>
+        <p>Watch it on YouTube: <a href="https://youtu.be/ogQyN4_ruUA" target="_blank">Cell Theory</a></p>
+        <div class="video-container">
+            <iframe src="https://youtu.be/ogQyN4_ruUA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        
       </div>
       <div class="lesson-controls">
         <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
