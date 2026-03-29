@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5: Cell Cycle and Checkpoints</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 14.2%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .lesson-img-right { float: right; margin: 0 0 1.5rem 2rem; max-width: 350px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 1px solid rgba(82,183,136,0.2); }
+  .clearfix::after { content: ""; clear: both; display: table; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.75rem; font-weight: 700; color: rgba(26,58,42,0.8); pointer-events: none; }
+
+  /* ─── ACTIVITY 1: IMAGE MAP PRECISE ALIGNMENT ─── */
+  .puzzle-board { position: relative; width: 100%; max-width: 750px; margin: 0 auto; display: block; }
+  .puzzle-board.cell-cycle { aspect-ratio: 4 / 3; } /* Standard ratio, adjust if needed */
+  .puzzle-board img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; }
+  
+  .img-drop-zone { position: absolute; border: 2px dashed var(--green-bright); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); transition: all 0.3s; overflow: hidden; cursor: pointer; padding: 0.2rem;}
+  .img-drop-zone.drag-over { background: rgba(82,183,136,0.8); border-color: var(--green-deep); transform: scale(1.05); }
+  .img-drop-zone.filled { background: white; border: 2px solid var(--green-deep); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .img-drop-zone.filled .draggable-item { font-size: 0.65rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: normal; line-height: 1.2;}
+  .img-drop-zone.filled .placeholder-text { display: none; }
+
+ /* ACTIVITY 1: PRECISE COORDINATES for Cell Cycle Diagram */
+  #cc-g1 { top: 10.5%; left: 3%; width: 18%; height: 8%; }    /* Top Left */
+  #cc-s { top: 10.5%; left: 79%; width: 18%; height: 8%; }    /* Top Right */
+  #cc-g2 { top: 45%; left: 81%; width: 18%; height: 8%; }  /* Middle Right */
+  
+  #cc-cyto { top: 62%; left: 81%; width: 18%; height: 8%; } /* Lower Middle Right (Points to bracket) */
+  
+  #cc-pro { top: 86%; left: 3%; width: 18%; height: 8%; }   /* Bottom Left */
+  #cc-meta { top: 86%; left: 28%; width: 18%; height: 8%; } /* Bottom Center-Left */
+  #cc-ana { top: 86%; left: 54%; width: 18%; height: 8%; }  /* Bottom Center-Right */
+  #cc-telo { top: 86%; left: 78%; width: 18%; height: 8%; } /* Bottom Right */
+
+
+  /* ─── ACTIVITY 2: TABLE DRAG AND DROP ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: left; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; }
+  
+  .a2-drop-zone { min-height: 60px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a2-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a2-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a2-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; white-space: normal;}
+  .a2-drop-zone.filled .placeholder-text { display: none; }
+  
+  /* Text wrapper for long analysis answers */
+  .draggable-item.func-drag { font-size: 0.75rem; font-weight: 500; max-width: 300px; line-height: 1.3; }
+  .draggable-item.short-drag { font-size: 0.9rem; font-weight: 700; width: auto;}
+
+  /* ─── ACTIVITY 3: STATIONS ─── */
+  .station-container { background: white; border-radius: 16px; border: 2px solid var(--green-pale); margin-bottom: 3rem; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+  .station-header { background: var(--green-deep); color: white; padding: 1.5rem; font-family: 'Playfair Display', serif; font-size: 1.8rem; text-align: center; }
+  .station-body { padding: 2rem; display: flex; gap: 2rem; align-items: flex-start; }
+  .station-img-wrapper { flex: 1; min-width: 300px; text-align: center; }
+  .station-img-wrapper img { max-width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .station-q-wrapper { flex: 2; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-item { background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .lesson-img-right { float: none; margin: 1rem auto; display: block; }
+    .img-drop-zone.filled .draggable-item { font-size: 0.45rem; line-height: 1.1; padding: 0.1rem;}
+    .placeholder-text { font-size: 0.55rem; }
+    .station-body { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 5 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 5: Cell Cycle</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Phase Finder</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Checkpoint Analysis</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Predict Consequences</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which phase of the cell cycle involves DNA replication?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. G1 phase</label><label><input type="radio" name="q1" value="b"> b. S phase</label><label><input type="radio" name="q1" value="c"> c. G2 phase</label><label><input type="radio" name="q1" value="d"> d. M phase</label></div></div>
+          <div class="quiz-question"><p>2. What happens during the G1 phase?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. DNA is copied</label><label><input type="radio" name="q2" value="b"> b. Chromosomes separate</label><label><input type="radio" name="q2" value="c"> c. The cell grows and performs normal functions</label><label><input type="radio" name="q2" value="d"> d. The nucleus divides</label></div></div>
+          <div class="quiz-question"><p>3. What is the main purpose of cell cycle checkpoints?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. To speed up cell division</label><label><input type="radio" name="q3" value="b"> b. To produce energy for the cell</label><label><input type="radio" name="q3" value="c"> c. To ensure proper cell division</label><label><input type="radio" name="q3" value="d"> d. To store genetic material</label></div></div>
+          <div class="quiz-question"><p>4. The G1 checkpoint primarily checks for:</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Proper chromosome separation</label><label><input type="radio" name="q4" value="b"> b. DNA damage and cell size</label><label><input type="radio" name="q4" value="c"> c. Completion of mitosis</label><label><input type="radio" name="q4" value="d"> d. Spindle fiber attachment</label></div></div>
+          <div class="quiz-question"><p>5. During which phase do chromosomes align at the center of the cell?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. Prophase</label><label><input type="radio" name="q5" value="b"> b. Metaphase</label><label><input type="radio" name="q5" value="c"> c. Anaphase</label><label><input type="radio" name="q5" value="d"> d. Telophase</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 5: Phase of Cell Cycle and Their Control Points</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the phases of cell cycle and their control points. In this lesson, you will explore how the importance of cell cycle control points and identify key events in each phase.</p>
+        
+        <p>The cell cycle is a highly organized series of events that cells go through as they grow, replicate their DNA, and divide into two new cells. To ensure accurate cell division, the cell cycle is regulated by specific control points (checkpoints). These control mechanisms help prevent errors, maintain genetic stability, and protect the organism from conditions such as uncontrolled cell growth.</p>
+        
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Describe the phases of the cell cycle (interphase, M-phase, and cytokinesis) and identify their key events.</li>
+          <li>Sequence the stages of the cell cycle and analyze the role of each checkpoint (G1, G2, and M) in regulating cell division.</li>
+          <li>Explain the importance of cell cycle control points by predicting the consequences of checkpoint failure on cell function.</li>
+        </ul>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">The Cell Cycle Phases</h2>
+          <img src="cellcycle.png" alt="Cell Cycle Diagram" class="lesson-img-right">
+          <p>The cell cycle is a continuous process by which a cell grows, replicates its DNA, and divides to form two identical daughter cells. It ensures proper growth, repair, and reproduction in living organisms. The cycle is divided into two major parts: <strong>Interphase</strong> (G₁, S, G₂) and the <strong>M Phase</strong> (mitosis and cytokinesis).</p>
+          
+          <h3 style="color: var(--green-mid); margin: 1.5rem 0 0.5rem 0;">Interphase</h3>
+          <p>The interphase of the cell cycle consists of the G₁, S, and G₂ phases, during which the cell grows, replicates its DNA, and prepares for division.</p>
+          <ul>
+            <li><strong>G₁ Phase:</strong> The cell increases in size, produces organelles such as mitochondria and ribosomes, and carries out normal metabolic functions like protein synthesis. It also accumulates energy and synthesizes RNA and proteins needed for DNA replication. During this stage, the cell checks whether conditions are favorable for division and may enter a resting stage (G₀) if conditions are not suitable.</li>
+            <li><strong>S Phase:</strong> DNA replication occurs, where the genetic material is copied to produce identical sister chromatids. Each chromosome duplicates, forming two identical strands joined at the centromere. Histone proteins are produced to help package the newly replicated DNA, and centrosomes begin to duplicate. Although the DNA content doubles, the number of chromosomes remains the same. The cell also uses proofreading mechanisms to ensure that errors during DNA replication are minimized.</li>
+            <li><strong>G₂ Phase:</strong> The cell continues to grow and prepares for mitosis. It synthesizes proteins necessary for cell division, including those involved in forming spindle fibers. Organelles and other cellular components are further produced, and microtubules begin to form. Importantly, the cell checks the replicated DNA for any errors and repairs them to ensure accurate division. This phase serves as the final checkpoint before the cell enters mitosis.</li>
+          </ul>
+
+          <h3 style="color: var(--green-mid); margin: 1.5rem 0 0.5rem 0;">M Phase (Mitosis and Cytokinesis)</h3>
+          <p>During the M phase of the cell cycle, the cell undergoes mitosis followed by cytokinesis, resulting in two identical daughter cells.</p>
+          <ul>
+            <li><strong>Prophase:</strong> The chromosomes condense and become visible under a microscope, with each chromosome consisting of two sister chromatids joined at the centromere. The nuclear membrane begins to break down, the nucleolus disappears, and centrosomes move toward opposite poles of the cell. At the same time, spindle fibers start to form and begin attaching to the chromosomes.</li>
+            <li><strong>Metaphase:</strong> The chromosomes align along the center of the cell, known as the metaphase plate. Spindle fibers are fully attached to the centromeres (kinetochores) of each chromosome, ensuring that each sister chromatid is connected to opposite poles. The cell checks that all chromosomes are properly aligned before proceeding.</li>
+            <li><strong>Anaphase:</strong> The sister chromatids separate at the centromere and are pulled toward opposite poles of the cell by the spindle fibers. As this occurs, the cell elongates, and each chromatid is now considered an individual chromosome.</li>
+            <li><strong>Telophase:</strong> The chromosomes reach the opposite poles and begin to decondense back into chromatin. Nuclear membranes reform around each set of chromosomes, nucleoli reappear, and the spindle fibers start to break down.</li>
+            <li><strong>Cytokinesis:</strong> The cytoplasm divides to form two separate daughter cells. In animal cells, a cleavage furrow forms and pinches the cell membrane, while in plant cells, a cell plate forms and develops into a new cell wall. Each daughter cell contains identical genetic material and enters the G₁ phase.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Cell Cycle Checkpoints</h2>
+          <p>The cell cycle checkpoints are control mechanisms that ensure a cell only proceeds to the next stage when conditions are correct and safe. These checkpoints act like “quality control points” during the cell cycle. Each checkpoint monitors key events in the cell and prevents errors that could lead to damaged or abnormal cells.</p>
+          <ul>
+            <li><strong>G₁ Checkpoint:</strong> The cell evaluates whether it is ready to begin DNA replication. During this stage, the cell must have enough nutrients, sufficient size, and undamaged DNA. If DNA damage is detected or conditions are unfavorable, the checkpoint stops the cycle to allow repair or may direct the cell to a resting stage. If this checkpoint fails, damaged DNA may be copied during the S phase, which can lead to mutations or diseases such as cancer.</li>
+            <li><strong>G₂ Checkpoint:</strong> Occurs after DNA replication in the S phase. At this point, the cell ensures that DNA has been completely and accurately copied into identical sister chromatids. It also checks for any replication errors and prepares for mitosis. If DNA is incomplete or damaged, the checkpoint halts progression to allow repairs. Failure of the G₂ checkpoint may result in cells entering mitosis with errors, leading to improper chromosome separation and defective daughter cells.</li>
+            <li><strong>M Checkpoint (Spindle Checkpoint):</strong> Takes place during metaphase of mitosis. Here, the cell verifies that all chromosomes are properly aligned at the center (metaphase plate) and that spindle fibers are correctly attached to each chromosome. If chromosomes are not properly attached or aligned, the checkpoint prevents the cell from proceeding. If this checkpoint fails, chromosomes may not separate equally, resulting in daughter cells with abnormal chromosome numbers (aneuploidy).</li>
+          </ul>
+          <p>Overall, these checkpoints are essential for maintaining the accuracy of cell division. When checkpoints fail, it can lead to serious consequences such as genetic mutations, uncontrolled cell division, or cell death.</p>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: Phase Finder</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Match the event happened in cell cycle to its corresponding phase. Drag the correct event from the box to the empty spaces on the diagram.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a label to select it, then tap an empty box on the image to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="g1">Cell grows, produces organelles, and carries out normal functions.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="s">DNA is copied to produce identical sister chromatids.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="g2">Cell prepares for mitosis by producing proteins and checking DNA for errors.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="pro">Chromosomes condense and become visible under a microscope.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="meta">Chromosomes align along the center of the cell.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="ana">Spindle fibers attach to chromosomes and move them toward poles.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="telo">Nuclear membranes reform around the separated chromosome sets.</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="cyto">Cytoplasm divides, forming two daughter cells.</div>
+          </div>
+          
+         <div class="puzzle-board act1-board" style="aspect-ratio: 4/3; max-width: 900px;">
+            <img src="activity1.png" alt="Cell Cycle Diagram">
+            <div class="img-drop-zone a1-drop-zone" id="cc-g1" data-match="g1"><span class="placeholder-text">G1 Phase</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="cc-s" data-match="s"><span class="placeholder-text">S Phase</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="cc-g2" data-match="g2"><span class="placeholder-text">G2 Phase</span></div>
+            
+            <div class="img-drop-zone a1-drop-zone" id="cc-cyto" data-match="cyto"><span class="placeholder-text">Cytokinesis</span></div>
+            
+            <div class="img-drop-zone a1-drop-zone" id="cc-pro" data-match="pro"><span class="placeholder-text">Prophase</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="cc-meta" data-match="meta"><span class="placeholder-text">Metaphase</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="cc-ana" data-match="ana"><span class="placeholder-text">Anaphase</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="cc-telo" data-match="telo"><span class="placeholder-text">Telophase</span></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(3)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Checkpoint Analysis</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Analyze the given situation and determine which checkpoint failed and what the proper analysis is. Drag the correct checkpoint and the correct reasoning into the table.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="G1">G1 Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="G1">G1 Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="G1">G1 Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="G2">G2 Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="G2">G2 Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="G2">G2 Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="M">M Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="M">M Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="M">M Checkpoint</div>
+          <div class="draggable-item a2-draggable short-drag" draggable="true" data-match="M">M Checkpoint</div>
+          
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a1">The cell should have stopped the cycle and repaired the DNA damage or undergone apoptosis (cell death).</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a2">Incomplete DNA means chromosomes are not fully copied, leading to faulty genetic info in daughter cells.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a3">Daughter cells may receive unequal numbers of chromosomes, leading to genetic abnormalities.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a4">The cell should have paused the cycle until enough nutrients were available to support proper growth.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a5">Errors in DNA can be passed to daughter cells, potentially causing mutations or diseases like cancer.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a6">Chromosomes may not separate correctly, leading to uneven distribution (nondisjunction).</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a7">Cells must reach an adequate size to ensure enough organelles and materials are available for daughter cells.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a8">This can result in aneuploidy, where cells have too many or too few chromosomes.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a9">Mutations may remain in the DNA and be passed to daughter cells, increasing risk of malfunction.</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="a10">Chromosomes will not separate properly, resulting in daughter cells with missing or extra chromosomes.</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr><th>Scenario</th><th>Which Checkpoint Failed?</th><th>Analysis</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-size:0.9rem;">1. A cell with damaged DNA continues to the S phase.</td>
+                <td><div class="a2-drop-zone" data-match="G1"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a1"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">2. DNA replication is incomplete, but the cell enters mitosis.</td>
+                <td><div class="a2-drop-zone" data-match="G2"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a2"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">3. Chromosomes are not aligned properly, but the cell proceeds to anaphase.</td>
+                <td><div class="a2-drop-zone" data-match="M"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a3"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">4. A cell lacks sufficient nutrients but continues to DNA replication.</td>
+                <td><div class="a2-drop-zone" data-match="G1"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a4"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">5. DNA replication errors were not corrected before mitosis.</td>
+                <td><div class="a2-drop-zone" data-match="G2"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a5"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">6. Spindle fibers did not attach properly to some chromosomes, but the cell proceeded.</td>
+                <td><div class="a2-drop-zone" data-match="M"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a6"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">7. The cell grows too small and divides immediately without proper preparation.</td>
+                <td><div class="a2-drop-zone" data-match="G1"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a7"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">8. Chromosomes fail to separate equally during anaphase.</td>
+                <td><div class="a2-drop-zone" data-match="M"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a8"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">9. The cell completes DNA replication but skips checking for errors.</td>
+                <td><div class="a2-drop-zone" data-match="G2"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a9"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">10. The cell proceeds to division even though spindle fibers are missing.</td>
+                <td><div class="a2-drop-zone" data-match="M"><span class="placeholder-text">Drop Checkpoint</span></div></td>
+                <td><div class="a2-drop-zone" data-match="a10"><span class="placeholder-text">Drop Analysis</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Table</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Predict the Consequences</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> This activity consists of three (3) stations. Your task is to answer the guide questions at each station pertaining to the error occurred in each checkpoint. Type your reflections below.</p>
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="station-container">
+            <div class="station-header">Station 1: The G₁ Checkpoint</div>
+            <div class="station-body">
+                <div class="station-img-wrapper"><img src="station1.png" alt="G1 Checkpoint Error"></div>
+                <div class="station-q-wrapper gq-container">
+                    <div class="gq-item">
+                        <label>1. Why is the G₁ checkpoint important?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> The G₁ checkpoint is important because it ensures the cell is healthy, has enough nutrients, and has no DNA damage before entering the S phase. It acts as a control point to prevent damaged or faulty cells from continuing the cell cycle.</div>
+                    </div>
+                    <div class="gq-item">
+                        <label>2. What errors happened?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> The error is that the cell had damaged DNA but still proceeded to the S phase without repair. This means the checkpoint failed to stop the cell cycle and did not allow time for DNA repair.</div>
+                    </div>
+                    <div class="gq-item">
+                        <label>3. Predict what might happen next.</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> If the damaged DNA is copied during the S phase, the mutations will be passed on to daughter cells. This can lead to malfunctioning cells, uncontrolled cell division, or diseases such as cancer.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="station-container">
+            <div class="station-header" style="background:#2563eb;">Station 2: The G₂ Checkpoint</div>
+            <div class="station-body">
+                <div class="station-img-wrapper"><img src="station2.png" alt="G2 Checkpoint Error"></div>
+                <div class="station-q-wrapper gq-container">
+                    <div class="gq-item">
+                        <label>1. What should the G₂ checkpoint verify?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> The G₂ checkpoint should verify that DNA replication is complete and accurate, that there is no DNA damage, and that the cell is ready to enter mitosis.</div>
+                    </div>
+                    <div class="gq-item">
+                        <label>2. What is the risk of proceeding to mitosis?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> If the cell proceeds to mitosis with incomplete or damaged DNA, it can lead to improper chromosome separation and the transmission of errors to daughter cells.</div>
+                    </div>
+                    <div class="gq-item">
+                        <label>3. What might happen to daughter cells?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> The daughter cells may receive incomplete or incorrect genetic information, which can cause malfunction, mutations, or even cell death.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="station-container">
+            <div class="station-header" style="background:#eab308;">Station 3: The M Checkpoint</div>
+            <div class="station-body">
+                <div class="station-img-wrapper"><img src="station3.png" alt="M Checkpoint Error"></div>
+                <div class="station-q-wrapper gq-container">
+                    <div class="gq-item">
+                        <label>1. What does the M checkpoint check?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> The M checkpoint checks whether all chromosomes are properly aligned at the center of the cell and correctly attached to spindle fibers before separation.</div>
+                    </div>
+                    <div class="gq-item">
+                        <label>2. What error occurs during chromosome separation?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> The error is that chromosomes are not properly aligned or attached, causing improper separation (nondisjunction) during anaphase.</div>
+                    </div>
+                    <div class="gq-item">
+                        <label>3. What condition may result (hint: chromosome number)?</label>
+                        <textarea placeholder="Type your answer here..."></textarea>
+                        <div class="gq-answer"><strong>Answer:</strong> This can result in aneuploidy, where daughter cells have an abnormal number of chromosomes (too many or too few).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Reflections & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 5.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A researcher observes that a cell with damaged DNA continues to replicate and divide uncontrollably. Which checkpoint most likely failed, and why?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. M checkpoint, because chromosomes were not aligned</label><label><input type="radio" name="pt1" value="b"> b. G₁ checkpoint, because DNA damage was not detected before replication</label><label><input type="radio" name="pt1" value="c"> c. G₂ checkpoint, because spindle fibers did not form</label><label><input type="radio" name="pt1" value="d"> d. Cytokinesis checkpoint, because cytoplasm did not divide</label></div></div>
+          <div class="quiz-question"><p>2. If a cell enters mitosis with incomplete DNA replication, what is the most likely consequence?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. Faster cell division</label><label><input type="radio" name="pt2" value="b"> b. Equal distribution of chromosomes</label><label><input type="radio" name="pt2" value="c"> c. Formation of genetically identical daughter cells</label><label><input type="radio" name="pt2" value="d"> d. Production of abnormal daughter cells with missing or damaged DNA</label></div></div>
+          <div class="quiz-question"><p>3. During an experiment, spindle fibers fail to attach to chromosomes, yet the cell proceeds to anaphase. What will most likely occur?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. Chromosomes will duplicate again</label><label><input type="radio" name="pt3" value="b"> b. Chromosomes will not separate properly</label><label><input type="radio" name="pt3" value="c"> c. DNA replication will restart</label><label><input type="radio" name="pt3" value="d"> d. Cell growth will stop permanently</label></div></div>
+          <div class="quiz-question"><p>4. A mutation disables the protein responsible for stopping the cell cycle when errors are detected. What is the most likely long-term effect?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Cells will stop dividing completely</label><label><input type="radio" name="pt4" value="b"> b. Cells will divide only during G₁ phase</label><label><input type="radio" name="pt4" value="c"> c. Cells will divide uncontrollably, possibly leading to cancer</label><label><input type="radio" name="pt4" value="d"> d. Cells will skip cytokinesis only</label></div></div>
+          <div class="quiz-question"><p>5. Why is the M checkpoint considered critical for maintaining chromosome number stability?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. It ensures DNA replication is complete</label><label><input type="radio" name="pt5" value="b"> b. It allows the cell to grow properly</label><label><input type="radio" name="pt5" value="c"> c. It checks chromosome alignment before separation</label><label><input type="radio" name="pt5" value="d"> d. It produces proteins needed for mitosis</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module5_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module5_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module5_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module5_a3_completed') === 'true') lockActivity3();
+    if (localStorage.getItem('module5_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'b', q2: 'c', q3: 'c', q4: 'b', q5: 'b' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module5_quiz_completed', 'true'); localStorage.setItem('module5_quiz_name', name); localStorage.setItem('module5_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module5_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module5_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module5_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module5_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module5_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a1-draggable') !== null)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+
+  // ─── ACTIVITY 1 SUBMISSION ───
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(z => { const item = z.querySelector('.a1-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module5_a1_state', JSON.stringify(state)); localStorage.setItem('module5_a1_name', name); localStorage.setItem('module5_a1_completed', 'true');
+    const score = applyActivity1Visuals(); localStorage.setItem('module5_a1_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 8</h1>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  const a1_correctText = {
+      "g1": "G1 Phase: Cell grows, produces organelles...", "s": "S Phase: DNA is copied...", "g2": "G2 Phase: Prepares for mitosis...",
+      "pro": "Prophase: Chromosomes condense...", "meta": "Metaphase: Align at center...", "ana": "Anaphase: Spindle fibers pull...",
+      "telo": "Telophase: Membranes reform...", "cyto": "Cytokinesis: Cytoplasm divides..."
+  };
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a1-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; let itemText = item.innerText.replace('❌','').trim(); item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.6rem;">${itemText}</span><br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${a1_correctText[correctMatch]}</strong>`; }
+      } else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${a1_correctText[correctMatch]}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block';}
+    }); return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module5_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module5_a1_name'); 
+    const state = JSON.parse(localStorage.getItem('module5_a1_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a1-pool .a1-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA1(); applyActivity1Visuals();
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module5_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/8)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION ───
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = [];
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => { const item = zone.querySelector('.a2-draggable'); state.push(item ? item.getAttribute('data-match') : null); });
+    localStorage.setItem('module5_a2_state', JSON.stringify(state)); localStorage.setItem('module5_a2_name', name); localStorage.setItem('module5_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module5_a2_score', score);
+    showModal("Table Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 20</h1>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Incorrect</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module5_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module5_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module5_a2_state') || '[]');
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => {
+        if(state[index]) { const item = Array.from(document.querySelectorAll('#a2-pool .a2-draggable')).find(el => el.getAttribute('data-match') === state[index]); if(item) zone.appendChild(item); }
+    });
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module5_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/20)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (STATIONS) ───
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    // Save Essays
+    const gqAnswers = []; document.querySelectorAll('#lesson-5 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module5_a3_answers', JSON.stringify(gqAnswers)); localStorage.setItem('module5_a3_completed', 'true'); localStorage.setItem('module5_a3_name', name);
+    document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Reflections Saved</h1><p>Your reflection answers have been submitted and the correct answers are now revealed on the screen!</p>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module5_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module5_a3_name'); 
+    const btn = document.getElementById('btn-submit-a3'); btn.innerText = "Submitted & Revealed"; btn.style.backgroundColor = "var(--muted)"; btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-5').style.display = 'inline-block';
+    
+    // Restore Textareas
+    if (localStorage.getItem('module5_a3_completed') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module5_a3_answers') || '[]');
+        document.querySelectorAll('#lesson-5 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'b', pt2: 'd', pt3: 'b', pt4: 'c', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module5_pt_completed', 'true'); localStorage.setItem('module5_pt_name', name); localStorage.setItem('module5_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module5_pt_score', score);
+
+    showModal("Module 5 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 5! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module5_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module5_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module5_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module5_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6: Cell Division</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 16.6%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .lesson-img-right { float: right; margin: 0 0 1.5rem 2rem; max-width: 350px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 1px solid rgba(82,183,136,0.2); }
+  .clearfix::after { content: ""; clear: both; display: table; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; position: relative; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.8rem; font-weight: 700; color: rgba(26,58,42,0.6); pointer-events: none; }
+
+  /* ─── ACTIVITY 1: COLUMNS FOR MITOSIS STAGES ─── */
+  /* Upgraded for larger pictures and sticky functionality! */
+  
+  #a1-pool {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border: 2px solid var(--green-mid);
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+
+  .stages-container { display: flex; gap: 1.5rem; margin-top: 1rem; align-items: stretch; overflow-x: auto; padding-bottom: 2rem; }
+  .stage-col { flex: 1; min-width: 260px; border: 2px solid var(--green-mid); border-radius: 12px; background: white; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .stage-header { background: #f4f9f5; text-align: center; border-bottom: 2px solid var(--green-pale); padding: 1rem; }
+  .stage-header h3 { color: var(--green-deep); margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: 900;}
+  .stage-header img { width: 100%; height: 220px; object-fit: contain; } /* Taller, bigger images */
+  
+  .a1-drop-zone { flex: 1; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; min-height: 200px; background: #f8fafc; transition: all 0.3s; cursor: pointer; }
+  .a1-drop-zone.drag-over { background: var(--green-pale); box-shadow: inset 0 0 0 3px var(--green-bright); }
+  .a1-drop-zone .draggable-item { width: 100%; white-space: normal; line-height: 1.2; font-size: 0.8rem; padding: 0.6rem; }
+
+  /* ─── ACTIVITY 2: IMAGE MAP FOR BINARY FISSION ─── */
+  .puzzle-board { position: relative; width: 100%; max-width: 650px; margin: 0 auto; display: block; aspect-ratio: 4 / 3; }
+  .puzzle-board img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; }
+  
+  .img-drop-zone { position: absolute; border: 2px dashed var(--green-bright); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.85); transition: all 0.3s; overflow: hidden; cursor: pointer; padding: 0.2rem; }
+  .img-drop-zone.drag-over { background: rgba(82,183,136,0.8); border-color: var(--green-deep); transform: scale(1.05); }
+  .img-drop-zone.filled { background: white; border: 2px solid var(--green-deep); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .img-drop-zone.filled .draggable-item { font-size: 0.75rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: normal; line-height: 1.1; }
+  .img-drop-zone.filled .placeholder-text { display: none; }
+
+  /* ACTIVITY 2: APPROXIMATE COORDINATES (Tweak these percentages to match activity2.png) */
+  #bf-1 { top: 5%; left: 35%; width: 30%; height: 12%; }   /* DNA replication */
+  #bf-2 { top: 35%; left: 65%; width: 30%; height: 12%; }  /* Cell elongation */
+  #bf-3 { top: 80%; left: 55%; width: 30%; height: 12%; }  /* DNA moves... */
+  #bf-4 { top: 80%; left: 15%; width: 30%; height: 12%; }  /* Septum formation */
+  #bf-5 { top: 35%; left: 5%; width: 30%; height: 12%; }   /* Cell splits... */
+
+
+  /* ─── ACTIVITY 3: TABLE DRAG AND DROP ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: center; font-size: 1rem; border: 1px solid rgba(255,255,255,0.2); width: 33%;}
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; text-align: center; }
+  .analysis-table td:first-child { font-weight: 700; color: var(--green-deep); background: var(--green-pale); text-align: left; }
+  
+  .a3-drop-zone { min-height: 60px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a3-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a3-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a3-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; white-space: normal;}
+  .a3-drop-zone.filled .placeholder-text { display: none; }
+  
+  .draggable-item.long-text { font-size: 0.75rem; font-weight: 500; max-width: 320px; line-height: 1.3; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .lesson-img-right { float: none; margin: 1rem auto; display: block; }
+    .img-drop-zone.filled .draggable-item { font-size: 0.4rem; line-height: 1.1; }
+    .placeholder-text { font-size: 0.5rem; }
+    .draggable-item.long-text { max-width: 100%; font-size: 0.65rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 6 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 6: Cell Division</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Stages of Mitosis</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Binary Fission</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Comparing Division</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which statement best describes cell division in prokaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. It involves mitosis with spindle fiber formation</label><label><input type="radio" name="q1" value="b"> b. It occurs through binary fission without a nucleus</label><label><input type="radio" name="q1" value="c"> c. It includes multiple phases such as prophase and metaphase</label><label><input type="radio" name="q1" value="d"> d. It requires a nuclear membrane to break down</label></div></div>
+          <div class="quiz-question"><p>2. What is the key difference between binary fission and mitosis?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. Binary fission produces genetically different cells</label><label><input type="radio" name="q2" value="b"> b. Mitosis occurs only in bacteria</label><label><input type="radio" name="q2" value="c"> c. Binary fission is simpler and does not involve spindle fibers</label><label><input type="radio" name="q2" value="d"> d. Mitosis does not involve DNA replication</label></div></div>
+          <div class="quiz-question"><p>3. During eukaryotic cell division, which structure ensures proper separation of chromosomes?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. Ribosomes</label><label><input type="radio" name="q3" value="b"> b. Spindle fibers</label><label><input type="radio" name="q3" value="c"> c. Cell membrane</label><label><input type="radio" name="q3" value="d"> d. Cytoplasm</label></div></div>
+          <div class="quiz-question"><p>4. A student observes a cell dividing without visible stages like metaphase or anaphase. What type of cell is most likely being observed?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Animal cell</label><label><input type="radio" name="q4" value="b"> b. Plant cell</label><label><input type="radio" name="q4" value="c"> c. Eukaryotic cell</label><label><input type="radio" name="q4" value="d"> d. Prokaryotic cell</label></div></div>
+          <div class="quiz-question"><p>5. Which of the following is common to both prokaryotic and eukaryotic cell division?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. Formation of spindle fibers</label><label><input type="radio" name="q5" value="b"> b. Presence of a nucleus</label><label><input type="radio" name="q5" value="c"> c. DNA replication before division</label><label><input type="radio" name="q5" value="d"> d. Multiple phases of mitosis</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 6: Cell Division (Eukaryotic vs Prokaryotic)</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the difference between the cell division of eukaryotic and prokaryotic cell. In this lesson, you will explore how the key feature and process occurring in each stage of prokaryotic and eukaryotic cell division.</p>
+        
+        <p>Cell division is the process by which cells reproduce to ensure growth, repair, and continuity of life. In prokaryotic cells, such as bacteria, division occurs through a simple process called <strong>binary fission</strong>, while in eukaryotic cells it undergoes a more complex process involving <strong>mitosis and cytokinesis</strong>.</p>
+        
+        <p>While both processes result in genetically identical cells, eukaryotic cell division is more regulated and occurs in distinct stages, reflecting the greater complexity of eukaryotic cells compared to prokaryotes.</p>
+
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Identify the stages of cell division in prokaryotic cells (binary fission) and eukaryotic cells (mitosis and cytokinesis).</li>
+          <li>Describe the key features and processes occurring in each stage of prokaryotic and eukaryotic cell division.</li>
+          <li>Compare and differentiate prokaryotic and eukaryotic cell division in terms of stages, structures involved, and overall process.</li>
+        </ul>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Mitosis (Eukaryotic)</h2>
+          <img src="mitosis.png" alt="Mitosis Diagram" class="lesson-img-right">
+          <p>Mitosis is the process by which a eukaryotic cell divides its nucleus to produce two identical sets of chromosomes. It ensures that each daughter cell receives the same genetic information. Mitosis occurs in a series of organized phases: prophase, metaphase, anaphase, telophase, followed by cytokinesis.</p>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Binary Fission (Prokaryotic)</h2>
+          <img src="binary fission.png" alt="Binary Fission Diagram" class="lesson-img-right">
+          <p>Binary fission is the process by which prokaryotic cells (such as bacteria) reproduce. It is a simple, rapid form of cell division that allows one cell to divide into two genetically identical daughter cells. Unlike eukaryotic cell division, binary fission does not involve a nucleus or complex stages like mitosis. Instead, it follows a direct and efficient sequence of events:</p>
+          <ul>
+            <li>The process begins with <strong>DNA replication</strong>, where the single circular chromosome of the prokaryotic cell is copied. This results in two identical DNA molecules.</li>
+            <li>Next is <strong>cell elongation</strong>, during which the cell increases in size. As the cell grows longer, the two copies of DNA begin to move apart within the cytoplasm.</li>
+            <li>In the third stage, <strong>DNA moves to opposite ends</strong> of the cell. Each copy of the chromosome attaches to different parts of the cell membrane and is actively separated.</li>
+            <li>Following this is <strong>septum formation</strong>, where the cell membrane begins to pinch inward at the center. A structure called the septum forms, gradually dividing the cell into two compartments.</li>
+            <li>Finally, the cell undergoes cell division, where the septum fully forms and the <strong>cell splits into two</strong> identical daughter cells.</li>
+          </ul>
+          <p>Overall, binary fission is an efficient and continuous cycle that enables prokaryotic organisms to reproduce quickly, often leading to rapid population growth under favorable conditions.</p>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: Divide and Conquer</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> The Stages of Mitosis. Identify in which phase of mitosis the series of events happened. Drag the events from the box into their correct phase column.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a label to select it, then tap an empty box under the image to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="pro">Nuclear membrane begins to break down</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="pro">Spindle fibers start to form</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="pro">Chromosomes condense and become visible</div>
+            
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="meta">Spindle fibers attach to the centromeres of chromosomes</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="meta">Chromosomes align at the center of the cell</div>
+            
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="ana">Sister chromatids separate at the centromere</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="ana">Chromatids are pulled toward opposite poles</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="poles">Chromosomes reach opposite poles</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="poles">Chromosomes reach opposite poles</div>
+            
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="telo">Nuclear membranes reform around each set of chromosomes</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="telo">Chromosomes begin to decondense</div>
+            
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="cyto">Cytoplasm divides into two daughter cells</div>
+            <div class="draggable-item a1-draggable func-drag" draggable="true" data-match="cyto">Cell membrane pinches (animal cells) or cell plate forms (plant cells)</div>
+          </div>
+          
+          <div class="stages-container">
+              <div class="stage-col">
+                  <div class="stage-header">
+                      <h3>Prophase</h3>
+                      <img src="prophasee.png" alt="Prophase">
+                  </div>
+                  <div class="a1-drop-zone multi-drop" id="dz-pro" data-match="pro">
+                      <span class="placeholder-text" style="text-align: center;">Drop events here</span>
+                  </div>
+              </div>
+              
+              <div class="stage-col">
+                  <div class="stage-header">
+                      <h3>Metaphase</h3>
+                      <img src="metaphase.png" alt="Metaphase">
+                  </div>
+                  <div class="a1-drop-zone multi-drop" id="dz-meta" data-match="meta">
+                      <span class="placeholder-text" style="text-align: center;">Drop events here</span>
+                  </div>
+              </div>
+
+              <div class="stage-col">
+                  <div class="stage-header">
+                      <h3>Anaphase</h3>
+                      <img src="anaphase.png" alt="Anaphase">
+                  </div>
+                  <div class="a1-drop-zone multi-drop" id="dz-ana" data-match="ana">
+                      <span class="placeholder-text" style="text-align: center;">Drop events here</span>
+                  </div>
+              </div>
+
+              <div class="stage-col">
+                  <div class="stage-header">
+                      <h3>Telophase</h3>
+                      <img src="telophase.png" alt="Telophase">
+                  </div>
+                  <div class="a1-drop-zone multi-drop" id="dz-telo" data-match="telo">
+                      <span class="placeholder-text" style="text-align: center;">Drop events here</span>
+                  </div>
+              </div>
+
+              <div class="stage-col">
+                  <div class="stage-header">
+                      <h3>Cytokinesis</h3>
+                      <img src="cytokinesis.png" alt="Cytokinesis">
+                  </div>
+                  <div class="a1-drop-zone multi-drop" id="dz-cyto" data-match="cyto">
+                      <span class="placeholder-text" style="text-align: center;">Drop events here</span>
+                  </div>
+              </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(3)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Split to Survive</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> The Binary Fission Cycle. Complete the stages of cell division in a prokaryotic cell by dragging the labels into the correct boxes on the cycle diagram.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable" draggable="true" data-match="rep">DNA replication</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="elo">Cell elongation</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="mov">DNA moves to opposite ends</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="sep">Septum formation</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="spl">Cell splits into two</div>
+        </div>
+
+        <div class="puzzle-board">
+          <img src="activity2.png" alt="Binary Fission Cycle Diagram">
+          <div class="img-drop-zone a2-drop-zone" id="bf-1" data-match="rep"><span class="placeholder-text">Drop Here</span></div>
+          <div class="img-drop-zone a2-drop-zone" id="bf-2" data-match="elo"><span class="placeholder-text">Drop Here</span></div>
+          <div class="img-drop-zone a2-drop-zone" id="bf-3" data-match="mov"><span class="placeholder-text">Drop Here</span></div>
+          <div class="img-drop-zone a2-drop-zone" id="bf-4" data-match="sep"><span class="placeholder-text">Drop Here</span></div>
+          <div class="img-drop-zone a2-drop-zone" id="bf-5" data-match="spl"><span class="placeholder-text">Drop Here</span></div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Diagram</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: One Cell, Two Systems</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Comparing Life’s Division Strategies. Using what you have learned, complete the comparison table about the difference between cell division of Prokaryotic and Eukaryotic Cells.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a phrase to select it, then tap the empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Phrases Pool:</h3>
+        <div class="pool" id="a3-pool">
+          <div class="draggable-item a3-draggable" draggable="true" data-match="p-type">Binary fission</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="e-type">Mitosis</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="p-comp">Simple and rapid process</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="e-comp">More complex and highly regulated process</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="p-str">Circular DNA, cell membrane, cytoplasm</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="e-str">Nucleus, chromosomes, spindle fibers, centrosomes, cell membrane</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="p-sta">DNA replication → Cell elongation → DNA moves to opposite ends → Septum formation → Cell splits into two</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="e-sta">Prophase → Metaphase → Anaphase → Telophase → Cytokinesis</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th>Feature</th>
+                  <th>Prokaryotic Cell Division</th>
+                  <th>Eukaryotic Cell Division</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Type of Process</td>
+                <td><div class="a3-drop-zone" id="dz-p-type" data-match="p-type"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-e-type" data-match="e-type"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td>Stages</td>
+                <td><div class="a3-drop-zone" id="dz-p-sta" data-match="p-sta"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-e-sta" data-match="e-sta"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td>Structures Involved</td>
+                <td><div class="a3-drop-zone" id="dz-p-str" data-match="p-str"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-e-str" data-match="e-str"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td>Complexity</td>
+                <td><div class="a3-drop-zone" id="dz-p-comp" data-match="p-comp"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-e-comp" data-match="e-comp"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Table</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 6.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A scientist observes a cell dividing rapidly without visible stages such as metaphase or anaphase. Which conclusion is most accurate?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. The cell is undergoing mitosis in a eukaryote</label><label><input type="radio" name="pt1" value="b"> b. The cell is undergoing binary fission in a prokaryote</label><label><input type="radio" name="pt1" value="c"> c. The cell skipped the G₂ phase</label><label><input type="radio" name="pt1" value="d"> d. The cell is undergoing meiosis</label></div></div>
+          <div class="quiz-question"><p>2. Why do eukaryotic cells require spindle fibers during cell division, while prokaryotic cells do not?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. Prokaryotic cells have multiple chromosomes</label><label><input type="radio" name="pt2" value="b"> b. Eukaryotic cells lack DNA</label><label><input type="radio" name="pt2" value="c"> c. Eukaryotic cells need to organize and separate chromosomes within a nucleus</label><label><input type="radio" name="pt2" value="d"> d. Prokaryotic cells divide more slowly</label></div></div>
+          <div class="quiz-question"><p>3. A mutation prevents the formation of spindle fibers in a cell. Which type of cell division would be directly affected?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. Binary fission in prokaryotes</label><label><input type="radio" name="pt3" value="b"> b. Mitosis in eukaryotes</label><label><input type="radio" name="pt3" value="c"> c. DNA replication in both cell types</label><label><input type="radio" name="pt3" value="d"> d. Cytokinesis in prokaryotes</label></div></div>
+          <div class="quiz-question"><p>4. Which scenario best explains why prokaryotic cells can reproduce faster than eukaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Prokaryotic cells have more complex structures</label><label><input type="radio" name="pt4" value="b"> b. Prokaryotic cells undergo multiple phases of mitosis</label><label><input type="radio" name="pt4" value="c"> c. Prokaryotic cells use a simpler division process without nucleus or spindle fibers</label><label><input type="radio" name="pt4" value="d"> d. Eukaryotic cells do not replicate DNA</label></div></div>
+          <div class="quiz-question"><p>5. A student claims that prokaryotic and eukaryotic cell division are identical because both produce two cells. Which statement best evaluates this claim?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. Correct, because both processes use spindle fibers</label><label><input type="radio" name="pt5" value="b"> b. Incorrect, because only eukaryotes replicate DNA</label><label><input type="radio" name="pt5" value="c"> c. Incorrect, because the processes differ in stages, structures, and complexity</label><label><input type="radio" name="pt5" value="d"> d. Correct, because both processes involve mitosis</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module6_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module6_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module6_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module6_a3_completed') === 'true') lockActivity3();
+    if (localStorage.getItem('module6_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'b', q2: 'c', q3: 'b', q4: 'd', q5: 'c' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module6_quiz_completed', 'true'); localStorage.setItem('module6_quiz_name', name); localStorage.setItem('module6_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module6_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module6_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module6_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module6_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module6_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE (Shared & Multi-drop Support) ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelectorAll('.a1-draggable').length > 0)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  // Init Engine for Act 3
+  function updateZonesA3() { document.querySelectorAll('.a3-drop-zone').forEach(z => { const hasItem = z.querySelector('.a3-draggable') !== null; z.querySelector('.placeholder-text').style.display = hasItem ? 'none' : 'block'; }); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION (MULTI-DROP MITOSIS) ───
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    // Save State for Multi-Drop
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+        const items = Array.from(zone.querySelectorAll('.a1-draggable')).map(el => el.innerText.trim());
+        state[zone.id] = items;
+    });
+    localStorage.setItem('module6_a1_state', JSON.stringify(state)); localStorage.setItem('module6_a1_name', name); localStorage.setItem('module6_a1_completed', 'true');
+    const score = applyActivity1Visuals(); localStorage.setItem('module6_a1_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 13</h1>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match');
+      const items = zone.querySelectorAll('.a1-draggable');
+      items.forEach(item => {
+          const itemMatch = item.getAttribute('data-match');
+          // Check standard match OR if it's the duplicate "poles" chip going into ana or telo
+          if(itemMatch === correctMatch || (itemMatch === 'poles' && (correctMatch === 'ana' || correctMatch === 'telo'))) { 
+              correctCount++; item.style.border = '2px solid var(--green-bright)'; item.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; 
+          } else { 
+              item.style.border = '2px solid var(--red-wrong)'; item.style.backgroundColor = 'var(--red-pale)'; item.style.color = 'var(--red-wrong)';
+              if(!item.innerHTML.includes('Incorrect')) item.innerHTML += `<br><strong style="font-size:0.6rem;">(Incorrect)</strong>`; 
+          }
+      });
+      if(items.length === 0) { zone.style.border = '3px dashed var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.1)'; }
+    }); return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module6_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module6_a1_name'); 
+    
+    const state = JSON.parse(localStorage.getItem('module6_a1_state') || '{}');
+    for (const [zoneId, textArr] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); 
+        textArr.forEach(textVal => {
+            const cleanText = textVal.split('\n')[0].trim(); // Remove incorrect flag if restoring
+            const item = Array.from(document.querySelectorAll(`#a1-pool .a1-draggable`)).find(el => el.innerText.split('\n')[0].trim() === cleanText);
+            if(zone && item) zone.appendChild(item);
+        });
+    }
+    updateZonesA1(); applyActivity1Visuals();
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module6_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/13)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION (IMAGE MAP BINARY FISSION) ───
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = {};
+    document.querySelectorAll('.a2-drop-zone').forEach(z => { const item = z.querySelector('.a2-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module6_a2_state', JSON.stringify(state)); localStorage.setItem('module6_a2_name', name); localStorage.setItem('module6_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module6_a2_score', score);
+    showModal("Diagram Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  const a2_correctText = { "rep": "DNA replication", "elo": "Cell elongation", "mov": "DNA moves to opposite ends", "sep": "Septum formation", "spl": "Cell splits into two" };
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.65rem;">${originalText}</span><br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch]}</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.6rem;">Missed!</strong><br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch]}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module6_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module6_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module6_a2_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a2-pool .a2-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module6_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (TABLE) ───
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a3-drop-zone').forEach(z => { const item = z.querySelector('.a3-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module6_a3_state', JSON.stringify(state)); localStorage.setItem('module6_a3_completed', 'true'); localStorage.setItem('module6_a3_name', name);
+    const score = applyActivity3Visuals(); localStorage.setItem('module6_a3_score', score);
+
+    showModal("Comparison Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 8</h1>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  const a3_correctText = {
+      "p-type": "Binary fission", "e-type": "Mitosis",
+      "p-sta": "DNA rep → Elongation → Moves → Septum → Splits", "e-sta": "Prophase → Metaphase → Anaphase → Telophase → Cytokinesis",
+      "p-str": "Circular DNA, cell membrane, cytoplasm", "e-str": "Nucleus, chromosomes, spindle fibers, centrosomes...",
+      "p-comp": "Simple and rapid process", "e-comp": "More complex and highly regulated process"
+  };
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch]}</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch]}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module6_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module6_a3_name'); 
+    const state = JSON.parse(localStorage.getItem('module6_a3_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a3-pool .a3-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA3(); applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module6_a3_score') || 0; const btn = document.getElementById('btn-submit-a3'); btn.innerText = `Submitted (Score: ${score}/8)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block';
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'b', pt2: 'c', pt3: 'b', pt4: 'c', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module6_pt_completed', 'true'); localStorage.setItem('module6_pt_name', name); localStorage.setItem('module6_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module6_pt_score', score);
+
+    showModal("Module 6 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 6! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module6_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module6_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module6_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module6_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

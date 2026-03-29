@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 7: Meiosis and Crossing Over</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+    --chrom-blue: #3b82f6; --chrom-red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 14.2%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .reading-box { background: white; border-left: 5px solid var(--green-bright); padding: 2rem; border-radius: 0 12px 12px 0; margin-bottom: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+  .reading-box p { font-size: 1.05rem; margin-bottom: 1rem; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input[type="text"] { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; transition: border-color 0.3s; }
+  .input-group input[type="text"]:focus { border-color: var(--green-mid); outline: none; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── ACTIVITY 1: IDENTIFICATION (TEXT INPUTS) ─── */
+  .ident-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+  .ident-item { background: white; padding: 1.2rem; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+  .ident-item p { margin: 0; font-weight: 500; font-size: 1.05rem; }
+  .ident-input-wrapper { display: flex; align-items: center; gap: 1rem; }
+  .ident-input-wrapper span { font-weight: 700; color: var(--green-deep); }
+  .a1-input { padding: 0.6rem 1rem; border: 2px solid #cbd5e1; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; flex: 1; max-width: 300px; transition: all 0.3s; }
+  .a1-input:focus { border-color: var(--green-mid); outline: none; box-shadow: 0 0 0 3px rgba(82,183,136,0.2); }
+  .ident-feedback { font-size: 0.85rem; font-weight: 600; display: none; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; }
+  .pool { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+
+  /* ─── ACTIVITY 2: THE GENETIC EXCHANGE LAB (CSS WIDGET) ─── */
+  .lab-instructions { background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--amber); width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem;}
+  .lab-instructions h3 { margin-bottom: 0.5rem; color: var(--ink); font-size: 1.2rem; }
+  
+  .before-after-wrapper { display: flex; gap: 2rem; justify-content: center; align-items: stretch; flex-wrap: wrap; }
+  
+  .lab-panel { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 280px; box-shadow: inset 0 4px 12px rgba(0,0,0,0.02); }
+  .lab-panel h3 { color: var(--green-deep); margin-bottom: 1.5rem; font-size: 1.2rem; text-align: center; }
+
+  .chrom-slots { display: flex; gap: 2rem; justify-content: center; width: 100%; }
+
+  /* Chromosome Shapes */
+  .chrom-full { width: 50px; height: 160px; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; color: white; font-weight: 900; font-size: 1.2rem; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: 2px solid rgba(0,0,0,0.1); cursor: grab; padding: 10px 0;}
+  .chrom-full::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 14px; border-radius: 50%; background: #eab308; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5; } /* Centromere */
+  
+  /* Specific Color Patterns */
+  .solid-blue { background: var(--chrom-blue); }
+  .solid-red { background: var(--chrom-red); }
+  .rec-blue { background: linear-gradient(to bottom, var(--chrom-blue) 66%, var(--chrom-red) 66%); }
+  .rec-red { background: linear-gradient(to bottom, var(--chrom-red) 66%, var(--chrom-blue) 66%); }
+
+  /* Drop Zones */
+  .a2-drop-zone { width: 56px; height: 166px; border-radius: 28px; border: 3px dashed #cbd5e1; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative;}
+  .a2-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-deep); transform: scale(1.05); }
+  .a2-drop-zone.filled { border: none; background: transparent; }
+  .a2-drop-zone .placeholder-text { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; writing-mode: vertical-rl; text-orientation: mixed; }
+  .a2-drop-zone.filled .placeholder-text { display: none; }
+
+  /* Override Ghost for Chromosomes */
+  .ghost-element.chrom-full { border: 2px solid white; opacity: 0.9; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .a1-input { max-width: 100%; }
+    .ident-input-wrapper { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 7 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 7: Meiosis</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Stage Challenge</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Crossing Over Lab</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Power of Crossing</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. During which stage of meiosis does crossing over most likely occur?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Prophase I</label><label><input type="radio" name="q1" value="b"> b. Metaphase II</label><label><input type="radio" name="q1" value="c"> c. Anaphase I</label><label><input type="radio" name="q1" value="d"> d. Telophase II</label></div></div>
+          <div class="quiz-question"><p>2. What is the main purpose of crossing over?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. To reduce chromosome number</label><label><input type="radio" name="q2" value="b"> b. To produce identical cells</label><label><input type="radio" name="q2" value="c"> c. To exchange genetic material between homologous chromosomes</label><label><input type="radio" name="q2" value="d"> d. To separate sister chromatids</label></div></div>
+          <div class="quiz-question"><p>3. Which structures are involved in crossing over?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. Sister chromatids of the same chromosome</label><label><input type="radio" name="q3" value="b"> b. Homologous chromosomes</label><label><input type="radio" name="q3" value="c"> c. Ribosomes</label><label><input type="radio" name="q3" value="d"> d. Cell membrane</label></div></div>
+          <div class="quiz-question"><p>4. What is the result of genetic recombination?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Cells with identical genetic information</label><label><input type="radio" name="q4" value="b"> b. Increased genetic variation among offspring</label><label><input type="radio" name="q4" value="c"> c. Faster cell division</label><label><input type="radio" name="q4" value="d"> d. Reduction of cytoplasm</label></div></div>
+          <div class="quiz-question"><p>5. If crossing over did not occur during meiosis, what would most likely happen?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. Chromosomes would not replicate</label><label><input type="radio" name="q5" value="b"> b. Offspring would have less genetic variation</label><label><input type="radio" name="q5" value="c"> c. Cells would not divide</label><label><input type="radio" name="q5" value="d"> d. DNA would be destroyed</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 7: Meiosis and Crossing Over</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the phases of meiosis and the importance of crossing over. In this lesson, you will explore the different phases of meiosis and how recombination works in increasing genetic diversity among offspring.</p>
+        
+        <p>Meiosis is a specialized type of cell division that produces gametes (sex cells such as sperm and egg) with half the number of chromosomes of the original cell. Meiosis occurs in two consecutive divisions: <strong>Meiosis I</strong> and <strong>Meiosis II</strong>.</p>
+        
+        <p>Homologous chromosomes pair up and exchange genetic material through crossing over during <strong>prophase I</strong>. The outcome of meiosis is four genetically unique haploid cells, each different from the parent cell and from one another. This genetic variation is mainly due to crossing over and the independent assortment of chromosomes. Meiosis plays a crucial role in sexual reproduction, contributing to the diversity seen among organisms.</p>
+        
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Describe the process of crossing over during prophase I of meiosis, including how homologous chromosomes exchange genetic material.</li>
+          <li>Explain how recombination produces new combinations of alleles and contributes to genetic variation in gametes.</li>
+          <li>Analyze the significance of crossing over and recombination in increasing genetic diversity among offspring.</li>
+        </ul>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: Stage by Stage Challenge</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Using the diagram of meiosis I and II, identify which phase a specific event occurred in the cell division. Type your answers in the boxes provided.</p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <img src="activity1.png" alt="Meiosis Diagram" style="max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
+        </div>
+
+        <div class="ident-list">
+            <div class="ident-item">
+                <p>1. Exchange of genetic material between homologous chromosomes increases variation.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i1" data-answer="prophase i" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f1"></div>
+            </div>
+            
+            <div class="ident-item">
+                <p>2. Homologous chromosome pairs line up in the middle of the cell.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i2" data-answer="metaphase i" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f2"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>3. Each chromosome moves to opposite poles (sister chromatids remain attached).</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i3" data-answer="anaphase i" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f3"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>4. Chromatids are pulled apart to opposite poles, becoming individual chromosomes.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i4" data-answer="anaphase ii" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f4"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>5. Final division results in four genetically unique gametes.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i5" data-answer="telophase ii|cytokinesis" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f5"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>6. Allows spindle fibers to interact with chromosomes.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i6" data-answer="prophase|prophase i|prophase ii" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f6"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>7. Cell divides, reducing chromosome number by half.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i7" data-answer="telophase i|cytokinesis" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f7"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>8. Chromosomes are arranged randomly, contributing to genetic diversity.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i8" data-answer="metaphase i" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f8"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>9. Similar to mitosis, chromosomes line up individually.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i9" data-answer="metaphase ii" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f9"></div>
+            </div>
+
+            <div class="ident-item">
+                <p>10. No DNA replication occurs before this stage.</p>
+                <div class="ident-input-wrapper">
+                    <span>Answer:</span>
+                    <input type="text" class="a1-input" id="a1-i10" data-answer="meiosis ii" placeholder="Type phase here...">
+                </div>
+                <div class="ident-feedback" id="a1-f10"></div>
+            </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(3)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: The Genetic Exchange Lab</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read carefully the scenario given and accomplish the digital task to complete this activity.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a colored chromosome from the pool below, then tap an empty dashed box to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="lab-instructions" style="margin-bottom: 2rem;">
+            <h3>🔬 Activity Scenario</h3>
+            <p style="font-size: 0.95rem; color: var(--muted);">You are genetic researchers investigating why siblings look different even if they have the same parents. Your task is to model what happens during <strong>Prophase I of meiosis</strong>, specifically how homologous chromosomes exchange segments and create variation.<br><br><strong>Task:</strong> Build the "Before" and "After" models by dragging the correct whole chromosomes from the pool into the blank boxes below.</p>
+        </div>
+
+        <div class="dnd-container" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+            
+            <div class="before-after-wrapper" style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; width: 100%;">
+                
+                <div class="lab-panel">
+                    <h3 style="text-align:center; color: var(--green-deep);">Before Crossing Over</h3>
+                    <p style="text-align:center; font-size:0.8rem; color:var(--muted); margin-bottom: 1rem;">Place the original, intact homologous chromosomes here.</p>
+                    <div class="chrom-slots">
+                        <div class="a2-drop-zone" id="dz-b1" data-match="solid-blue"><span class="placeholder-text">Drop</span></div>
+                        <div class="a2-drop-zone" id="dz-b2" data-match="solid-red"><span class="placeholder-text">Drop</span></div>
+                    </div>
+                </div>
+                
+                <div style="display:flex; align-items:center; font-size:3rem; color:var(--green-mid);">➔</div>
+                
+                <div class="lab-panel">
+                    <h3 style="text-align:center; color: var(--green-deep);">After Crossing Over</h3>
+                    <p style="text-align:center; font-size:0.8rem; color:var(--muted); margin-bottom: 1rem;">Place the new, recombinant chromosomes here.</p>
+                    <div class="chrom-slots">
+                        <div class="a2-drop-zone" id="dz-a1" data-match="rec-blue"><span class="placeholder-text">Drop</span></div>
+                        <div class="a2-drop-zone" id="dz-a2" data-match="rec-red"><span class="placeholder-text">Drop</span></div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="pool" id="a2-pool">
+                <div class="draggable-item a2-draggable chrom-full solid-blue" draggable="true" data-match="solid-blue">
+                    <span>A</span><span>B</span><span>C</span>
+                </div>
+                <div class="draggable-item a2-draggable chrom-full rec-red" draggable="true" data-match="rec-red">
+                    <span>a</span><span>b</span><span>C</span>
+                </div>
+                <div class="draggable-item a2-draggable chrom-full solid-red" draggable="true" data-match="solid-red">
+                    <span>a</span><span>b</span><span>c</span>
+                </div>
+                <div class="draggable-item a2-draggable chrom-full rec-blue" draggable="true" data-match="rec-blue">
+                    <span>A</span><span>B</span><span>c</span>
+                </div>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Reflect on the crossing over lab you just completed. Type your answers below.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item" id="gq2-1">
+            <label>1. What is crossing over and when does it occur?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Crossing over is the exchange of genetic material between homologous chromosomes. It occurs during Prophase I of meiosis.</div>
+          </div>
+          <div class="gq-item" id="gq2-2">
+            <label>2. How does crossing over increase genetic variation?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Crossing over creates new combinations of genes by swapping segments of DNA between chromosomes, making offspring genetically different from their parents.</div>
+          </div>
+          <div class="gq-item" id="gq2-3">
+            <label>3. What might happen if crossing over did not occur?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> If crossing over did not occur, there would be less genetic variation, and offspring would be more genetically similar, reducing diversity.</div>
+          </div>
+          <div class="gq-item" id="gq2-4">
+            <label>4. Why is genetic variation important for organisms?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Genetic variation is important because it helps organisms adapt to changes in the environment, survive diseases, and ensures the survival of species over time.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Lab & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: The Power of Crossing Over</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read carefully the scenario given and accomplish the reflection task to complete this activity.</p>
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="lab-instructions" style="max-width: 100%; margin-bottom: 2rem; border-left-color: var(--green-bright);">
+            <h3>🌿 Activity Scenario</h3>
+            <p style="font-size: 1.05rem; color: var(--ink); line-height: 1.6;">A population of insect’s lives in a forest where conditions suddenly change due to climate shifts. A new disease spreads, and many insects begin to die. Scientists observe that only some individuals survive, and these survivors have slight genetic differences that make them resistant to the disease. Upon investigation, scientists discover that these differences are linked to genetic variation produced during meiosis, particularly through crossing over and recombination. They now want to understand how this process helped certain individuals survive while others did not.</p>
+        </div>
+
+        <div class="gq-container">
+          <div class="gq-item" id="gq3-1">
+            <label>1. What is crossing over, and during which stage of meiosis does it occur?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Crossing over is the exchange of genetic material between homologous chromosomes. It occurs during Prophase I of meiosis, when chromosomes pair up and swap segments of DNA.</div>
+          </div>
+          <div class="gq-item" id="gq3-2">
+            <label>2. How does crossing over lead to new combinations of genes in gametes?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Crossing over mixes genetic information by exchanging DNA segments between chromosomes, resulting in new gene combinations in gametes that are different from those of the parents.</div>
+          </div>
+          <div class="gq-item" id="gq3-3">
+            <label>3. Why might individuals with more genetic variation have a higher chance of survival?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Individuals with more genetic variation are more likely to have traits that help them adapt to environmental changes, resist diseases, and survive challenges.</div>
+          </div>
+          <div class="gq-item" id="gq3-4">
+            <label>4. How did crossing over contribute to the survival of some insects in the scenario?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Crossing over created genetic variation, allowing some insects to develop beneficial traits (such as resistance to environmental changes or predators), helping them survive while others did not.</div>
+          </div>
+          <div class="gq-item" id="gq3-5">
+            <label>5. What could happen to a population if crossing over did not occur during meiosis?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Without crossing over, there would be less genetic variation, making the population more vulnerable to diseases and environmental changes, which could reduce survival and lead to possible extinction.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Reflections & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 7.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A population of plants shows very little variation and becomes vulnerable to a sudden disease outbreak. Which explanation best describes how crossing over could have helped prevent this situation?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. It increases the number of chromosomes in each cell</label><label><input type="radio" name="pt1" value="b"> b. It creates identical copies of parental genes</label><label><input type="radio" name="pt1" value="c"> c. It produces new combinations of alleles that may include disease resistance</label><label><input type="radio" name="pt1" value="d"> d. It speeds up the process of cell division</label></div></div>
+          <div class="quiz-question"><p>2. During meiosis, two homologous chromosomes exchange segments unevenly. What is the most likely effect of this event on the resulting gametes?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. All gametes will be genetically identical</label><label><input type="radio" name="pt2" value="b"> b. Gametes will contain new allele combinations</label><label><input type="radio" name="pt2" value="c"> c. Chromosome number will double</label><label><input type="radio" name="pt2" value="d"> d. No genetic change will occur</label></div></div>
+          <div class="quiz-question"><p>3. If crossing over did not occur during meiosis, which outcome would most likely be observed in offspring?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. Increased mutation rates</label><label><input type="radio" name="pt3" value="b"> b. Reduced genetic diversity among offspring</label><label><input type="radio" name="pt3" value="c"> c. Faster reproduction</label><label><input type="radio" name="pt3" value="d"> d. More dominant traits expressed</label></div></div>
+          <div class="quiz-question"><p>4. Two siblings inherit genes from the same parents but show different traits. Which process best explains this difference?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. DNA replication</label><label><input type="radio" name="pt4" value="b"> b. Mitosis</label><label><input type="radio" name="pt4" value="c"> c. Crossing over during Prophase I</label><label><input type="radio" name="pt4" value="d"> d. Cytokinesis</label></div></div>
+          <div class="quiz-question"><p>5. A scientist compares two groups of organisms: one with normal meiosis and one where crossing over is inhibited. Which conclusion is most valid?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. Both groups will have equal genetic variation</label><label><input type="radio" name="pt5" value="b"> b. The group without crossing over will show greater diversity</label><label><input type="radio" name="pt5" value="c"> c. The group with normal meiosis will have more varied offspring</label><label><input type="radio" name="pt5" value="d"> d. Crossing over has no effect on inheritance</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module7_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module7_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module7_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module7_a3_completed') === 'true') lockActivity3();
+    if (localStorage.getItem('module7_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'a', q2: 'c', q3: 'b', q4: 'b', q5: 'b' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module7_quiz_completed', 'true'); localStorage.setItem('module7_quiz_name', name); localStorage.setItem('module7_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module7_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module7_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module7_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module7_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module7_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE (For Activity 2 Lab) ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const existing = dropZone.querySelector(`.${dragClass}`); if (existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const existing = zone.querySelector(`.${dragClass}`); if (existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (zone.children.length > 0) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+
+  // ─── ACTIVITY 1 SUBMISSION (TEXT INPUTS) ───
+  function cleanString(str) { return str.toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    let correctCount = 0;
+
+    document.querySelectorAll('.a1-input').forEach(input => {
+        state[input.id] = input.value;
+        const userAns = cleanString(input.value);
+        const correctAnswers = input.getAttribute('data-answer').split('|').map(cleanString);
+        const feedbackDiv = input.parentElement.nextElementSibling;
+        const correctDisplayTxt = input.getAttribute('data-answer').split('|')[0].replace(/\b\w/g, l => l.toUpperCase()); // Capitalize first letters for display
+        
+        if (correctAnswers.includes(userAns) && userAns !== "") {
+            correctCount++;
+            input.style.borderColor = 'var(--green-bright)';
+            input.style.backgroundColor = '#f0fdf4';
+            feedbackDiv.innerHTML = '✅ Correct';
+            feedbackDiv.style.color = 'var(--green-deep)';
+            feedbackDiv.style.backgroundColor = 'var(--green-pale)';
+        } else {
+            input.style.borderColor = 'var(--red-wrong)';
+            input.style.backgroundColor = 'var(--red-pale)';
+            feedbackDiv.innerHTML = `❌ Incorrect. Correct answer: <strong>${correctDisplayTxt}</strong>`;
+            feedbackDiv.style.color = 'var(--red-wrong)';
+            feedbackDiv.style.backgroundColor = 'var(--red-pale)';
+        }
+        feedbackDiv.style.display = 'block';
+    });
+
+    localStorage.setItem('module7_a1_state', JSON.stringify(state)); localStorage.setItem('module7_a1_name', name); localStorage.setItem('module7_a1_completed', 'true');
+    localStorage.setItem('module7_a1_score', correctCount);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${correctCount} / 10</h1>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module7_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module7_a1_name'); 
+    
+    const state = JSON.parse(localStorage.getItem('module7_a1_state') || '{}');
+    document.querySelectorAll('.a1-input').forEach(input => {
+        if(state[input.id] !== undefined) input.value = state[input.id];
+        input.disabled = true;
+        
+        // Re-apply visuals based on saved value
+        const userAns = cleanString(input.value);
+        const correctAnswers = input.getAttribute('data-answer').split('|').map(cleanString);
+        const feedbackDiv = input.parentElement.nextElementSibling;
+        const correctDisplayTxt = input.getAttribute('data-answer').split('|')[0].replace(/\b\w/g, l => l.toUpperCase());
+        
+        if (correctAnswers.includes(userAns) && userAns !== "") {
+            input.style.borderColor = 'var(--green-bright)'; input.style.backgroundColor = '#f0fdf4';
+            feedbackDiv.innerHTML = '✅ Correct'; feedbackDiv.style.color = 'var(--green-deep)'; feedbackDiv.style.backgroundColor = 'var(--green-pale)';
+        } else {
+            input.style.borderColor = 'var(--red-wrong)'; input.style.backgroundColor = 'var(--red-pale)';
+            feedbackDiv.innerHTML = `❌ Incorrect. Correct answer: <strong>${correctDisplayTxt}</strong>`; feedbackDiv.style.color = 'var(--red-wrong)'; feedbackDiv.style.backgroundColor = 'var(--red-pale)';
+        }
+        feedbackDiv.style.display = 'block';
+    });
+    
+    const score = localStorage.getItem('module7_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/10)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+
+  // ─── ACTIVITY 2 SUBMISSION (CROSSING OVER LAB) ───
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = {};
+    document.querySelectorAll('.a2-drop-zone').forEach(z => { const item = z.querySelector('.a2-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module7_a2_state', JSON.stringify(state)); localStorage.setItem('module7_a2_name', name); localStorage.setItem('module7_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module7_a2_score', score);
+    
+    // Save GQ
+    const gqAnswers = []; document.querySelectorAll('#lesson-4 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module7_gq_answers_a2', JSON.stringify(gqAnswers)); localStorage.setItem('module7_gq_completed_a2', 'true');
+    document.querySelectorAll('#lesson-4 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Lab Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 4</h1><p>Your reflection answers have also been revealed on the screen behind this popup!</p>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; item.style.boxShadow = '0 0 0 4px var(--green-bright)'; } 
+        else { item.style.boxShadow = '0 0 0 4px var(--red-wrong)'; }
+      } else { zone.style.border = '3px dashed var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module7_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module7_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module7_a2_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a2-pool .a2-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module7_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/4)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+    
+    if (localStorage.getItem('module7_gq_completed_a2') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module7_gq_answers_a2') || '[]');
+        document.querySelectorAll('#lesson-4 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-4 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (REFLECTIONS ONLY) ───
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    // Save Essays
+    const gqAnswers = []; document.querySelectorAll('#lesson-5 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module7_a3_answers', JSON.stringify(gqAnswers)); localStorage.setItem('module7_a3_completed', 'true'); localStorage.setItem('module7_a3_name', name);
+    document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Reflections Saved</h1><p>Your reflection answers have been submitted and the correct answers are now revealed on the screen!</p>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module7_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module7_a3_name'); 
+    const btn = document.getElementById('btn-submit-a3'); btn.innerText = "Submitted & Revealed"; btn.style.backgroundColor = "var(--muted)"; btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-5').style.display = 'inline-block';
+    
+    if (localStorage.getItem('module7_a3_completed') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module7_a3_answers') || '[]');
+        document.querySelectorAll('#lesson-5 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'c', pt2: 'b', pt3: 'b', pt4: 'c', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module7_pt_completed', 'true'); localStorage.setItem('module7_pt_name', name); localStorage.setItem('module7_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module7_pt_score', score);
+
+    showModal("Module 7 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 7! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module7_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module7_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module7_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module7_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

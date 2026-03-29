@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1: Cell Theory</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav {
+    background: var(--green-deep); padding: 1rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2);
+    padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+  }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 16%; transition: width 0.4s ease; }
+
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body strong { color: var(--green-deep); }
+
+  /* ─── READING PASSAGE BOX ─── */
+  .reading-box { background: white; border-left: 5px solid var(--green-bright); padding: 2rem; border-radius: 0 12px 12px 0; margin-bottom: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+  .reading-box p { font-size: 1.05rem; margin-bottom: 1rem; }
+  .reading-box p:last-child { margin-bottom: 0; }
+  .source-link { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; display: block; font-style: italic; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── ACTIVITY 1: BUBBLE DRAG AND DROP ─── */
+  .dnd-container { margin-top: 2rem; }
+  .quotes-pool { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; }
+  .draggable-quote { background: var(--green-pale); padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; }
+  .draggable-quote.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; cursor: grabbing; }
+  .draggable-quote.dragging { opacity: 0.4; }
+  
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+
+  .puzzle-board { position: relative; width: 100%; max-width: 800px; margin: 0 auto; display: block; }
+  .puzzle-board img { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; }
+  
+  .drop-zone { position: absolute; top: 4%; width: 22%; height: 16%; border: 2px dashed rgba(255,255,255,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0.2rem; background: rgba(255,255,255,0.2); transition: all 0.3s; overflow: hidden; cursor: pointer; }
+  .drop-zone.drag-over { background: rgba(82,183,136,0.6); border-color: white; transform: scale(1.05); }
+  .drop-zone.filled { background: rgba(255,255,255,0.95); border: none; }
+  .drop-zone.filled .draggable-quote { font-size: 0.65rem; padding: 0.2rem; box-shadow: none; border: none; background: transparent; text-align: center; pointer-events: auto; }
+  .drop-zone.filled .placeholder-text { display: none; }
+  .placeholder-text { font-size: 0.8rem; font-weight: 600; color: rgba(26,58,42,0.8); pointer-events: none; }
+
+  #dz-hooke { left: 4%; }
+  #dz-leeuwenhoek { left: 28%; }
+  #dz-schleiden { left: 52%; }
+  #dz-virchow { left: 75%; }
+
+  /* ─── ACTIVITY 2 & 3: TABLE DRAG AND DROP ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: left; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; text-align: center;}
+  .analysis-table td.row-header { font-weight: 600; color: var(--green-deep); background: var(--green-pale); width: 15%; text-align: center; font-size: 1.2rem;}
+  
+  .a2-drop-zone, .a3-drop-zone { min-height: 80px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; }
+  .a2-drop-zone.drag-over, .a3-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a2-drop-zone.filled, .a3-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a2-drop-zone.filled .a2-draggable, .a3-drop-zone.filled .a3-draggable { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; }
+  .a2-drop-zone.filled .a2-placeholder, .a3-drop-zone.filled .a3-placeholder { display: none; }
+  .a2-placeholder, .a3-placeholder { font-size: 0.85rem; color: #9ca3af; pointer-events: none; }
+
+  .a2-pool, .a3-pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; min-height: 120px; align-items: center; justify-content: center;}
+  .a2-draggable, .a3-draggable { background: white; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; color: var(--ink); border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: grab; user-select: none; touch-action: none; transition: transform 0.2s, border-color 0.2s; line-height: 1.4; text-align: center;}
+  
+  .a3-draggable.img-drag { padding: 0.25rem; }
+  .a3-draggable img { width: 90px; height: 110px; border-radius: 6px; object-fit: cover; pointer-events: none; display: block; margin: 0 auto;}
+
+  .a2-draggable.dragging, .a3-draggable.dragging { opacity: 0.4; }
+  .a2-draggable.active-selection, .a3-draggable.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+
+  /* ─── ACTIVITY 3: TIMELINE SPECIFIC STYLES ─── */
+  .a3-drop-zone { border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; width: 100%; }
+  .a3-drop-zone.img-drop { height: 130px; width: 110px; margin: 0 auto; }
+  .a3-drop-zone.txt-drop { height: 130px; }
+  .a3-draggable.img-drag { padding: 0; overflow: hidden; width: 100px; height: 120px; border: 2px solid #cbd5e1; }
+  .a3-draggable.txt-drag { max-width: 200px; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content {
+    background: white; border-radius: 16px; width: 90%; max-width: 500px;
+    padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; }
+    .content-area { padding: 1.5rem 1rem; }
+    .drop-zone { height: 18%; }
+    .drop-zone.filled .draggable-quote { font-size: 0.45rem; line-height: 1.1; }
+    .placeholder-text { font-size: 0.6rem; }
+    .a2-draggable, .a3-draggable { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 1 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know (Diagnostic)</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 1: Cell Theory</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Activity 1: Mystery Scientist</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Activity 2: Source Invest.</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Activity 3 & Reflection</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. A scientist examined a thin slice of cork using a microscope and observed small box-like structures which he called “cells.” Who made this observation?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Antonie van Leeuwenhoek</label><label><input type="radio" name="q1" value="b"> b. Rudolf Virchow</label><label><input type="radio" name="q1" value="c"> c. Robert Hooke</label><label><input type="radio" name="q1" value="d"> d. Matthias Schleiden</label></div></div>
+          <div class="quiz-question"><p>2. A student observed bacteria moving under a microscope. The teacher explained that the first scientist who observed living microorganisms used a powerful single-lens microscope. Who was this scientist?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. Robert Hooke</label><label><input type="radio" name="q2" value="b"> b. Matthias Schleiden</label><label><input type="radio" name="q2" value="c"> c. Antonie van Leeuwenhoek</label><label><input type="radio" name="q2" value="d"> d. Rudolf Virchow</label></div></div>
+          <div class="quiz-question"><p>3. During a biology discussion, a teacher said that all plants are composed of cells. Which scientist first proposed this idea?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. Antonie van Leeuwenhoek</label><label><input type="radio" name="q3" value="b"> b. Matthias Schleiden</label><label><input type="radio" name="q3" value="c"> c. Rudolf Virchow</label><label><input type="radio" name="q3" value="d"> d. Robert Hooke</label></div></div>
+          <div class="quiz-question"><p>4. A researcher concluded that new cells are formed from existing cells during cell division. Which scientist proposed this principle?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Rudolf Virchow</label><label><input type="radio" name="q4" value="b"> b. Robert Hooke</label><label><input type="radio" name="q4" value="c"> c. Matthias Schleiden</label><label><input type="radio" name="q4" value="d"> d. Antonie van Leeuwenhoek</label></div></div>
+          <div class="quiz-question"><p>5. A class is creating a timeline of discoveries that led to the development of cell theory. Which discovery should be placed first in the timeline?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> A. Schleiden concluded plants are made of cells</label><label><input type="radio" name="q5" value="b"> B. Hooke observed cork cells</label><label><input type="radio" name="q5" value="c"> C. Virchow stated cells come from pre-existing cells</label><label><input type="radio" name="q5" value="d"> D. Leeuwenhoek observed microorganisms</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 1: The Cell Theory</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the historical development of Cell Theory, one of the most important foundations in biology. In this lesson, you will explore how scientific knowledge develops through the observations and discoveries of different scientists over time.</p>
+        <p>Cell theory is one of the fundamental principles in biology; it explains the basic structure and function of all living organisms. Cell theory lies in its role as the foundation for studying life. Understanding cell theory helps explain how organisms grow, develop, and carry out the processes necessary for survival.</p>
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul style="margin-left: 2rem; margin-bottom: 2.5rem; color: #374151; line-height: 1.8;">
+          <li>Analyze the development of cell theory thru historical analysis of scientific information;</li>
+          <li>Organize historical timeline of discoveries of cell theory; and</li>
+          <li>Explain how individual discoveries contributed to cell theory.</li>
+        </ul>
+
+        <h3 style="color: var(--green-deep); margin-bottom: 1rem; font-size: 1.5rem;">The Three Main Principles of Cell Theory</h3>
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(82,183,136,0.3);">
+          <ol style="margin-left: 1.5rem; font-size: 1.05rem; line-height: 1.8; color: var(--green-deep);">
+            <li style="margin-bottom: 1rem;"><strong>All living organisms are made up of one or more cells.</strong><br>
+              <span style="color: var(--muted); font-size: 0.95rem;">Every living thing, from single-celled bacteria to complex organisms like plants and animals, is composed of cells.</span>
+            </li>
+            <li style="margin-bottom: 1rem;"><strong>The cell is the basic unit of structure and function in living organisms.</strong><br>
+              <span style="color: var(--muted); font-size: 0.95rem;">Cells carry out all the processes necessary for life, such as metabolism, growth, and reproduction.</span>
+            </li>
+            <li><strong>All cells arise from pre-existing cells.</strong><br>
+              <span style="color: var(--muted); font-size: 0.95rem;">New cells are formed through the division of existing cells.</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">Activity 1</div><h1 class="lesson-title">My Mystery Scientist</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> There are four (4) scientists having their conversation about their discovery. Your task is to find the mystery scientists and match it to their corresponding discoveries.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a quote to select it, then tap an empty bubble to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a-name">Full Name</label><input type="text" id="a-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="quotes-pool" id="quotes-pool">
+            <div class="draggable-quote" draggable="true" id="quote-schleiden" data-match="schleiden">"I found out that all plants are composed of cells."</div>
+            <div class="draggable-quote" draggable="true" id="quote-hooke" data-match="hooke">"I first used a microscope to observe cork and named the tiny compartments 'cells.'"</div>
+            <div class="draggable-quote" draggable="true" id="quote-virchow" data-match="virchow">"I proposed that cells came from other existing cells."</div>
+            <div class="draggable-quote" draggable="true" id="quote-leeuwenhoek" data-match="leeuwenhoek">"I discovered microorganisms using a powerful single-lens"</div>
+          </div>
+          <div class="puzzle-board">
+            <img src="My Mystery Scientist.png" alt="Scientists with speech bubbles">
+            <div class="drop-zone" id="dz-hooke" data-match="hooke"><span class="placeholder-text">Drop Here</span></div>
+            <div class="drop-zone" id="dz-leeuwenhoek" data-match="leeuwenhoek"><span class="placeholder-text">Drop Here</span></div>
+            <div class="drop-zone" id="dz-schleiden" data-match="schleiden"><span class="placeholder-text">Drop Here</span></div>
+            <div class="drop-zone" id="dz-virchow" data-match="virchow"><span class="placeholder-text">Drop Here</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-activity" onclick="submitActivity()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" onclick="completeAndNext(3)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Secondary Source Investigation</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read the passage about cell theory and complete the historical analysis table below by dragging the correct phrases from the pool into the empty boxes.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="reading-box">
+          <p>"The cell theory is one of the most important ideas in biology because it explains that cells are the basic units of life. This theory was developed through the discoveries and observations of several scientists who studied microscopic structures using early microscopes.</p>
+          <p>In 1665, Robert Hooke observed a thin slice of cork using a compound microscope. He noticed many tiny box-like compartments and called them cells, because they reminded him of small rooms. Although Hooke observed dead cells from plant tissue, his work introduced the concept that living things are made up of small structural units.</p>
+          <p>Several years later, in 1674 Antonie van Leeuwenhoek improved the microscope and became the first person to observe living microorganisms in pond water and other samples. He called these tiny living organisms “animalcules.” His discoveries showed that microscopic life exists and that cells can be living organisms.</p>
+          <p>In 1838, Matthias Schleiden studied plant tissues and concluded that all plants are composed of cells. His research helped scientists understand that cells are the basic units that make up plant structures.</p>
+          <p>Later, in 1855, Rudolf Virchow proposed that all cells come from pre-existing cells. This idea explained how cells reproduce and how organisms grow and develop.</p>
+          <p>Together, the discoveries of these scientists helped establish the cell theory, which states that all living organisms are made of cells, the cell is the basic unit of life, and new cells arise from existing cells."</p>
+        </div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Choices (Drag or Tap):</h3>
+        <div class="a2-pool" id="a2-pool">
+          <div class="a2-draggable" draggable="true" data-match="h-yr">1665</div>
+          <div class="a2-draggable" draggable="true" data-match="v-yr">1855</div>
+          <div class="a2-draggable" draggable="true" data-match="l-yr">1674</div>
+          <div class="a2-draggable" draggable="true" data-match="s-yr">1838</div>
+          <div class="a2-draggable" draggable="true" data-match="l-obs">Examined pond water, blood, and other samples...</div>
+          <div class="a2-draggable" draggable="true" data-match="v-obs">Studied cell division and disease processes</div>
+          <div class="a2-draggable" draggable="true" data-match="h-obs">Observed thin slices of cork using a microscope</div>
+          <div class="a2-draggable" draggable="true" data-match="s-obs">Studied plant tissues under a microscope</div>
+          <div class="a2-draggable" draggable="true" data-match="s-disc">Concluded all plants are made of cells</div>
+          <div class="a2-draggable" draggable="true" data-match="h-disc">Discovered and named "cells" (box-like structures)</div>
+          <div class="a2-draggable" draggable="true" data-match="v-disc">Stated that all cells come from pre-existing cells</div>
+          <div class="a2-draggable" draggable="true" data-match="l-disc">First to observe living cells ("animalcules")</div>
+          <div class="a2-draggable" draggable="true" data-match="v-cont">Completed cell theory by explaining how new cells are formed</div>
+          <div class="a2-draggable" draggable="true" data-match="h-cont">First to identify and name cells, introducing the concept of cellular structure</div>
+          <div class="a2-draggable" draggable="true" data-match="l-cont">Proved that living organisms are made of cells</div>
+          <div class="a2-draggable" draggable="true" data-match="s-cont">Established that cells are the basic unit of plant structure</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr><th>Scientist</th><th>Year of Discovery</th><th>Observation or Study Conducted</th><th>Major Discovery</th><th>Contribution to Cell Theory</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-header">Robert Hooke</td>
+                <td><div class="a2-drop-zone" data-match="h-yr"><span class="a2-placeholder">Drop Year</span></div></td>
+                <td><div class="a2-drop-zone" data-match="h-obs"><span class="a2-placeholder">Drop Observation</span></div></td>
+                <td><div class="a2-drop-zone" data-match="h-disc"><span class="a2-placeholder">Drop Discovery</span></div></td>
+                <td><div class="a2-drop-zone" data-match="h-cont"><span class="a2-placeholder">Drop Contribution</span></div></td>
+              </tr>
+              <tr>
+                <td class="row-header">Antonie Van Leeuwenhoek</td>
+                <td><div class="a2-drop-zone" data-match="l-yr"><span class="a2-placeholder">Drop Year</span></div></td>
+                <td><div class="a2-drop-zone" data-match="l-obs"><span class="a2-placeholder">Drop Observation</span></div></td>
+                <td><div class="a2-drop-zone" data-match="l-disc"><span class="a2-placeholder">Drop Discovery</span></div></td>
+                <td><div class="a2-drop-zone" data-match="l-cont"><span class="a2-placeholder">Drop Contribution</span></div></td>
+              </tr>
+              <tr>
+                <td class="row-header">Matthias Schleiden</td>
+                <td><div class="a2-drop-zone" data-match="s-yr"><span class="a2-placeholder">Drop Year</span></div></td>
+                <td><div class="a2-drop-zone" data-match="s-obs"><span class="a2-placeholder">Drop Observation</span></div></td>
+                <td><div class="a2-drop-zone" data-match="s-disc"><span class="a2-placeholder">Drop Discovery</span></div></td>
+                <td><div class="a2-drop-zone" data-match="s-cont"><span class="a2-placeholder">Drop Contribution</span></div></td>
+              </tr>
+              <tr>
+                <td class="row-header">Rudolf Virchow</td>
+                <td><div class="a2-drop-zone" data-match="v-yr"><span class="a2-placeholder">Drop Year</span></div></td>
+                <td><div class="a2-drop-zone" data-match="v-obs"><span class="a2-placeholder">Drop Observation</span></div></td>
+                <td><div class="a2-drop-zone" data-match="v-disc"><span class="a2-placeholder">Drop Discovery</span></div></td>
+                <td><div class="a2-drop-zone" data-match="v-cont"><span class="a2-placeholder">Drop Contribution</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Table</button>
+        <button class="btn btn-next" id="btn-next-4" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Cell Theory Timeline</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Organize the cell theory timeline. Drag the picture of each scientist and their corresponding discovery into the correct year they made it.</p>
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Images & Discoveries Pool:</h3>
+        <div class="a3-pool" id="a3-pool">
+          <div class="a3-draggable txt-drag" draggable="true" data-match="1838-txt">Concluded that all plants are composed of cells</div>
+          <div class="a3-draggable txt-drag" draggable="true" data-match="1665-txt">Discovered small box-like structures and named them “cells”.</div>
+          <div class="a3-draggable txt-drag" draggable="true" data-match="1855-txt">Proposed that new cells arise from existing cells</div>
+          <div class="a3-draggable txt-drag" draggable="true" data-match="1674-txt">Discovered living microorganisms (animalcules).</div>
+          
+          <div class="a3-draggable img-drag" draggable="true" data-match="1674-pic"><img src="../module1/scientist/1674.png" alt="Scientist 1674"></div>
+          <div class="a3-draggable img-drag" draggable="true" data-match="1855-pic"><img src="../module1/scientist/1855.png" alt="Scientist 1855"></div>
+          <div class="a3-draggable img-drag" draggable="true" data-match="1665-pic"><img src="../module1/scientist/1665.png" alt="Scientist 1665"></div>
+          <div class="a3-draggable img-drag" draggable="true" data-match="1838-pic"><img src="../module1/scientist/1838.png" alt="Scientist 1838"></div>
+        </div>
+
+        <div class="timeline-wrapper" style="overflow-x: auto; padding-bottom: 1rem;">
+          <div class="timeline-container" style="min-width: 700px; display: flex; flex-direction: column; gap: 0.5rem;">
+            
+            <div style="display: flex; justify-content: space-around; align-items: flex-end;">
+                <div style="flex:1; display:flex; justify-content:center; align-items:center;"><div style="font-weight:bold; font-size:1.2rem; color:var(--green-deep);">Scientist</div></div>
+                <div style="flex:2; display:flex; justify-content:center;"><div class="a3-drop-zone img-drop" id="a3-1" data-match="1665-pic"><span class="a3-placeholder">Drop Picture</span></div></div>
+                <div style="flex:2; display:flex; justify-content:center;"><div class="a3-drop-zone img-drop" id="a3-2" data-match="1674-pic"><span class="a3-placeholder">Drop Picture</span></div></div>
+                <div style="flex:2; display:flex; justify-content:center;"><div class="a3-drop-zone img-drop" id="a3-3" data-match="1838-pic"><span class="a3-placeholder">Drop Picture</span></div></div>
+                <div style="flex:2; display:flex; justify-content:center;"><div class="a3-drop-zone img-drop" id="a3-4" data-match="1855-pic"><span class="a3-placeholder">Drop Picture</span></div></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-around;">
+                <div style="flex:1;"></div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-around; align-items: center;">
+                <div style="flex:1;"></div>
+                <div style="flex:8; display:flex; border: 3px solid var(--ink); border-radius: 4px; background: white; padding: 0.8rem 0; font-size: 1.5rem; font-weight: 900; margin-left: 0.5rem; margin-right: 0.5rem;">
+                    <div style="flex:1; text-align:center;">1665</div>
+                    <div style="flex:1; text-align:center;">1674</div>
+                    <div style="flex:1; text-align:center;">1838</div>
+                    <div style="flex:1; text-align:center;">1855</div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-around;">
+                <div style="flex:1;"></div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+                <div style="flex:2; text-align:center; font-size:2rem; color:var(--green-deep);">⇩</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-around; align-items: flex-start;">
+                <div style="flex:1; display:flex; justify-content:center; align-items:center;"><div style="font-weight:bold; font-size:1.2rem; color:var(--green-deep);">Discovery</div></div>
+                <div style="flex:2; display:flex; justify-content:center; padding: 0 0.5rem;"><div class="a3-drop-zone txt-drop" id="a3-5" data-match="1665-txt"><span class="a3-placeholder">Drop Discovery</span></div></div>
+                <div style="flex:2; display:flex; justify-content:center; padding: 0 0.5rem;"><div class="a3-drop-zone txt-drop" id="a3-6" data-match="1674-txt"><span class="a3-placeholder">Drop Discovery</span></div></div>
+                <div style="flex:2; display:flex; justify-content:center; padding: 0 0.5rem;"><div class="a3-drop-zone txt-drop" id="a3-7" data-match="1838-txt"><span class="a3-placeholder">Drop Discovery</span></div></div>
+                <div style="flex:2; display:flex; justify-content:center; padding: 0 0.5rem;"><div class="a3-drop-zone txt-drop" id="a3-8" data-match="1855-txt"><span class="a3-placeholder">Drop Discovery</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: right; margin-bottom: 3rem;">
+          <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Timeline</button>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on what you've learned. Type your answers in the boxes below, then click "Reveal Answers" to check your understanding.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. What was Robert Hooke’s contribution to the study of cells?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Robert Hooke observed thin slices of cork under a microscope and was the first to describe and name “cells,” noting their box-like structure.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. How did Antonie van Leeuwenhoek’s discovery improve our understanding of living organisms?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Antonie van Leeuwenhoek was the first to observe living cells (microorganisms), showing that life exists at a microscopic level and expanding knowledge of living organisms beyond what the naked eye can see.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. What conclusion did Matthias Schleiden make about plants?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Matthias Schleiden concluded that all plants are made up of cells, establishing that the cell is the basic unit of plant structure.</div>
+          </div>
+          <div class="gq-item">
+            <label>4. What important idea did Rudolf Virchow introduce about the origin of cells?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Rudolf Virchow proposed that all cells come from pre-existing cells, summarized by the statement “Omnis cellula e cellula.”</div>
+          </div>
+          <div class="gq-item">
+            <label>5. Explain how the discoveries of these scientists contributed to the development of the Cell Theory.</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> The scientists collectively established the three main ideas of cell theory: (1) all living things are made of cells, (2) the cell is the basic unit of structure and function, and (3) all cells come from pre-existing cells. Their discoveries built upon one another to form a complete scientific theory.</div>
+          </div>
+          <div class="gq-item">
+            <label>6. Why is it important to study the historical development of scientific ideas like the Cell Theory?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Studying the history of scientific ideas helps us understand how knowledge develops over time, shows the importance of experimentation and evidence, and highlights how scientists build on each other’s work to improve our understanding of the natural world.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-reveal-gq" onclick="revealGQ()">Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-5" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 1.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A researcher studying plant tissues concluded that all plants are composed of cells. Later scientists expanded this idea to include animals. Which scientist made the original observation about plants?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Matthias Schleiden</label><label><input type="radio" name="pt1" value="b"> b. Rudolf Virchow</label><label><input type="radio" name="pt1" value="c"> c. Antonie van Leeuwenhoek</label><label><input type="radio" name="pt1" value="d"> d. Robert Hooke</label></div></div>
+          <div class="quiz-question"><p>2. A teacher asks students why Virchow’s statement “Omnis cellula e cellula” (all cells come from cells) is important. Which explanation best demonstrates higher-level understanding?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. It explains that cells are very small.</label><label><input type="radio" name="pt2" value="b"> b. It shows that living organisms grow through cell division.</label><label><input type="radio" name="pt2" value="c"> c. It proves microscopes are important tools.</label><label><input type="radio" name="pt2" value="d"> d. It explains why cork has cells.</label></div></div>
+          <div class="quiz-question"><p>3. A student says that Hooke and Leeuwenhoek made similar discoveries. Which explanation best evaluates this statement?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. They both discovered plant cells only.</label><label><input type="radio" name="pt3" value="b"> b. Hooke observed dead cork cells while Leeuwenhoek observed living microorganisms.</label><label><input type="radio" name="pt3" value="c"> c. They both proposed cell theory.</label><label><input type="radio" name="pt3" value="d"> d. They both studied only animal tissues.</label></div></div>
+          <div class="quiz-question"><p>4. A student created the following timeline: <br><br>• Leeuwenhoek observed microorganisms<br>• Hooke observed cork cells<br>• Virchow proposed that cells come from existing cells<br><br>What is the best critique of this timeline?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. The timeline is correct.</label><label><input type="radio" name="pt4" value="b"> b. Hooke’s discovery should come before Leeuwenhoek’s discovery.</label><label><input type="radio" name="pt4" value="c"> c. Virchow’s discovery should come before Hooke’s discovery.</label><label><input type="radio" name="pt4" value="d"> d. Leeuwenhoek’s discovery should come after Virchow’s discovery.</label></div></div>
+          <div class="quiz-question"><p>5. A science historian explains that the development of cell theory is an example of cumulative scientific knowledge. What does this mean?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. Scientific discoveries occur randomly.</label><label><input type="radio" name="pt5" value="b"> b. Scientific ideas build upon previous discoveries.</label><label><input type="radio" name="pt5" value="c"> c. Only one scientist develops scientific theories.</label><label><input type="radio" name="pt5" value="d"> d. Scientific discoveries are always made at the same time.</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module1_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module1_activity_completed') === 'true') lockActivity();
+    if (localStorage.getItem('module1_activity2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module1_activity3_completed') === 'true') lockActivity3();
+    
+    // Check GQ
+    if (localStorage.getItem('module1_gq_completed') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module1_gq_answers') || '[]');
+        document.querySelectorAll('.gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index];
+            ta.disabled = true;
+        });
+        document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+        document.getElementById('btn-reveal-gq').style.display = 'none';
+        document.getElementById('btn-next-5').style.display = 'inline-block';
+    }
+
+    if (localStorage.getItem('module1_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'c', q2: 'c', q3: 'b', q4: 'a', q5: 'b' }; 
+
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0;
+    const selections = {};
+
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+
+    localStorage.setItem('module1_quiz_completed', 'true'); 
+    localStorage.setItem('module1_quiz_name', name);
+    localStorage.setItem('module1_quiz_selections', JSON.stringify(selections));
+    
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module1_quiz_score', score);
+
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true);
+    document.getElementById('q-name').disabled = true;
+    
+    if(localStorage.getItem('module1_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module1_quiz_name');
+    
+    const selections = JSON.parse(localStorage.getItem('module1_quiz_selections') || '{}');
+    
+    // Check the saved boxes
+    for(let q in preTestAnswers) {
+        if(selections[q]) {
+            const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`);
+            if(input) input.checked = true;
+        }
+    }
+    
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+
+    const score = localStorage.getItem('module1_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); 
+    btn.innerText = `Submitted (Score: ${score}/5)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) {
+              score++;
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)';
+              if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)';
+              if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)';
+              if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else {
+            correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)';
+            if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+          }
+      }
+      return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE (Shared) ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) {
+    ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element');
+    document.body.appendChild(ghostElement); moveGhost(x, y);
+  }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const existing = dropZone.querySelector(`.${dragClass}`); if (existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        }
+        draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const existing = zone.querySelector(`.${dragClass}`); if (existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1
+  function updateZonesA1() { document.querySelectorAll('#lesson-3 .drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.draggable-quote') !== null)); }
+  setupDragAndDrop('quotes-pool', 'draggable-quote', 'drop-zone', updateZonesA1);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { document.querySelectorAll('#lesson-4 .a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  // Init Engine for Act 3
+  function updateZonesA3() { document.querySelectorAll('#lesson-5 .a3-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a3-draggable') !== null)); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION ───
+  function submitActivity() {
+    const name = document.getElementById('a-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    // Save State
+    const state = {};
+    document.querySelectorAll('#lesson-3 .drop-zone').forEach(z => {
+        const item = z.querySelector('.draggable-quote');
+        if(item) state[z.id] = item.getAttribute('data-match');
+    });
+    localStorage.setItem('module1_a1_state', JSON.stringify(state));
+    localStorage.setItem('module1_a1_name', name);
+    localStorage.setItem('module1_activity_completed', 'true');
+
+    const score = applyActivity1Visuals();
+    localStorage.setItem('module1_a1_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 4</h1>`, () => { lockActivity(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('#lesson-3 .drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match');
+      let correctNameStr = "";
+      if(correctMatch === 'hooke') correctNameStr = "Robert Hooke";
+      if(correctMatch === 'leeuwenhoek') correctNameStr = "A. van Leeuwenhoek";
+      if(correctMatch === 'schleiden') correctNameStr = "Matthias Schleiden";
+      if(correctMatch === 'virchow') correctNameStr = "Rudolf Virchow";
+
+      const item = zone.querySelector('.draggable-quote');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong);">Incorrect</span><br><br><strong style="color:var(--green-deep); font-size:0.7rem;">Correct:<br>${correctNameStr}</strong>`; }
+      } else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><br><strong style="color:var(--green-deep); font-size:0.7rem;">Correct:<br>${correctNameStr}</strong>`; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity() { 
+    document.getElementById('a-name').disabled = true; 
+    if(localStorage.getItem('module1_a1_name')) document.getElementById('a-name').value = localStorage.getItem('module1_a1_name');
+    
+    // Restore State
+    const state = JSON.parse(localStorage.getItem('module1_a1_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId);
+        const item = document.querySelector(`#quotes-pool .draggable-quote[data-match="${matchVal}"]`);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA1();
+    applyActivity1Visuals();
+
+    document.querySelectorAll('.draggable-quote').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('#lesson-3 .drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    
+    const score = localStorage.getItem('module1_a1_score') || 0;
+    const btn = document.getElementById('btn-submit-activity'); 
+    btn.innerText = `Submitted (Score: ${score}/4)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+
+  // ─── ACTIVITY 2 SUBMISSION ───
+  const a2_correctText = {
+      "h-yr": "1665", "h-obs": "Observed thin slices of cork...", "h-disc": "Discovered and named 'cells'", "h-cont": "First to identify and name cells...",
+      "l-yr": "1674", "l-obs": "Examined pond water, blood...", "l-disc": "First to observe living cells...", "l-cont": "Proved living organisms are made of cells",
+      "s-yr": "1838", "s-obs": "Studied plant tissues...", "s-disc": "Concluded all plants are made of cells", "s-cont": "Established cells as basic unit of plants",
+      "v-yr": "1855", "v-obs": "Studied cell division...", "v-disc": "Stated cells come from pre-existing cells", "v-cont": "Completed cell theory..."
+  };
+
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    // Save State
+    const state = [];
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => {
+        const item = zone.querySelector('.a2-draggable');
+        state.push(item ? item.getAttribute('data-match') : null);
+    });
+    localStorage.setItem('module1_a2_state', JSON.stringify(state));
+    localStorage.setItem('module1_activity2_name', name);
+    localStorage.setItem('module1_activity2_completed', 'true'); 
+    
+    const score = applyActivity2Visuals();
+    localStorage.setItem('module1_a2_score', score);
+
+    showModal("Table Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 16</h1>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${item.innerText}</span><br><strong style="font-size:0.7rem;">Correct: ${a2_correctText[correctMatch]}</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.a2-placeholder').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed: ${a2_correctText[correctMatch]}</strong>`; zone.querySelector('.a2-placeholder').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; 
+    if(localStorage.getItem('module1_activity2_name')) document.getElementById('a2-name').value = localStorage.getItem('module1_activity2_name'); 
+    
+    // Restore State
+    const state = JSON.parse(localStorage.getItem('module1_a2_state') || '[]');
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => {
+        if(state[index]) {
+            const item = document.querySelector(`#a2-pool .a2-draggable[data-match="${state[index]}"]`);
+            if(item) zone.appendChild(item);
+        }
+    });
+    updateZonesA2();
+    applyActivity2Visuals();
+
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    
+    const score = localStorage.getItem('module1_a2_score') || 0;
+    const btn = document.getElementById('btn-submit-a2'); 
+    btn.innerText = `Submitted (Score: ${score}/16)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-4').style.display = 'inline-block'; 
+  }
+
+
+  // ─── ACTIVITY 3 SUBMISSION ───
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name.");
+    
+    // Save State
+    const state = {};
+    document.querySelectorAll('.a3-drop-zone').forEach(z => {
+        const item = z.querySelector('.a3-draggable');
+        if(item) state[z.id] = item.getAttribute('data-match');
+    });
+    localStorage.setItem('module1_a3_state', JSON.stringify(state));
+    localStorage.setItem('module1_activity3_completed', 'true'); 
+    localStorage.setItem('module1_activity3_name', name);
+    
+    const score = applyActivity3Visuals();
+    localStorage.setItem('module1_a3_score', score);
+
+    showModal("Timeline Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 8</h1>`, () => { lockActivity3(); });
+  }
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; item.style.opacity = '0.5'; } // Just fade wrong answers in timeline
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; 
+    if(localStorage.getItem('module1_activity3_name')) document.getElementById('a3-name').value = localStorage.getItem('module1_activity3_name'); 
+    
+    // Restore State
+    const state = JSON.parse(localStorage.getItem('module1_a3_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId);
+        const item = document.querySelector(`#a3-pool .a3-draggable[data-match="${matchVal}"]`);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA3();
+    applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    
+    const score = localStorage.getItem('module1_a3_score') || 0;
+    const btn = document.getElementById('btn-submit-a3'); 
+    btn.innerText = `Submitted (Score: ${score}/8)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+  }
+
+  // ─── GUIDE QUESTIONS ───
+  function revealGQ() {
+    // Save
+    const gqAnswers = [];
+    document.querySelectorAll('.gq-item textarea').forEach(ta => {
+        gqAnswers.push(ta.value);
+        ta.disabled = true;
+    });
+    localStorage.setItem('module1_gq_answers', JSON.stringify(gqAnswers));
+    localStorage.setItem('module1_gq_completed', 'true');
+
+    document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+    document.getElementById('btn-reveal-gq').style.display = 'none';
+    document.getElementById('btn-next-5').style.display = 'inline-block';
+  }
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'a', pt2: 'b', pt3: 'b', pt4: 'b', pt5: 'b' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0;
+    const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module1_pt_completed', 'true'); 
+    localStorage.setItem('module1_pt_name', name);
+    localStorage.setItem('module1_pt_selections', JSON.stringify(selections));
+    
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    localStorage.setItem('module1_pt_score', score);
+
+    showModal("Module 1 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 1! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); 
+    document.getElementById('pt-name').disabled = true; 
+    
+    if(localStorage.getItem('module1_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module1_pt_name'); 
+    
+    const selections = JSON.parse(localStorage.getItem('module1_pt_selections') || '{}');
+    
+    // Check saved boxes
+    for(let q in postTestAnswers) {
+        if(selections[q]) {
+            const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`);
+            if(input) input.checked = true;
+        }
+    }
+
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+
+    const score = localStorage.getItem('module1_pt_score') || 0;
+    const btn = document.getElementById('btn-submit-pt'); 
+    btn.innerText = `Module Completed (Score: ${score}/5)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

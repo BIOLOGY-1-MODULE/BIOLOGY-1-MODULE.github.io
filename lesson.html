@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lessons: Cell Theory Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav {
+    background: var(--green-deep); padding: 1rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR (TABLE OF CONTENTS) ─── */
+  .sidebar {
+    width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2);
+    padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+  }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 33%; transition: width 0.4s ease; }
+
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item {
+    display: flex; align-items: center; gap: 1rem; padding: 1rem;
+    border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    border: 1px solid transparent; color: var(--muted);
+  }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  
+  .toc-num {
+    width: 28px; height: 28px; background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid);
+  }
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT AREA ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 800px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.1; }
+
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .info-callout {
+    background: white; border-left: 4px solid var(--amber); padding: 1.5rem;
+    border-radius: 0 12px 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    margin: 2rem 0; font-style: italic; color: #4b5563; line-height: 1.6;
+  }
+
+  /* ─── INTERACTIVE FLIP CARDS (For Module 2) ─── */
+  .flashcard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
+  .flashcard { background: transparent; height: 220px; perspective: 1000px; cursor: pointer; }
+  .flashcard-inner {
+    position: relative; width: 100%; height: 100%; text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+  .flashcard-front, .flashcard-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 16px; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(26,58,42,0.08); border: 1px solid rgba(82,183,136,0.2);
+  }
+  .flashcard-front { background: white; }
+  .flashcard-back { background: var(--green-deep); color: white; transform: rotateY(180deg); }
+  
+  .fc-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .fc-name { font-size: 1.25rem; font-weight: 700; color: var(--green-deep); }
+  .fc-year { font-family: 'DM Mono', monospace; font-size: 0.85rem; color: var(--green-mid); margin-top: 0.5rem; }
+  .flashcard-back p { font-size: 0.95rem; line-height: 1.5; color: var(--green-pale); margin: 0; }
+  .click-hint { font-size: 0.75rem; color: var(--muted); margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ─── BOTTOM CONTROLS ─── */
+  .lesson-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1);
+  }
+  .btn {
+    padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none;
+  }
+  .btn-next { background: var(--green-bright); color: var(--green-deep); }
+  .btn-next:hover { background: var(--green-mid); color: white; transform: translateY(-2px); }
+  .btn-activity { background: var(--amber); color: var(--ink); display: inline-flex; align-items: center; gap: 0.5rem; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; }
+    .content-area { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">🌿 Cell<span>Quest</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="activity.html" style="background: rgba(255,255,255,0.1); padding: 0.4rem 1rem; border-radius: 8px;">🧩 Go to Activity</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1">
+        <div class="toc-num">1</div>
+        <div>Introduction to Cells</div>
+      </li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2">
+        <div class="toc-num">2</div>
+        <div>The Scientists</div>
+      </li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3">
+        <div class="toc-num">3</div>
+        <div>Principles of Cell Theory</div>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header">
+        <div class="lesson-subtitle">Module 1</div>
+        <h1 class="lesson-title">What is a Cell?</h1>
+      </div>
+      <div class="lesson-body">
+        <p>A <strong>cell</strong> is the smallest structural and functional unit of all living organisms. Every living thing you see around you — from a tiny blade of grass to a giant blue whale, including yourself — is made entirely of cells.</p>
+        <p>Some organisms are made of only one single cell (we call these <em>unicellular</em> organisms, like bacteria). Others, like humans, are made of trillions of cells working together (<em>multicellular</em> organisms).</p>
+        
+        <div class="info-callout">
+          💡 <strong>Did you know?</strong> The human body contains an estimated 30 to 40 trillion cells. There are over 200 different types of cells in your body, each with a specific job, like carrying oxygen or fighting off viruses!
+        </div>
+
+        <p>Cells are incredibly busy. They carry out all the processes necessary for life: they take in nutrients, convert those nutrients into energy, carry out specialized functions, and reproduce as necessary. Understanding the cell is the absolute foundation of all biology.</p>
+      </div>
+      <div class="lesson-controls">
+        <div></div> <button class="btn btn-next" onclick="completeAndNext(1)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header">
+        <div class="lesson-subtitle">Module 2</div>
+        <h1 class="lesson-title">The Historic Scientists</h1>
+      </div>
+      <div class="lesson-body">
+        <p>The discovery of cells wasn't a one-day event. Because cells are (usually) too small to be seen with the naked eye, their discovery had to wait for the invention of the microscope. Over nearly two centuries, four key scientists pieced together the puzzle of life.</p>
+        <p><strong>Click on the cards below</strong> to reveal the major discovery each scientist contributed to biology:</p>
+
+        <div class="flashcard-grid">
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="flashcard-front">
+                <div class="fc-icon">🔭</div>
+                <div class="fc-name">Robert Hooke</div>
+                <div class="fc-year">1665</div>
+                <div class="click-hint">Click to flip ↺</div>
+              </div>
+              <div class="flashcard-back">
+                <p>Observed a slice of cork under a microscope. He saw tiny box-like compartments and named them <strong>"cells"</strong> because they reminded him of monastery rooms.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="flashcard-front">
+                <div class="fc-icon">🦠</div>
+                <div class="fc-name">A. van Leeuwenhoek</div>
+                <div class="fc-year">1674</div>
+                <div class="click-hint">Click to flip ↺</div>
+              </div>
+              <div class="flashcard-back">
+                <p>Improved the microscope lenses. He was the first to observe living microorganisms in pond water, which he famously called <strong>"animalcules"</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="flashcard-front">
+                <div class="fc-icon">🌿</div>
+                <div class="fc-name">Matthias Schleiden</div>
+                <div class="fc-year">1838</div>
+                <div class="click-hint">Click to flip ↺</div>
+              </div>
+              <div class="flashcard-back">
+                <p>A botanist who studied plant structures. He concluded that <strong>all plants</strong> are composed entirely of cells.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+              <div class="flashcard-front">
+                <div class="fc-icon">⚕️</div>
+                <div class="fc-name">Rudolf Virchow</div>
+                <div class="fc-year">1855</div>
+                <div class="click-hint">Click to flip ↺</div>
+              </div>
+              <div class="flashcard-back">
+                <p>Proposed the revolutionary idea that <strong>new cells arise only from pre-existing cells</strong>, dispelling the myth of spontaneous generation.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-next" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header">
+        <div class="lesson-subtitle">Module 3</div>
+        <h1 class="lesson-title">The Cell Theory</h1>
+      </div>
+      <div class="lesson-body">
+        <p>By combining the observations of Hooke, Leeuwenhoek, Schleiden, Schwann (who did for animals what Schleiden did for plants), and Virchow, science arrived at a unified concept.</p>
+        <p>The <strong>Cell Theory</strong> is one of the foundational principles of biology. It consists of three core tenets:</p>
+
+        <div style="background: white; border-radius: 16px; padding: 2rem; margin: 2rem 0; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid rgba(82,183,136,0.3);">
+          <ol style="margin-left: 1.5rem; font-size: 1.1rem; line-height: 2; color: var(--green-deep);">
+            <li><strong style="color: var(--green-bright);">All living organisms</strong> are composed of one or more cells.</li>
+            <li>The cell is the <strong style="color: var(--green-bright);">basic unit of structure and organization</strong> in organisms.</li>
+            <li>Cells arise <strong style="color: var(--green-bright);">only from pre-existing cells</strong>.</li>
+          </ol>
+        </div>
+
+        <p>This theory revolutionized medicine and science. Understanding that diseases affect cells — and that life doesn't just spontaneously appear from thin air — helped doctors figure out how infections spread and how the body heals itself.</p>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <a href="activity.html" class="btn btn-activity">Take the Module Quiz 🧩</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+
+  function switchLesson(lessonNum) {
+    // Hide all lessons
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    // Deactivate all TOC items
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    
+    // Show selected
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+
+    // Scroll to top of content
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    // Mark current as completed visually in the sidebar
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    
+    // Update progress bar logic
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted + 1) / 3) * 100; // 3 total lessons
+      document.getElementById('progress-bar').style.width = `${Math.min(progressPercentage, 100)}%`;
+    }
+
+    // Move to next
+    switchLesson(currentLesson + 1);
+  }
+</script>
+</body>
+</html>

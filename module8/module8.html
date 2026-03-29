@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 8: Repair, Regeneration, and Reproduction</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+    --chrom-blue: #3b82f6; --chrom-red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 16.6%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 2rem 0; border: 4px solid var(--green-pale); }
+  .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input[type="text"] { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; transition: border-color 0.3s; }
+  .input-group input[type="text"]:focus { border-color: var(--green-mid); outline: none; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; position: relative; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.8rem; font-weight: 700; color: rgba(26,58,42,0.6); pointer-events: none; }
+
+  /* ─── TABLES FOR ACTIVITY 1 & 3 ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: center; font-size: 1rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; text-align: center; }
+  
+  .a1-drop-zone, .a3-drop-zone { min-height: 80px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a1-drop-zone.drag-over, .a3-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a1-drop-zone.filled, .a3-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a1-drop-zone.filled .draggable-item, .a3-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; white-space: normal;}
+  .a1-drop-zone.filled .placeholder-text, .a3-drop-zone.filled .placeholder-text { display: none; }
+  
+  .draggable-item.long-text { font-size: 0.75rem; font-weight: 500; max-width: 320px; line-height: 1.3; }
+  .td-img { width: 120px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+  /* ─── ACTIVITY 2: THE MEIOSIS GAMETE LAB (CSS WIDGET) ─── */
+  .lab-container { background: #f8fafc; border: 2px solid var(--green-pale); border-radius: 16px; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; box-shadow: inset 0 4px 12px rgba(0,0,0,0.02); width: 100%; }
+  .lab-instructions { background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--amber); width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1rem; text-align: center;}
+  .lab-instructions h3 { margin-bottom: 0.5rem; color: var(--ink); font-size: 1.2rem; }
+  
+  .meiosis-board { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 1rem; position: relative;}
+  
+  /* Parent Cells */
+  .parent-cells { display: flex; gap: 4rem; margin-bottom: 2rem; position: relative;}
+  .cell-circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--green-mid); background: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
+  .cell-circle::after { content: 'Meiosis I'; position: absolute; top: -25px; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; white-space: nowrap;}
+  
+  /* Chromatid Shapes (Inside Pool & Dropzones) */
+  .chromatid { width: 14px; height: 70px; border-radius: 7px; display: flex; flex-direction: column; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1); cursor: grab; }
+  .chromatid::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 18px; height: 10px; border-radius: 50%; background: #eab308; box-shadow: 0 1px 2px rgba(0,0,0,0.3); z-index: 5; }
+  
+  .solid-blue { background: var(--chrom-blue); }
+  .solid-red { background: var(--chrom-red); }
+  .rec-blue { background: linear-gradient(to bottom, var(--chrom-blue) 75%, var(--chrom-red) 75%); }
+  .rec-red { background: linear-gradient(to bottom, var(--chrom-red) 75%, var(--chrom-blue) 75%); }
+
+  /* Arrows */
+  .division-arrows { display: flex; justify-content: center; gap: 6rem; width: 100%; margin-bottom: 1rem; color: var(--green-mid); font-size: 2rem; font-weight: 900;}
+
+  /* Gamete Drop Zones */
+  .gametes-row { display: flex; gap: 1.5rem; justify-content: center; width: 100%; flex-wrap: wrap;}
+  .gamete-zone { width: 90px; height: 90px; border-radius: 50%; border: 3px dashed var(--green-bright); background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; flex-direction: column;}
+  .gamete-zone.drag-over { background: var(--green-pale); border-color: var(--green-deep); transform: scale(1.05); }
+  .gamete-zone.filled { border: 3px solid var(--green-deep); background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .gamete-zone .placeholder-text { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; text-align: center; line-height: 1.1;}
+  .gamete-zone.filled .placeholder-text { display: none; }
+  .gamete-zone.filled .draggable-item { padding: 0; background: transparent; border: none; box-shadow: none; display: flex; justify-content: center; align-items: center; }
+
+  /* Override Ghost for Chromatids */
+  .ghost-element.chromatid { padding: 0; border: 1px solid white; opacity: 0.9; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .draggable-item.long-text { max-width: 100%; font-size: 0.65rem;}
+    .gametes-row { gap: 0.5rem; }
+    .division-arrows { gap: 3rem; }
+    .parent-cells { gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 8 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 8: Repair & Reprod.</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Mitosis Effect</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Meiosis Shuffle</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Division Showdown</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which process is primarily responsible for growth and repair of body tissues?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Meiosis</label><label><input type="radio" name="q1" value="b"> b. Binary fission</label><label><input type="radio" name="q1" value="c"> c. Mitosis</label><label><input type="radio" name="q1" value="d"> d. Fertilization</label></div></div>
+          <div class="quiz-question"><p>2. What is the main function of meiosis?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. To produce identical body cells</label><label><input type="radio" name="q2" value="b"> b. To repair damaged tissues</label><label><input type="radio" name="q2" value="c"> c. To produce haploid gametes for reproduction</label><label><input type="radio" name="q2" value="d"> d. To increase cell size</label></div></div>
+          <div class="quiz-question"><p>3. Why is mitosis important in wound healing?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. It reduces chromosome number</label><label><input type="radio" name="q3" value="b"> b. It produces genetically identical cells</label><label><input type="radio" name="q3" value="c"> c. It creates genetic variation</label><label><input type="radio" name="q3" value="d"> d. It stops cell division</label></div></div>
+          <div class="quiz-question"><p>4. Which statement best describes the importance of meiosis?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. It maintains the same chromosome number in body cells</label><label><input type="radio" name="q4" value="b"> b. It produces identical daughter cells</label><label><input type="radio" name="q4" value="c"> c. It ensures genetic variation in offspring</label><label><input type="radio" name="q4" value="d"> d. It occurs only in damaged tissues</label></div></div>
+          <div class="quiz-question"><p>5. If mitosis did not occur in an organism, what would most likely happen?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. The organism would reproduce faster</label><label><input type="radio" name="q5" value="b"> b. The organism would not grow or repair tissues</label><label><input type="radio" name="q5" value="c"> c. The organism would produce gametes</label><label><input type="radio" name="q5" value="d"> d. The organism would have more genetic variation</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 8: Repair, Regeneration, and Reproduction</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand how mitosis is essential for cell repair and regeneration and meiosis for reproduction. In this lesson, you will explore how cell division is important in maintaining life’s homeostasis.</p>
+        
+        <p>Living organisms rely on cell division to maintain life, and two key processes—mitosis and meiosis—play essential roles in repair, regeneration, and reproduction.</p>
+        
+        <p><strong>Mitosis</strong> is responsible for producing genetically identical cells, making it vital for the growth of organisms and the repair of damaged tissue. On the other hand, <strong>meiosis</strong> is involved in reproduction. Together, mitosis ensures the maintenance and survival of the individual organism, while meiosis supports the continuation of the species through reproduction.</p>
+
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Describe the role of mitosis in organismal growth, tissue repair, and regeneration of damaged cells.</li>
+          <li>Explain how meiosis contributes to sexual reproduction by producing haploid gametes.</li>
+          <li>Analyze the importance of mitosis and meiosis in maintaining life processes and ensuring genetic continuity and variation.</li>
+        </ul>
+
+        <h2 style="color: var(--green-deep); margin: 2.5rem 0 1rem 0;">Watch to Learn More</h2>
+        <div class="video-container">
+            <iframe src="https://youtu.be/NR9zTvMg-pE?si=txYd0_GwQIPCU9Rd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: From Damage to Recovery</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> The Mitosis Effect. For each situation, identify how mitosis is involved by describing its role in the process and its outcome. Drag the correct text into the table.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="r1">Mitosis produces new cells, allowing the body to grow and develop.</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="o1">The organism increases in size and develops properly.</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="r2">Mitosis replaces damaged or dead cells with new identical cells.</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="o2">The wound heals and the tissue is restored.</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="r3">Mitosis enables cells to divide and regenerate lost or damaged body parts.</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="o3">The organism regrows missing structures or body parts.</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr><th>Situation</th><th>Role of Mitosis</th><th>Outcome</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="width: 25%;"><img src="activity1_1.png" alt="Growth" class="td-img"><br><strong>1. Growth (child to adult)</strong></td>
+                <td><div class="a1-drop-zone" data-match="r1"><span class="placeholder-text">Drop Role Here</span></div></td>
+                <td><div class="a1-drop-zone" data-match="o1"><span class="placeholder-text">Drop Outcome Here</span></div></td>
+              </tr>
+              <tr>
+                <td><img src="activity1_2.png" alt="Wound Healing" class="td-img"><br><strong>2. Wound Healing (cut skin repairing)</strong></td>
+                <td><div class="a1-drop-zone" data-match="r2"><span class="placeholder-text">Drop Role Here</span></div></td>
+                <td><div class="a1-drop-zone" data-match="o2"><span class="placeholder-text">Drop Outcome Here</span></div></td>
+              </tr>
+              <tr>
+                <td><img src="activity1_3.png" alt="Regeneration" class="td-img"><br><strong>3. Regeneration (starfish)</strong></td>
+                <td><div class="a1-drop-zone" data-match="r3"><span class="placeholder-text">Drop Role Here</span></div></td>
+                <td><div class="a1-drop-zone" data-match="o3"><span class="placeholder-text">Drop Outcome Here</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on the activity. Type your answers below.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item" id="gq1-1">
+            <label>1. How does mitosis help in each situation (growth, wound healing, and tissue regeneration)?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Mitosis helps growth by increasing the number of cells in the body. In wound healing, it replaces damaged or dead cells with new ones. In tissue regeneration, it allows organisms to regrow lost or injured body parts.</div>
+          </div>
+          <div class="gq-item" id="gq1-2">
+            <label>2. What happens to the cells before, during, and after mitosis in these processes?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Before mitosis, the cell grows and copies its DNA. During mitosis, the nucleus divides and chromosomes are separated evenly. After mitosis, the cell divides into two identical daughter cells that continue to function normally.</div>
+          </div>
+          <div class="gq-item" id="gq1-3">
+            <label>3. Why is it important that the new cells produced by mitosis are identical to the original cells?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> It is important because identical cells ensure that tissues function properly, maintain the same genetic information, and keep the body stable and healthy.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: The Chromosome Shuffle</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Creating Life Through Meiosis. Read carefully the scenario given and accomplish the digital simulation task to complete this activity.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an individual chromatid from the pool below, then tap an empty gamete cell to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="lab-instructions" style="margin-bottom: 2rem;">
+            <h3>🔬 Scenario & Task</h3>
+            <p style="font-size: 0.95rem; color: var(--muted);">You are a genetic scientist studying how organisms reproduce. A couple is curious about how their child inherits traits from both parents. You must explain how meiosis produces haploid gametes (sperm and egg cells) and how this process ensures genetic variation.<br><br><strong>Task:</strong> You will simulate the final stage of meiosis. The cell has already undergone crossing over and Meiosis I. Now, simulate <strong>Meiosis II</strong> by dragging the 4 individual chromatids from the pool into the 4 resulting haploid gametes.</p>
+        </div>
+
+        <div class="lab-container dnd-container">
+            
+            <div class="meiosis-board">
+                <div class="parent-cells">
+                    <div class="cell-circle">
+                        <div style="display:flex; gap:2px; position:relative;">
+                            <div class="chromatid solid-blue" style="border:none; box-shadow:none; border-radius: 7px 0 0 7px; border-right: 1px solid rgba(0,0,0,0.1);"></div>
+                            <div class="chromatid rec-blue" style="border:none; box-shadow:none; border-radius: 0 7px 7px 0;"></div>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:18px; height:10px; border-radius:50%; background:#eab308; box-shadow:0 1px 2px rgba(0,0,0,0.3); z-index:5;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="cell-circle">
+                        <div style="display:flex; gap:2px; position:relative;">
+                            <div class="chromatid rec-red" style="border:none; box-shadow:none; border-radius: 7px 0 0 7px; border-right: 1px solid rgba(0,0,0,0.1);"></div>
+                            <div class="chromatid solid-red" style="border:none; box-shadow:none; border-radius: 0 7px 7px 0;"></div>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:18px; height:10px; border-radius:50%; background:#eab308; box-shadow:0 1px 2px rgba(0,0,0,0.3); z-index:5;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="division-arrows">
+                    <div style="transform: rotate(20deg); margin-right: 20px;">↓</div>
+                    <div style="transform: rotate(-20deg); margin-left: 20px;">↓</div>
+                </div>
+
+                <div class="gametes-row">
+                    <div class="a2-drop-zone gamete-zone" id="g-1" data-match="c1"><span class="placeholder-text">Gamete<br>1</span></div>
+                    <div class="a2-drop-zone gamete-zone" id="g-2" data-match="c2"><span class="placeholder-text">Gamete<br>2</span></div>
+                    <div class="a2-drop-zone gamete-zone" id="g-3" data-match="c3"><span class="placeholder-text">Gamete<br>3</span></div>
+                    <div class="a2-drop-zone gamete-zone" id="g-4" data-match="c4"><span class="placeholder-text">Gamete<br>4</span></div>
+                </div>
+            </div>
+
+            <div class="pool" id="a2-pool" style="margin-top: 2rem; width: 100%;">
+                <div class="draggable-item a2-draggable chromatid rec-red" draggable="true" data-match="c3"></div>
+                <div class="draggable-item a2-draggable chromatid solid-blue" draggable="true" data-match="c1"></div>
+                <div class="draggable-item a2-draggable chromatid solid-red" draggable="true" data-match="c4"></div>
+                <div class="draggable-item a2-draggable chromatid rec-blue" draggable="true" data-match="c2"></div>
+            </div>
+
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on the meiosis simulation. Type your answers below.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item" id="gq2-1">
+            <label>1. What happens to the chromosome number during meiosis?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> The chromosome number is reduced by half, from diploid (2n) to haploid (n).</div>
+          </div>
+          <div class="gq-item" id="gq2-2">
+            <label>2. How are haploid gametes formed from a diploid cell?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> A diploid cell undergoes two divisions (Meiosis I and Meiosis II), separating homologous chromosomes and then sister chromatids, resulting in four haploid gametes.</div>
+          </div>
+          <div class="gq-item" id="gq2-3">
+            <label>3. Why is it important that gametes are haploid in sexual reproduction?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> It is important so that when two gametes unite during fertilization, the normal diploid chromosome number is restored, maintaining the correct number of chromosomes in the offspring.</div>
+          </div>
+          <div class="gq-item" id="gq2-4">
+            <label>4. How does meiosis contribute to genetic variation?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Meiosis increases genetic variation through crossing over (exchange of genetic material) and independent assortment (random arrangement of chromosomes).</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Simulation & Reveal</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(5)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Cell Division Showdown</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Growth vs Reproduction. Complete the table below about the importance of mitosis and meiosis in maintaining life processes by dragging the phrases to the correct boxes.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a phrase to select it, then tap the empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Phrases Pool:</h3>
+        <div class="pool" id="a3-pool">
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-g-mit">Increases the number of body cells for growth and development</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-rp-mit">Replaces damaged or dead cells with identical cells</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-rg-mit">Allows regrowth of tissues or body parts</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-re-mit">Produces new cells to restore lost or damaged tissues</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-g-mei">Does not contribute to growth</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-rp-mei">Does not function in repair</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-rg-mei">Does not function in regeneration</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="a3-re-mei">Produces haploid gametes for sexual reproduction</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th style="width: 20%;">Function</th>
+                  <th style="width: 40%;">Mitosis</th>
+                  <th style="width: 40%;">Meiosis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:700; color:var(--green-deep);">Growth</td>
+                <td><div class="a3-drop-zone" id="dz-g-mit" data-match="a3-g-mit"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-g-mei" data-match="a3-g-mei"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700; color:var(--green-deep);">Repair</td>
+                <td><div class="a3-drop-zone" id="dz-rp-mit" data-match="a3-rp-mit"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-rp-mei" data-match="a3-rp-mei"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700; color:var(--green-deep);">Regeneration</td>
+                <td><div class="a3-drop-zone" id="dz-rg-mit" data-match="a3-rg-mit"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-rg-mei" data-match="a3-rg-mei"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700; color:var(--green-deep);">Reproduction</td>
+                <td><div class="a3-drop-zone" id="dz-re-mit" data-match="a3-re-mit"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-re-mei" data-match="a3-re-mei"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on your answers. Type them below, then submit to reveal the correct responses.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. How does mitosis support growth, repair, and regeneration in organisms?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Mitosis supports growth by increasing the number of cells in an organism. It helps repair by replacing damaged or dead cells with new identical ones. In regeneration, mitosis allows organisms to regrow lost or injured body parts by producing new cells.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. Why is meiosis essential for reproduction but not for growth or repair?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Meiosis is essential for reproduction because it produces haploid gametes (sperm and egg) needed for sexual reproduction. It is not used for growth or repair because it creates genetically different cells and reduces chromosome number, which is not suitable for maintaining body tissues.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. How do the roles of mitosis and meiosis complement each other in maintaining life?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Mitosis maintains the body by producing identical cells for growth and repair, while meiosis ensures reproduction by creating gametes with genetic variation. Together, they support both the survival of the individual and the continuation of the species.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 8.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A patient has a wound that does not heal properly because cell division is impaired. Which process is most likely affected, and why?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Meiosis, because gametes are not formed</label><label><input type="radio" name="pt1" value="b"> b. Mitosis, because new identical cells are not produced</label><label><input type="radio" name="pt1" value="c"> c. Binary fission, because bacteria are not dividing</label><label><input type="radio" name="pt1" value="d"> d. Fertilization, because chromosomes are not combining</label></div></div>
+          <div class="quiz-question"><p>2. Why would replacing meiosis with mitosis in reproductive organs be problematic?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. It would produce haploid gametes</label><label><input type="radio" name="pt2" value="b"> b. It would reduce chromosome number too much</label><label><input type="radio" name="pt2" value="c"> c. It would produce diploid gametes, causing chromosome doubling after fertilization</label><label><input type="radio" name="pt2" value="d"> d. It would stop cell division completely</label></div></div>
+          <div class="quiz-question"><p>3. A species loses the ability to undergo mitosis but can still perform meiosis. What is the most likely consequence?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. The organism can grow but not reproduce</label><label><input type="radio" name="pt3" value="b"> b. The organism can reproduce but cannot grow or repair tissues</label><label><input type="radio" name="pt3" value="c"> c. The organism cannot reproduce or grow</label><label><input type="radio" name="pt3" value="d"> d. The organism will have more genetic variation</label></div></div>
+          <div class="quiz-question"><p>4. Which situation best demonstrates the complementary roles of mitosis and meiosis?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Mitosis produces gametes, while meiosis repairs tissues</label><label><input type="radio" name="pt4" value="b"> b. Mitosis repairs tissues, while meiosis produces gametes for reproduction</label><label><input type="radio" name="pt4" value="c"> c. Both processes produce identical cells for growth</label><label><input type="radio" name="pt4" value="d"> d. Both processes reduce chromosome number</label></div></div>
+          <div class="quiz-question"><p>5. If meiosis did not introduce genetic variation, what would be the most likely long-term effect on a species?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. Increased survival and adaptation</label><label><input type="radio" name="pt5" value="b"> b. No change in reproduction</label><label><input type="radio" name="pt5" value="c"> c. Reduced ability to adapt to environmental changes</label><label><input type="radio" name="pt5" value="d"> d. Faster growth of organisms</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module8_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module8_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module8_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module8_a3_completed') === 'true') lockActivity3();
+    if (localStorage.getItem('module8_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'c', q2: 'c', q3: 'b', q4: 'c', q5: 'b' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module8_quiz_completed', 'true'); localStorage.setItem('module8_quiz_name', name); localStorage.setItem('module8_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module8_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module8_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module8_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module8_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module8_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a1-draggable') !== null)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  function updateZonesA3() { document.querySelectorAll('.a3-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a3-draggable') !== null)); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION ───
+  const a1_correctText = {
+      "r1": "Mitosis produces new cells, allowing the body to grow...", "o1": "The organism increases in size and develops properly.",
+      "r2": "Mitosis replaces damaged or dead cells with new identical cells.", "o2": "The wound heals and the tissue is restored.",
+      "r3": "Mitosis enables cells to divide and regenerate lost or damaged body parts.", "o3": "The organism regrows missing structures or body parts."
+  };
+
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(z => { const item = z.querySelector('.a1-draggable'); if(item) state[z.getAttribute('data-match')] = item.getAttribute('data-match'); });
+    localStorage.setItem('module8_a1_state', JSON.stringify(state)); localStorage.setItem('module8_a1_name', name); localStorage.setItem('module8_a1_completed', 'true');
+    const score = applyActivity1Visuals(); localStorage.setItem('module8_a1_score', score);
+
+    // Save Guide Questions
+    const gqAnswers = []; document.querySelectorAll('#lesson-3 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module8_gq_answers_a1', JSON.stringify(gqAnswers)); localStorage.setItem('module8_gq_completed_a1', 'true');
+    document.querySelectorAll('#lesson-3 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 6</h1><p>Your reflection answers have also been revealed on the screen!</p>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a1-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a1_correctText[correctMatch].substring(0, 30)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a1_correctText[correctMatch].substring(0, 30)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module8_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module8_a1_name'); 
+    const state = JSON.parse(localStorage.getItem('module8_a1_state') || '{}');
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+        const correctMatch = zone.getAttribute('data-match');
+        if(state[correctMatch]) { const item = Array.from(document.querySelectorAll(`#a1-pool .a1-draggable`)).find(el => el.getAttribute('data-match') === state[correctMatch]); if(item) zone.appendChild(item); }
+    });
+    updateZonesA1(); applyActivity1Visuals();
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module8_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/6)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+    
+    if (localStorage.getItem('module8_gq_completed_a1') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module8_gq_answers_a1') || '[]');
+        document.querySelectorAll('#lesson-3 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-3 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION (GAMETE LAB) ───
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = {};
+    document.querySelectorAll('.a2-drop-zone').forEach(z => { const item = z.querySelector('.a2-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module8_a2_state', JSON.stringify(state)); localStorage.setItem('module8_a2_name', name); localStorage.setItem('module8_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module8_a2_score', score);
+    
+    // Save GQ
+    const gqAnswers = []; document.querySelectorAll('#lesson-4 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module8_gq_answers_a2', JSON.stringify(gqAnswers)); localStorage.setItem('module8_gq_completed_a2', 'true');
+    document.querySelectorAll('#lesson-4 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Lab Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 4</h1><p>Your reflection answers have also been revealed on the screen behind this popup!</p>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; item.style.boxShadow = '0 0 0 4px var(--green-bright)'; } 
+        else { item.style.boxShadow = '0 0 0 4px var(--red-wrong)'; }
+      } else { zone.style.border = '3px dashed var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module8_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module8_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module8_a2_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a2-pool .a2-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module8_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/4)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+    
+    if (localStorage.getItem('module8_gq_completed_a2') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module8_gq_answers_a2') || '[]');
+        document.querySelectorAll('#lesson-4 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-4 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (TABLE) ───
+  const a3_correctText = {
+      "a3-g-mit": "Increases the number of body cells for growth and development", "a3-g-mei": "Does not contribute to growth",
+      "a3-rp-mit": "Replaces damaged or dead cells with identical cells", "a3-rp-mei": "Does not function in repair",
+      "a3-rg-mit": "Allows regrowth of tissues or body parts", "a3-rg-mei": "Does not function in regeneration",
+      "a3-re-mit": "Produces new cells to restore lost or damaged tissues", "a3-re-mei": "Produces haploid gametes for sexual reproduction"
+  };
+
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a3-drop-zone').forEach(z => { const item = z.querySelector('.a3-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module8_a3_state', JSON.stringify(state)); localStorage.setItem('module8_a3_completed', 'true'); localStorage.setItem('module8_a3_name', name);
+    const score = applyActivity3Visuals(); localStorage.setItem('module8_a3_score', score);
+
+    // Save Guide Questions
+    const gqAnswers = []; document.querySelectorAll('#lesson-5 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module8_gq_answers_a3', JSON.stringify(gqAnswers)); localStorage.setItem('module8_gq_completed_a3', 'true');
+    document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Comparison Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 8</h1><p>Your reflection answers have also been revealed on the screen!</p>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch].substring(0,25)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch].substring(0,25)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module8_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module8_a3_name'); 
+    const state = JSON.parse(localStorage.getItem('module8_a3_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a3-pool .a3-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA3(); applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module8_a3_score') || 0; const btn = document.getElementById('btn-submit-a3'); btn.innerText = `Submitted (Score: ${score}/8)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block';
+    
+    if (localStorage.getItem('module8_gq_completed_a3') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module8_gq_answers_a3') || '[]');
+        document.querySelectorAll('#lesson-5 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'b', pt2: 'c', pt3: 'b', pt4: 'b', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module8_pt_completed', 'true'); localStorage.setItem('module8_pt_name', name); localStorage.setItem('module8_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module8_pt_score', score);
+
+    showModal("Module 8 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 8! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module8_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module8_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module8_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module8_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

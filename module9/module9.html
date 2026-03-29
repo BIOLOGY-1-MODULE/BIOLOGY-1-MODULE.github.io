@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 9: Cell Transport Mechanisms</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 16.6%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input[type="text"] { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; transition: border-color 0.3s; }
+  .input-group input[type="text"]:focus { border-color: var(--green-mid); outline: none; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; position: relative; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.8rem; font-weight: 700; color: rgba(26,58,42,0.6); pointer-events: none; }
+
+  /* ─── TABLES FOR ACTIVITY 1, 2 & 3 ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: center; font-size: 1rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; text-align: center; }
+  .analysis-table td:first-child { font-weight: 700; color: var(--green-deep); background: var(--green-pale); text-align: left; }
+  
+  .a1-drop-zone, .a2-drop-zone, .a3-drop-zone { min-height: 80px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a1-drop-zone.drag-over, .a2-drop-zone.drag-over, .a3-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a1-drop-zone.filled, .a2-drop-zone.filled, .a3-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a1-drop-zone.filled .draggable-item, .a2-drop-zone.filled .draggable-item, .a3-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; white-space: normal;}
+  .a1-drop-zone.filled .placeholder-text, .a2-drop-zone.filled .placeholder-text, .a3-drop-zone.filled .placeholder-text { display: none; }
+  
+  .draggable-item.long-text { font-size: 0.8rem; font-weight: 500; max-width: 320px; line-height: 1.4; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .draggable-item.long-text { max-width: 100%; font-size: 0.7rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 9 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 9: Cell Transport</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Passive Transport</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Active Transport</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Transport Battle</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which type of transport does NOT require energy from the cell?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Active transport</label><label><input type="radio" name="q1" value="b"> b. Endocytosis</label><label><input type="radio" name="q1" value="c"> c. Passive transport</label><label><input type="radio" name="q1" value="d"> d. Exocytosis</label></div></div>
+          <div class="quiz-question"><p>2. What happens during diffusion?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. Movement of water across a membrane</label><label><input type="radio" name="q2" value="b"> b. Movement of molecules from high to low concentration</label><label><input type="radio" name="q2" value="c"> c. Movement of molecules using energy</label><label><input type="radio" name="q2" value="d"> d. Movement of large particles into the cell</label></div></div>
+          <div class="quiz-question"><p>3. Which process specifically involves the movement of water across a selectively permeable membrane?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. Diffusion</label><label><input type="radio" name="q3" value="b"> b. Facilitated diffusion</label><label><input type="radio" name="q3" value="c"> c. Osmosis</label><label><input type="radio" name="q3" value="d"> d. Active transport</label></div></div>
+          <div class="quiz-question"><p>4. Which of the following requires energy (ATP)?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Diffusion</label><label><input type="radio" name="q4" value="b"> b. Osmosis</label><label><input type="radio" name="q4" value="c"> c. Facilitated diffusion</label><label><input type="radio" name="q4" value="d"> d. Active transport</label></div></div>
+          <div class="quiz-question"><p>5. Which process allows materials to enter the cell by forming a vesicle?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. Exocytosis</label><label><input type="radio" name="q5" value="b"> b. Diffusion</label><label><input type="radio" name="q5" value="c"> c. Endocytosis</label><label><input type="radio" name="q5" value="d"> d. Osmosis</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 9: Cell Transport Mechanisms</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the Cell Transport Mechanism. In this lesson, you will explore the difference between passive and active transport, their energy use, direction of movement, and mechanisms involved.</p>
+        
+        <p>Cells maintain balance by controlling how substances move in and out through the cell membrane. This occurs through <strong>passive transport</strong> (diffusion, osmosis, and facilitated diffusion), which does not require energy, and <strong>active transport</strong> (pumps, endocytosis, and exocytosis), which uses energy to move materials. These transport mechanisms are essential for maintaining homeostasis and supporting cell survival.</p>
+
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Identify and describe the different types of passive transport (diffusion, osmosis, and facilitated diffusion) and explain how substances move across the cell membrane without energy.</li>
+          <li>Explain the processes of active transport (membrane pumps, endocytosis, and exocytosis), including how energy is used to move substances against the concentration gradient.</li>
+          <li>Compare and differentiate passive and active transport in terms of energy use, direction of movement, and mechanisms involved.</li>
+        </ul>
+
+        <h2 style="color: var(--green-deep); margin: 2.5rem 0 1rem 0;">Passive Transport</h2>
+        <p>Passive transport is the movement of substances across the cell membrane without the use of energy (ATP). In all forms of passive transport, particles move from an area of higher concentration to lower concentration, helping the cell maintain balance or homeostasis. There are three main types:</p>
+        <ul>
+          <li><strong>Diffusion:</strong> The simplest form of passive transport, where small molecules like oxygen and carbon dioxide move directly across the cell membrane. These molecules spread out until they are evenly distributed, reaching a state of equilibrium.</li>
+          <li><strong>Osmosis:</strong> The diffusion of water molecules across a selectively permeable membrane. Water moves from an area of higher water concentration (lower solute concentration) to an area of lower water concentration (higher solute concentration). This process is important for maintaining the proper water balance in cells. For example, plant cells can swell or shrink depending on the surrounding solution.</li>
+          <li><strong>Facilitated Diffusion:</strong> Involves the movement of larger or charged molecules, such as glucose and ions, across the membrane with the help of protein channels or carrier proteins. Although it requires assistance from these proteins, it still does not use energy and follows the concentration gradient.</li>
+        </ul>
+        <p>Overall, passive transport allows essential substances to enter and exit the cell efficiently without energy, ensuring that cells function properly and remain in a stable internal environment.</p>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: No Energy Needed</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> The Passive Transport Experience. Identify and describe diffusion, osmosis, and facilitated diffusion by matching each process with its correct description and real-life example.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a phrase to select it, then tap an empty box in the table to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="d1-desc">Movement of molecules from high to low concentration</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="d1-ex">Perfume spreading in a room</div>
+            
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="o1-desc">Movement of water across a selectively permeable membrane</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="o1-ex">Plant cells swelling or shrinking</div>
+            
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="f1-desc">Movement of molecules through protein channels</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="f1-ex">Glucose entering the cell through protein channels</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th style="width: 25%;">Process</th>
+                  <th style="width: 45%;">Description</th>
+                  <th style="width: 30%;">Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Diffusion</td>
+                <td><div class="a1-drop-zone" id="dz-d1-desc" data-match="d1-desc"><span class="placeholder-text">Drop Description</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-d1-ex" data-match="d1-ex"><span class="placeholder-text">Drop Example</span></div></td>
+              </tr>
+              <tr>
+                <td>Osmosis</td>
+                <td><div class="a1-drop-zone" id="dz-o1-desc" data-match="o1-desc"><span class="placeholder-text">Drop Description</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-o1-ex" data-match="o1-ex"><span class="placeholder-text">Drop Example</span></div></td>
+              </tr>
+              <tr>
+                <td>Facilitated Diffusion</td>
+                <td><div class="a1-drop-zone" id="dz-f1-desc" data-match="f1-desc"><span class="placeholder-text">Drop Description</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-f1-ex" data-match="f1-ex"><span class="placeholder-text">Drop Example</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Against the Flow</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> The Active Transport Mission. Analyze the scenario given and identify the types of transport. Drag the correct transport type and reason from the pool into the table.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable" draggable="true" data-match="mp-type">Membrane Pumps</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="en-type">Endocytosis</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="ex-type">Exocytosis</div>
+          
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="mp-rsn">Energy is needed to move ions against the concentration gradient (from low to high concentration)</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="en-rsn">Energy is needed to form vesicles and bring large particles into the cell</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="ex-rsn">Energy is needed to transport vesicles and release materials outside the cell</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th style="width: 30%;">Scenario</th>
+                  <th style="width: 25%;">Type of Transport</th>
+                  <th style="width: 45%;">Why is Energy Needed?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-size:0.95rem; font-weight:normal; text-align:left;">A cell uses energy to move ions into an area of high concentration</td>
+                <td><div class="a2-drop-zone" id="dz-mp-type" data-match="mp-type"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" id="dz-mp-rsn" data-match="mp-rsn"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.95rem; font-weight:normal; text-align:left;">A cell engulfs bacteria</td>
+                <td><div class="a2-drop-zone" id="dz-en-type" data-match="en-type"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" id="dz-en-rsn" data-match="en-rsn"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.95rem; font-weight:normal; text-align:left;">A cell releases waste material</td>
+                <td><div class="a2-drop-zone" id="dz-ex-type" data-match="ex-type"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" id="dz-ex-rsn" data-match="ex-rsn"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on active transport. Type your answers below.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. How is active transport different from passive transport in terms of energy use?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Active transport requires energy (ATP) to move substances against the concentration gradient, while passive transport does not require energy and moves substances from high to low concentration.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. Why do cells need to move substances against the concentration gradient?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Cells need to move substances against the gradient to maintain proper balance, obtain necessary nutrients, remove wastes, and support important functions like nerve signals and muscle contraction.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. What might happen if a cell cannot perform active transport?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> If a cell cannot perform active transport, it may not be able to get essential nutrients or remove waste properly, leading to imbalance, malfunction, or even cell death.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(5)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Transport Battle Cards</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Using your knowledge of cell transport, fill in the table by comparing passive transport and active transport. Drag the phrases to the correct boxes.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a phrase to select it, then tap the empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Phrases Pool:</h3>
+        <div class="pool" id="a3-pool">
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="eu-pas">Does not require energy (ATP)</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dm-pas">Moves from high to low concentration (with the gradient)</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="m-pas">Diffusion, osmosis, facilitated diffusion</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="eu-act">Requires energy (ATP)</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dm-act">Moves from low to high concentration (against the gradient)</div>
+          <div class="draggable-item a3-draggable long-text" draggable="true" data-match="m-act">Active transport, endocytosis, exocytosis</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th style="width: 20%;">Feature</th>
+                  <th style="width: 40%;">Passive Transport</th>
+                  <th style="width: 40%;">Active Transport</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Energy Use</td>
+                <td><div class="a3-drop-zone" id="dz-eu-pas" data-match="eu-pas"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-eu-act" data-match="eu-act"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td>Direction of Movement</td>
+                <td><div class="a3-drop-zone" id="dz-dm-pas" data-match="dm-pas"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-dm-act" data-match="dm-act"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+              <tr>
+                <td>Mechanisms</td>
+                <td><div class="a3-drop-zone" id="dz-m-pas" data-match="m-pas"><span class="placeholder-text">Drop Here</span></div></td>
+                <td><div class="a3-drop-zone" id="dz-m-act" data-match="m-act"><span class="placeholder-text">Drop Here</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on your comparison. Type your answers below.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. How does energy use differ between passive transport and active transport?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Passive transport does not require energy because substances move naturally along the concentration gradient. In contrast, active transport requires energy (ATP) because substances are moved against the concentration gradient.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. In what direction do substances move in passive transport compared to active transport?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> In passive transport, substances move from an area of high concentration to low concentration. In active transport, substances move from low concentration to high concentration, against the gradient.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. What mechanisms or processes are involved in each type of transport?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Passive transport includes diffusion, osmosis, and facilitated diffusion. Active transport includes protein pumps, endocytosis, and exocytosis, all of which require energy.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 9.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A cell membrane protein stops functioning, preventing glucose from entering the cell without energy. Which process is directly affected?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Diffusion</label><label><input type="radio" name="pt1" value="b"> b. Osmosis</label><label><input type="radio" name="pt1" value="c"> c. Facilitated diffusion</label><label><input type="radio" name="pt1" value="d"> d. Exocytosis</label></div></div>
+          <div class="quiz-question"><p>2. A cell needs to move ions into an area where their concentration is already high. Which transport mechanism will the cell most likely use?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. Diffusion</label><label><input type="radio" name="pt2" value="b"> b. Osmosis</label><label><input type="radio" name="pt2" value="c"> c. Facilitated diffusion</label><label><input type="radio" name="pt2" value="d"> d. Active transport</label></div></div>
+          <div class="quiz-question"><p>3. Why would a cell use active transport instead of passive transport?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. To save energy</label><label><input type="radio" name="pt3" value="b"> b. To move substances quickly</label><label><input type="radio" name="pt3" value="c"> c. To move substances against the concentration gradient</label><label><input type="radio" name="pt3" value="d"> d. To allow water to enter the cell</label></div></div>
+          <div class="quiz-question"><p>4. A cell is placed in a solution where molecules are evenly distributed inside and outside. What will most likely happen to diffusion?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. It will increase rapidly</label><label><input type="radio" name="pt4" value="b"> b. It will stop because equilibrium is reached</label><label><input type="radio" name="pt4" value="c"> c. It will require energy to continue</label><label><input type="radio" name="pt4" value="d"> d. It will turn into active transport</label></div></div>
+          <div class="quiz-question"><p>5. Which situation best demonstrates the combined importance of passive and active transport?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. A cell only uses diffusion for all processes</label><label><input type="radio" name="pt5" value="b"> b. A cell uses active transport for all movement</label><label><input type="radio" name="pt5" value="c"> c. A cell uses passive transport for balance and active transport for specific needs</label><label><input type="radio" name="pt5" value="d"> d. A cell stops transporting materials</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module9_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module9_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module9_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module9_a3_completed') === 'true') lockActivity3();
+    if (localStorage.getItem('module9_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 5) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'c', q2: 'b', q3: 'c', q4: 'd', q5: 'c' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module9_quiz_completed', 'true'); localStorage.setItem('module9_quiz_name', name); localStorage.setItem('module9_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module9_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module9_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module9_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module9_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module9_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a1-draggable') !== null)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  function updateZonesA3() { document.querySelectorAll('.a3-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a3-draggable') !== null)); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION (TABLE) ───
+  const a1_correctText = {
+      "d1-desc": "Movement of molecules from high to low...", "d1-ex": "Perfume spreading in a room",
+      "o1-desc": "Movement of water across a selectively...", "o1-ex": "Plant cells swelling or shrinking",
+      "f1-desc": "Movement of molecules through protein channels", "f1-ex": "Glucose entering the cell through protein channels"
+  };
+
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(z => { const item = z.querySelector('.a1-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module9_a1_state', JSON.stringify(state)); localStorage.setItem('module9_a1_name', name); localStorage.setItem('module9_a1_completed', 'true');
+    const score = applyActivity1Visuals(); localStorage.setItem('module9_a1_score', score);
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 6</h1>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a1-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a1_correctText[correctMatch].substring(0, 30)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a1_correctText[correctMatch].substring(0, 30)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module9_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module9_a1_name'); 
+    const state = JSON.parse(localStorage.getItem('module9_a1_state') || '{}');
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+        const correctMatch = zone.getAttribute('data-match');
+        if(state[zone.id]) { const item = Array.from(document.querySelectorAll(`#a1-pool .a1-draggable`)).find(el => el.getAttribute('data-match') === state[zone.id]); if(item) zone.appendChild(item); }
+    });
+    updateZonesA1(); applyActivity1Visuals();
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module9_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/6)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION (TABLE & GQ) ───
+  const a2_correctText = {
+      "mp-type": "Membrane Pumps", "mp-rsn": "Energy is needed to move ions against...",
+      "en-type": "Endocytosis", "en-rsn": "Energy is needed to form vesicles...",
+      "ex-type": "Exocytosis", "ex-rsn": "Energy is needed to transport vesicles..."
+  };
+
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = {};
+    document.querySelectorAll('.a2-drop-zone').forEach(z => { const item = z.querySelector('.a2-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module9_a2_state', JSON.stringify(state)); localStorage.setItem('module9_a2_name', name); localStorage.setItem('module9_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module9_a2_score', score);
+    
+    // Save GQ
+    const gqAnswers = []; document.querySelectorAll('#lesson-4 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module9_gq_answers_a2', JSON.stringify(gqAnswers)); localStorage.setItem('module9_gq_completed_a2', 'true');
+    document.querySelectorAll('#lesson-4 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 6</h1><p>Your reflection answers have also been revealed on the screen behind this popup!</p>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch].substring(0, 30)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch].substring(0, 30)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module9_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module9_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module9_a2_state') || '{}');
+    document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+        if(state[zone.id]) { const item = Array.from(document.querySelectorAll(`#a2-pool .a2-draggable`)).find(el => el.getAttribute('data-match') === state[zone.id]); if(item) zone.appendChild(item); }
+    });
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module9_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/6)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+    
+    if (localStorage.getItem('module9_gq_completed_a2') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module9_gq_answers_a2') || '[]');
+        document.querySelectorAll('#lesson-4 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-4 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (TABLE & GQ) ───
+  const a3_correctText = {
+      "eu-pas": "Does not require energy (ATP)", "eu-act": "Requires energy (ATP)",
+      "dm-pas": "Moves from high to low concentration", "dm-act": "Moves from low to high concentration",
+      "m-pas": "Diffusion, osmosis, facilitated diffusion", "m-act": "Active transport, endocytosis, exocytosis"
+  };
+
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a3-drop-zone').forEach(z => { const item = z.querySelector('.a3-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module9_a3_state', JSON.stringify(state)); localStorage.setItem('module9_a3_completed', 'true'); localStorage.setItem('module9_a3_name', name);
+    const score = applyActivity3Visuals(); localStorage.setItem('module9_a3_score', score);
+
+    // Save Guide Questions
+    const gqAnswers = []; document.querySelectorAll('#lesson-5 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module9_gq_answers_a3', JSON.stringify(gqAnswers)); localStorage.setItem('module9_gq_completed_a3', 'true');
+    document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Comparison Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 6</h1><p>Your reflection answers have also been revealed on the screen!</p>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch].substring(0,30)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch].substring(0,30)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module9_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module9_a3_name'); 
+    const state = JSON.parse(localStorage.getItem('module9_a3_state') || '{}');
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+        if(state[zone.id]) { const item = Array.from(document.querySelectorAll(`#a3-pool .a3-draggable`)).find(el => el.getAttribute('data-match') === state[zone.id]); if(item) zone.appendChild(item); }
+    });
+    updateZonesA3(); applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module9_a3_score') || 0; const btn = document.getElementById('btn-submit-a3'); btn.innerText = `Submitted (Score: ${score}/6)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block';
+    
+    if (localStorage.getItem('module9_gq_completed_a3') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module9_gq_answers_a3') || '[]');
+        document.querySelectorAll('#lesson-5 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'c', pt2: 'd', pt3: 'c', pt4: 'b', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module9_pt_completed', 'true'); localStorage.setItem('module9_pt_name', name); localStorage.setItem('module9_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module9_pt_score', score);
+
+    showModal("Module 9 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 9! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module9_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module9_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module9_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module9_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

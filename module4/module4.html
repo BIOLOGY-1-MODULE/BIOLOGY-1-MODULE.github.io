@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4: Prokaryotic vs Eukaryotic</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 14.2%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.75rem; font-weight: 700; color: rgba(26,58,42,0.8); pointer-events: none; }
+
+  /* ─── ACTIVITY 1 & 3: IMAGE MAP DRAG AND DROP ─── */
+  .puzzle-board { position: relative; width: 100%; margin: 0 auto; display: block; }
+  .puzzle-board img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; }
+  
+  .img-drop-zone { position: absolute; border: 2px dashed var(--green-bright); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.8); transition: all 0.3s; overflow: hidden; cursor: pointer; }
+  .img-drop-zone.drag-over { background: rgba(82,183,136,0.8); border-color: var(--green-deep); transform: scale(1.05); }
+  .img-drop-zone.filled { background: white; border: 2px solid var(--green-deep); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .img-drop-zone.filled .draggable-item { font-size: 0.7rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: normal; line-height: 1.1;}
+  .img-drop-zone.filled .placeholder-text { display: none; }
+
+    /* ACTIVITY 1: PRECISE COORDINATES (Based on 1.9 : 1 ratio image) */
+  .act1-board { aspect-ratio: 1.9 / 1; max-width: 950px; }
+  /* Prokaryote Left Side */
+  #a1-p1 { top: 28.5%; left: 6%; width: 11%; height: 6.5%; }    /* Pili */
+  #a1-p2 { top: 28%; left: 26%; width: 10%; height: 6.5%; }   /* Cell Wall */
+  #a1-p3 { top: 41%; left: 33%; width: 13%; height: 6.5%; }   /* Cell Membrane */
+  #a1-p4 { top: 52%; left: 29%; width: 13%; height: 6.5%; }   /* DNA */
+  #a1-p5 { top: 64%; left: 25%; width: 13%; height: 6.5%; }   /* Ribosomes */
+  #a1-p6 { top: 81%; left: 17%; width: 13%; height: 6.5%; }   /* Flagellum */
+  /* Eukaryote Right Side */
+  #a1-e1 { top: 25%; left: 47.5%; width: 13%; height: 6.5%; }   /* Mitochondria */
+  #a1-e2 { top: 73%; left: 39%; width: 13%; height: 6.5%; }   /* Golgi */
+  #a1-e3 { top: 85%; left: 44%; width: 13%; height: 6.5%; }   /* Ribosomes */
+  #a1-e4 { top: 28%; left: 79%; width: 13%; height: 6.5%; }   /* Cell Membrane */
+  #a1-e5 { top: 42%; left: 86%; width: 13%; height: 6.5%; }   /* Nucleus */
+  #a1-e6 { top: 61%; left: 86%; width: 13%; height: 6.5%; }   /* Ribosomes */
+  #a1-e7 { top: 77%; left: 83%; width: 13%; height: 6.5%; }   /* Chloroplast */
+
+
+  /* ─── ACTIVITY 2: TABLE DRAG AND DROP ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: left; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; }
+  
+  .a2-drop-zone { min-height: 60px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a2-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a2-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a2-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; white-space: normal;}
+  .a2-drop-zone.filled .placeholder-text { display: none; }
+  .draggable-item.reason-drag { font-size: 0.75rem; font-weight: 500; max-width: 250px; line-height: 1.3; }
+
+  /* ─── ACTIVITY 3: CARD SORTING OVER IMAGES ─── */
+  .sorting-board { display: flex; gap: 1.5rem; margin-top: 2rem; align-items: stretch; }
+  .sort-col { flex: 1; border: 2px solid var(--green-mid); border-radius: 12px; background: white; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .sort-header { background: #f4f9f5; text-align: center; border-bottom: 2px solid var(--green-pale); padding: 1rem; font-family: 'Playfair Display', serif;}
+  
+  .act3-board { aspect-ratio: 1.55 / 1; width: 100%; border-radius: 0 0 12px 12px; background: white;}
+  .act3-board img { border-radius: 0 0 12px 12px; }
+  
+  /* Shared Drop Zone dimensions inside Act 3 Boards */
+  .a3-drop-zone { position: absolute; left: 61%; width: 36%; height: 11%; border: 2px dashed var(--green-bright); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.3s;}
+  .a3-drop-zone.drag-over { background: rgba(82,183,136,0.8); border-color: var(--green-deep); transform: scale(1.05); }
+  .a3-drop-zone.filled { background: white; border: 2px solid var(--green-deep); }
+  .a3-drop-zone.filled .draggable-item { font-size: 0.8rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .a3-drop-zone.filled .placeholder-text { display: none; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .img-drop-zone.filled .draggable-item { font-size: 0.4rem; line-height: 1.1; }
+    .placeholder-text { font-size: 0.6rem; }
+    .draggable-item.reason-drag { max-width: 100%; font-size: 0.65rem;}
+    .sorting-board { flex-direction: column; }
+    .a3-drop-zone.filled .draggable-item { font-size: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 4 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 4: Cell Types</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Battle of Cells</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Discussion Game</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Cell Quest</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which structure is found in eukaryotic cells but not in prokaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Cell membrane</label><label><input type="radio" name="q1" value="b"> b. Cytoplasm</label><label><input type="radio" name="q1" value="c"> c. Nucleus</label><label><input type="radio" name="q1" value="d"> d. Ribosome</label></div></div>
+          <div class="quiz-question"><p>2. Which group of organisms is made up of prokaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. Animals</label><label><input type="radio" name="q2" value="b"> b. Plants</label><label><input type="radio" name="q2" value="c"> c. Bacteria</label><label><input type="radio" name="q2" value="d"> d. Fungi</label></div></div>
+          <div class="quiz-question"><p>3. What is the main difference between prokaryotic and eukaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. Prokaryotic cells have a nucleus</label><label><input type="radio" name="q3" value="b"> b. Eukaryotic cells have membrane-bound organelles</label><label><input type="radio" name="q3" value="c"> c. Prokaryotic cells are larger than eukaryotic cells</label><label><input type="radio" name="q3" value="d"> d. Eukaryotic cells do not contain DNA</label></div></div>
+          <div class="quiz-question"><p>4. Which of the following organisms is most likely made of eukaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Bacterium</label><label><input type="radio" name="q4" value="b"> b. Mushroom</label><label><input type="radio" name="q4" value="c"> c. Cyanobacteria</label><label><input type="radio" name="q4" value="d"> d. Archaea</label></div></div>
+          <div class="quiz-question"><p>5. Why is cell structure important in the classification of life forms?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. It determines the color of organisms</label><label><input type="radio" name="q5" value="b"> b. It helps scientists group organisms based on similarities</label><label><input type="radio" name="q5" value="c"> c. It shows the habitat of organisms</label><label><input type="radio" name="q5" value="d"> d. It determines how fast organisms move</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 4: Prokaryotic vs Eukaryotic</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the difference between Prokaryotic and Eukaryotic Cell. In this lesson, you will explore how cell complexity contributes to diversity in organisms and in classifying life forms.</p>
+        
+        <p>All living organisms are made of cells. Cells are classified as prokaryotic or eukaryotic. Understanding the differences between prokaryotic and eukaryotic cells helps explain the diversity and classification of living things.</p>
+        
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Differentiate prokaryotic and eukaryotic cells using diagrams and descriptions;</li>
+          <li>Explain why cell complexity contributes to diversity in organisms; and</li>
+          <li>Connect cell structure to the classification of life forms.</li>
+        </ul>
+
+        <h2 style="color: var(--green-deep); margin: 2rem 0 1rem 0;">Prokaryotic Cells</h2>
+        <p>All prokaryotic cells are structurally simple. They can be divided into two main groups, called the domain Bacteria and domain Archaea. Bacteria are well known because they can cause serious diseases, such as tuberculosis, tetanus, and throat infections. Many species of bacteria are important to the environment because they contribute to ecological cycles and decompose remains of dead organisms. They can also be used for manufacturing some products such as medicines and food.</p>
+        <p>Unlike bacteria, Archaea, also known as archaebacteria, can live on extreme environments such as hypothermal vents and acidic or basic waters. Some of them can live in digestive tracts of animals and even on petroleum deposits underground. Archaea that can survive under extreme condition are called extremophiles.</p>
+        
+        <h3 style="color: var(--green-mid); margin: 1.5rem 0 0.5rem 0;">Structures of a Prokaryotic Cell</h3>
+        <ul>
+          <li><strong>Cell Membrane:</strong> A phospholipid bilayer with embedded proteins which regulates the entrance and exit of substances into and out of the cytoplasm.</li>
+          <li><strong>Mesosomes:</strong> Extension of cell membrane used for attachment of enzymes that carry on metabolic activities.</li>
+          <li><strong>Cell wall:</strong> Maintains the shape of the cell. The cell wall of bacteria contains peptidoglycan which is a complex molecule containing a unique amino disaccharide and peptide fragments.</li>
+          <li><strong>Cytoplasm:</strong> Semifluid solution composed of water and inorganic and organic molecules encased by the plasma membrane.</li>
+          <li><strong>Glycocalyx:</strong> Layer of polysaccharides lying outside the cell wall. It functions as a receptor and protection to the cell.</li>
+          <li><strong>Nucleoid:</strong> Region where DNA is located. The DNA is coiled up into a single chromosome. It also contains extra-chromosomal plasmids.</li>
+          <li><strong>Sex Pilus:</strong> Rigid tubular structure used by bacteria to pass DNA from cell to cell.</li>
+          <li><strong>Flagellum:</strong> Helps in the movement of the cell. It has a filament, a hook, and a basal body.</li>
+          <li><strong>Fimbriae:</strong> Small, bristle-like fibers that sprout from the cell surface. They help in the attachment of bacteria to the surface.</li>
+          <li><strong>Inclusion body:</strong> Serves as storage of various substances such as carbohydrates, glycogen, phosphate, and fats which can be used when needed.</li>
+          <li><strong>Ribosome:</strong> Tiny particle where protein synthesis takes place.</li>
+          <li><strong>Endospore:</strong> Helps the cell survive under harsh conditions.</li>
+        </ul>
+
+        <h2 style="color: var(--green-deep); margin: 2.5rem 0 1rem 0;">Eukaryotic Cells</h2>
+        <p>A eukaryotic cell is a type of cell found in plants, animals, protists, and fungi. Unlike a prokaryotic cell, it has a membrane-bounded nucleus which houses its DNA. Eukaryotic cells contain different organelles which perform different functions in the cell. Eukaryotes can be single-celled, colonial, or multicellular.</p>
+        
+        <h3 style="color: var(--green-mid); margin: 1.5rem 0 0.5rem 0;">Structures of Eukaryotic Cells</h3>
+        <ul>
+          <li><strong>Nucleus:</strong> Where the genetic material, deoxyribonucleic Acid (DNA), is stored. It helps in the production of proteins and ribosomes.</li>
+          <li><strong>Cytoplasm:</strong> Semifluid solution composed of water, inorganic and organic molecules that are encased by the cell membrane. It is where all organelles are located and most of cellular activities take place.</li>
+          <li><strong>Mitochondrion:</strong> Responsible for production of adenosine triphosphate (ATP), the energy source of cellular processes, and where cellular respiration happens.</li>
+          <li><strong>Chloroplast:</strong> Can only be found in plants and algae. It is responsible for converting energy to chemical energy through the process of photosynthesis.</li>
+          <li><strong>Golgi apparatus:</strong> Helps in the packaging and sorting of modified cell products of proteins and lipids.</li>
+          <li><strong>Lysosome:</strong> Vesicle that digests intracellular molecules and even cell parts.</li>
+          <li><strong>Vacuole:</strong> Responsible for engulfing materials through the process of endocytosis.</li>
+          <li><strong>Endoplasmic reticulum (ER):</strong> Transports lipids, proteins, and other materials through the cell. The two types are smooth ER and rough ER.</li>
+          <li><strong>Cilia and flagella:</strong> Hair-like projections that enables the cell to move. Cilia are much shorter than flagella, but they have similar construction.</li>
+          <li><strong>Cell/ Plasma membrane:</strong> Phospholipid bilayer that regulates the entrance and exit of substances in the cell.</li>
+          <li><strong>Ribosome:</strong> Particle that carry out protein synthesis.</li>
+          <li><strong>Cytoskeleton:</strong> Responsible in maintaining the shape and framework of the cell. It is also responsible in assisting movement of cell organelles. It is composed of actin filaments, intermediate filaments, and microtubules.</li>
+        </ul>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: Battle of the Cells</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Identify the parts of Prokaryotic and Eukaryotic Cells. Drag the labels from the box to the correct empty spaces on the diagrams. <br><em>NOTE: Some organelles are present in both cells! You will find duplicate labels in the box to use for both sides.</em></p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a label to select it, then tap an empty box on the image to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Pili">Pili</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Cell Wall">Cell Wall</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Cell Membrane">Cell Membrane</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Cell Membrane">Cell Membrane</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="DNA (Nucleoid)">DNA (Nucleoid)</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Ribosomes">Ribosomes</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Ribosomes">Ribosomes</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Ribosomes">Ribosomes</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Flagellum">Flagellum</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Mitochondria">Mitochondria</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Nucleus">Nucleus</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Chloroplast">Chloroplast</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Golgi Apparatus">Golgi Apparatus</div>
+          </div>
+          
+          <div class="puzzle-board act1-board">
+            <img src="Activity 1.png" alt="Prokaryotic vs Eukaryotic Cell Diagram">
+            <div class="img-drop-zone a1-drop-zone" id="a1-p1" data-match="Pili"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-p2" data-match="Cell Wall"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-p3" data-match="Cell Membrane"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-p4" data-match="DNA (Nucleoid)"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-p5" data-match="Ribosomes"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-p6" data-match="Flagellum"><span class="placeholder-text">Drop Here</span></div>
+            
+            <div class="img-drop-zone a1-drop-zone" id="a1-e1" data-match="Mitochondria"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-e2" data-match="Golgi Apparatus"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-e3" data-match="Ribosomes"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-e4" data-match="Cell Membrane"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-e5" data-match="Nucleus"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-e6" data-match="Ribosomes"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a1-drop-zone" id="a1-e7" data-match="Chloroplast"><span class="placeholder-text">Drop Here</span></div>
+          </div>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on the activity. Type your answers below, then submit to reveal the correct responses.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. Which is more complex, Prokaryotes or Eukaryotes?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Eukaryotes</div>
+          </div>
+          <div class="gq-item">
+            <label>2. Which organelle/s are present in both Prokaryotes and Eukaryotes?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Cell membrane, cytoplasm, and ribosomes</div>
+          </div>
+          <div class="gq-item">
+            <label>3. If the DNA in Eukaryotes is found in the nucleus, how about in Prokaryotes?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> In the nucleoid region (cytoplasm)</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(3)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Discussion Game</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Determine each scenario with either simple organisms (prokaryotes) or complex organisms (eukaryotes) and explain your reasoning. Drag the correct cell type and reason into the table.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Prokaryotes">Prokaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Prokaryotes">Prokaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Prokaryotes">Prokaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Prokaryotes">Prokaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Eukaryotes">Eukaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Eukaryotes">Eukaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Eukaryotes">Eukaryotes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Eukaryotes">Eukaryotes</div>
+          
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r1">Lacks a nucleus and organelles; typical of simple cells</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r2">Presence of nucleus and mitochondria indicates a complex cell</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r3">No nucleus; photosynthetic bacteria (like cyanobacteria)</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r4">Plant-like features with membrane-bound organelles</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r5">Bacteria are prokaryotic and often pathogenic</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r6">Presence of nucleus and organelles (like protists)</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r7">Extremophiles (like archaea) are prokaryotic</div>
+          <div class="draggable-item a2-draggable reason-drag" draggable="true" data-match="r8">Complex organelles indicate eukaryotic</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr><th>Scenario</th><th>Eukaryotes or Prokaryotes</th><th>Reason</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-size:0.9rem;">An organism reproduces quickly in a nutrient-rich environment. It has no nucleus and no membrane-bound organelles.</td>
+                <td><div class="a2-drop-zone" data-match="Prokaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r1"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">This organism has mitochondria that generate large amounts of energy for movement and body regulation. It has a nucleus and several specialized organelles.</td>
+                <td><div class="a2-drop-zone" data-match="Eukaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r2"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">A tiny single-celled organism performs photosynthesis. It lacks a nucleus but has chlorophyll inside its cytoplasm.</td>
+                <td><div class="a2-drop-zone" data-match="Prokaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r3"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">A multicellular organism has chloroplasts, vacuoles, a cell wall, and a nucleus. It grows tall and performs photosynthesis efficiently.</td>
+                <td><div class="a2-drop-zone" data-match="Eukaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r4"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">This organism is microscopic, has a cell wall, no nucleus, and reproduces rapidly, causing infections.</td>
+                <td><div class="a2-drop-zone" data-match="Prokaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r5"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">A single-celled organism has a nucleus, mitochondria, and specialized organelles for moving and feeding.</td>
+                <td><div class="a2-drop-zone" data-match="Eukaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r6"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">A tiny organism thrives in hot springs and acidic lakes, reproducing quickly with minimal internal structures.</td>
+                <td><div class="a2-drop-zone" data-match="Prokaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r7"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+              <tr>
+                <td style="font-size:0.9rem;">This cell contains mitochondria, a nucleus, ribosomes, and lysosomes. It supports rapid contraction and energy-intensive activities.</td>
+                <td><div class="a2-drop-zone" data-match="Eukaryotes"><span class="placeholder-text">Drop Type</span></div></td>
+                <td><div class="a2-drop-zone" data-match="r8"><span class="placeholder-text">Drop Reason</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Table</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Cell Quest</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Unlocking Life’s Classification. Sort the organism cards by dragging them into the correct empty boxes next to the Prokaryote or Eukaryote diagrams.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a card to select it, then tap an empty box on the diagram board to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Organism Cards:</h3>
+        <div class="pool" id="a3-pool">
+          <div class="draggable-item a3-draggable" draggable="true" data-match="prok">Halophiles</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="prok">Streptococcus</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="prok">E. coli</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="prok">Archaea</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="prok">Blue-green-algae</div>
+          
+          <div class="draggable-item a3-draggable" draggable="true" data-match="euk">Human Cell</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="euk">Plant Cell</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="euk">Yeast</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="euk">Paramecium</div>
+          <div class="draggable-item a3-draggable" draggable="true" data-match="euk">Amoeba</div>
+        </div>
+
+        <div class="sorting-board">
+            <div class="sort-col">
+                <div class="sort-header">
+                    <h3 style="color: var(--green-deep); margin-bottom:0.5rem; font-size:1.8rem; font-weight:900;">Prokaryotes</h3>
+                </div>
+                <div class="puzzle-board act3-board">
+                    <img src="Prokaryote.png" alt="Prokaryote">
+                    <div class="img-drop-zone a3-drop-zone" id="a3-1" style="top:11%; left:62%; width:36%; height:11%;" data-match="prok"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-2" style="top:27.5%; left:62%; width:36%; height:11%;" data-match="prok"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-3" style="top:44%; left:62%; width:36%; height:11%;" data-match="prok"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-4" style="top:60.5%; left:62%; width:36%; height:11%;" data-match="prok"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-5" style="top:77.5%; left:62%; width:36%; height:11%;" data-match="prok"><span class="placeholder-text">Drop</span></div>
+                </div>
+            </div>
+            
+            <div class="sort-col">
+                <div class="sort-header">
+                    <h3 style="color: var(--green-deep); margin-bottom:0.5rem; font-size:1.8rem; font-weight:900;">Eukaryotes</h3>
+                </div>
+                <div class="puzzle-board act3-board">
+                    <img src="Eukaryote.png" alt="Eukaryote">
+                    <div class="img-drop-zone a3-drop-zone" id="a3-6" style="top:11%; left:62%; width:36%; height:11%;" data-match="euk"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-7" style="top:27.5%; left:62%; width:36%; height:11%;" data-match="euk"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-8" style="top:44%; left:62%; width:36%; height:11%;" data-match="euk"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-9" style="top:60.5%; left:62%; width:36%; height:11%;" data-match="euk"><span class="placeholder-text">Drop</span></div>
+                    <div class="img-drop-zone a3-drop-zone" id="a3-10" style="top:77.5%; left:62%; width:36%; height:11%;" data-match="euk"><span class="placeholder-text">Drop</span></div>
+                </div>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on your sorting. Type your answers below, then submit to reveal the correct responses.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. Why did you classify this organism as prokaryotic or eukaryotic?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> I classified the organism based on the presence or absence of a nucleus and membrane-bound organelles. If the organism has a nucleus and complex organelles, it is eukaryotic. If it lacks these structures, it is prokaryotic.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. What evidence supports your decision?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> The evidence includes descriptions such as having a nucleus, mitochondria, or other organelles for eukaryotes, and having no nucleus, a nucleoid region, or simple structure for prokaryotes.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. Which organisms were hardest to classify? Why?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> The hardest organisms to classify were those that perform photosynthesis but lack a nucleus, like blue-green algae (cyanobacteria), because they resemble plants but are actually prokaryotic.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 4.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A scientist discovers a unicellular organism that has ribosomes but no nucleus or membrane-bound organelles. What is the best classification?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Eukaryote because it has ribosomes</label><label><input type="radio" name="pt1" value="b"> b. Prokaryote because it lacks a nucleus</label><label><input type="radio" name="pt1" value="c"> c. Eukaryote because it is unicellular</label><label><input type="radio" name="pt1" value="d"> d. Virus because it is simple</label></div></div>
+          <div class="quiz-question"><p>2. An organism is found in a hot spring and can survive extreme temperatures. It has no nucleus. Which group does it most likely belong to?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. Fungi</label><label><input type="radio" name="pt2" value="b"> b. Animalia</label><label><input type="radio" name="pt2" value="c"> c. Archaea</label><label><input type="radio" name="pt2" value="d"> d. Protista</label></div></div>
+          <div class="quiz-question"><p>3. Which situation best explains why eukaryotic cells are more complex than prokaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. They are always larger in size</label><label><input type="radio" name="pt3" value="b"> b. They have specialized organelles that perform different functions</label><label><input type="radio" name="pt3" value="c"> c. They reproduce faster</label><label><input type="radio" name="pt3" value="d"> d. They lack a cell membrane</label></div></div>
+          <div class="quiz-question"><p>4. A student claims: “All unicellular organisms are prokaryotic.” Which response best evaluates this statement?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Correct, because unicellular organisms are simple</label><label><input type="radio" name="pt4" value="b"> b. Incorrect, because some unicellular organisms have a nucleus</label><label><input type="radio" name="pt4" value="c"> c. Correct, because prokaryotes are always unicellular</label><label><input type="radio" name="pt4" value="d"> d. Incorrect, because all eukaryotes are multicellular</label></div></div>
+          <div class="quiz-question"><p>5. Why can bacteria reproduce more quickly than most eukaryotic cells?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. They have more DNA</label><label><input type="radio" name="pt5" value="b"> b. They lack complex organelles, making processes faster</label><label><input type="radio" name="pt5" value="c"> c. They have a nucleus</label><label><input type="radio" name="pt5" value="d"> d. They are multicellular</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module4_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module4_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module4_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module4_a3_completed') === 'true') lockActivity3();
+    
+    if (localStorage.getItem('module4_gq_completed') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module4_gq_answers') || '[]');
+        document.querySelectorAll('.gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index];
+            ta.disabled = true;
+        });
+        document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+
+    if (localStorage.getItem('module4_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'c', q2: 'c', q3: 'b', q4: 'b', q5: 'b' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module4_quiz_completed', 'true'); localStorage.setItem('module4_quiz_name', name); localStorage.setItem('module4_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module4_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module4_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module4_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module4_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module4_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a1-draggable') !== null)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { 
+      document.querySelectorAll('.a2-drop-zone').forEach(z => {
+          const hasItem = z.querySelector('.a2-draggable') !== null;
+          z.querySelector('.placeholder-text').style.display = hasItem ? 'none' : 'block';
+      });
+  }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  // Init Engine for Act 3
+  function updateZonesA3() { document.querySelectorAll('.a3-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a3-draggable') !== null)); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION ───
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(z => { const item = z.querySelector('.a1-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module4_a1_state', JSON.stringify(state)); localStorage.setItem('module4_a1_name', name); localStorage.setItem('module4_a1_completed', 'true');
+    const score = applyActivity1Visuals(); localStorage.setItem('module4_a1_score', score);
+    
+    // Save Guide Questions together
+    const gqAnswers = []; document.querySelectorAll('#lesson-3 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module4_gq_answers', JSON.stringify(gqAnswers)); localStorage.setItem('module4_gq_completed', 'true');
+    document.querySelectorAll('#lesson-3 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 12</h1><p>Your reflection answers have also been revealed!</p>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a1-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; let itemText = item.innerText.replace('❌','').trim(); item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.6rem;">${itemText}</span><br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${correctMatch}</strong>`; }
+      } else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${correctMatch}</strong>`; }
+    }); return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module4_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module4_a1_name'); 
+    const state = JSON.parse(localStorage.getItem('module4_a1_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a1-pool .a1-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA1(); applyActivity1Visuals();
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module4_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/12)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION ───
+  const a2_correctText = {
+      "Prokaryotes": "Prokaryotes", "Eukaryotes": "Eukaryotes",
+      "r1": "Lacks a nucleus...", "r2": "Presence of nucleus...", "r3": "No nucleus; photosynthetic...", "r4": "Plant-like features...", "r5": "Bacteria are prokaryotic...", "r6": "Presence of nucleus...", "r7": "Extremophiles are prokaryotic", "r8": "Complex organelles..."
+  };
+
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = [];
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => { const item = zone.querySelector('.a2-draggable'); state.push(item ? item.getAttribute('data-match') : null); });
+    localStorage.setItem('module4_a2_state', JSON.stringify(state)); localStorage.setItem('module4_a2_name', name); localStorage.setItem('module4_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module4_a2_score', score);
+    showModal("Table Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 16</h1>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch]}</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch]}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module4_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module4_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module4_a2_state') || '[]');
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => {
+        if(state[index]) { const item = Array.from(document.querySelectorAll('#a2-pool .a2-draggable')).find(el => el.getAttribute('data-match') === state[index]); if(item) zone.appendChild(item); }
+    });
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module4_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/16)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (SORTING) ───
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a3-drop-zone').forEach(z => { const item = z.querySelector('.a3-draggable'); if(item) state[z.id] = item.innerText.split('\n')[0].trim(); });
+    localStorage.setItem('module4_a3_state', JSON.stringify(state)); localStorage.setItem('module4_a3_completed', 'true'); localStorage.setItem('module4_a3_name', name);
+    const score = applyActivity3Visuals(); localStorage.setItem('module4_a3_score', score);
+
+    // Save Guide Questions together
+    const gqAnswers = []; document.querySelectorAll('#lesson-5 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module4_gq_answers_a3', JSON.stringify(gqAnswers)); localStorage.setItem('module4_gq_completed_a3', 'true');
+    document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Sorting Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 10</h1><p>Your reflection answers have also been revealed on the screen behind this popup!</p>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; item.style.color = 'var(--red-wrong)'; if(!item.innerHTML.includes('Incorrect')) { const properZone = correctMatch === 'prok' ? 'Prokaryotes' : 'Eukaryotes'; item.innerHTML += `<br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${properZone}</strong>`; } }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><strong style="font-size:0.6rem; color:var(--green-deep);">Correct: ${correctMatch === 'prok' ? 'Prokaryotes' : 'Eukaryotes'}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module4_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module4_a3_name'); 
+    const state = JSON.parse(localStorage.getItem('module4_a3_state') || '{}');
+    for (const [zoneId, textVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); 
+        const item = Array.from(document.querySelectorAll('#a3-pool .a3-draggable')).find(el => el.innerText.trim() === textVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA3(); applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module4_a3_score') || 0; const btn = document.getElementById('btn-submit-a3'); btn.innerText = `Submitted (Score: ${score}/10)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block';
+    
+    // Restore GQ
+    if (localStorage.getItem('module4_gq_completed_a3') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module4_gq_answers_a3') || '[]');
+        document.querySelectorAll('#lesson-5 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-5 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'b', pt2: 'c', pt3: 'b', pt4: 'b', pt5: 'b' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module4_pt_completed', 'true'); localStorage.setItem('module4_pt_name', name); localStorage.setItem('module4_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module4_pt_score', score);
+
+    showModal("Module 4 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 4! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module4_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module4_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module4_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module4_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

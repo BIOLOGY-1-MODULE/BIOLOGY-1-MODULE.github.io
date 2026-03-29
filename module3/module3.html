@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3: Light vs Electron Microscope</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 14.2%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .lesson-img-right { float: right; margin: 0 0 1.5rem 2rem; max-width: 400px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 1px solid rgba(82,183,136,0.2); }
+  .clearfix::after { content: ""; clear: both; display: table; }
+
+  .reading-box { background: white; border-left: 5px solid var(--green-bright); padding: 2rem; border-radius: 0 12px 12px 0; margin-bottom: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+  .reading-box p { font-size: 1.05rem; margin-bottom: 1rem; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.75rem; font-weight: 700; color: rgba(26,58,42,0.8); pointer-events: none; text-shadow: 1px 1px 2px white; }
+
+  /* ─── ACTIVITY 1.1 & 1.2: PRECISE IMAGE MAP ALIGNMENT ─── */
+  .puzzle-board { position: relative; width: 100%; max-width: 650px; margin: 0 auto; display: block; }
+  
+  .puzzle-board.light-micro { aspect-ratio: 318 / 336; } 
+  .puzzle-board.electron-micro { aspect-ratio: 357 / 401; }
+
+  .puzzle-board img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; }
+  
+  .img-drop-zone { position: absolute; border: 2px dashed var(--green-bright); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.7); transition: all 0.3s; overflow: hidden; cursor: pointer; }
+  .img-drop-zone.drag-over { background: rgba(82,183,136,0.8); border-color: var(--green-deep); transform: scale(1.05); }
+  .img-drop-zone.filled { background: white; border: 2px solid var(--green-deep); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .img-drop-zone.filled .draggable-item { font-size: 0.7rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: normal; line-height: 1.1;}
+  .img-drop-zone.filled .placeholder-text { display: none; }
+
+  /* PERFECTED COORDINATES FOR LIGHT MICROSCOPE */
+  #lm-1 { top: 5%; left: 1%; width: 28%; height: 5.5%; }    /* Eyepiece */
+  #lm-2 { top: 17%; left: 1%; width: 28%; height: 5.5%; }     /* Body Tube */
+  #lm-3 { top: 32%; left: 1%; width: 28%; height: 5.5%; }     /* Nosepiece */
+  #lm-4 { top: 42%; left: 1%; width: 28%; height: 5.5%; }     /* Objective Lenses */
+  #lm-5 { top: 50.5%; left: 1%; width: 28%; height: 5.5%; }   /* Stage */
+  #lm-6 { top: 57.5%; left: 1%; width: 28%; height: 5.5%; }   /* Condenser */
+  #lm-7 { top: 65.5%; left: 1%; width: 28%; height: 5.5%; }   /* Diaphragm */
+  #lm-8 { top: 73.5%; left: 1%; width: 28%; height: 5.5%; }   /* Mirror */
+  #lm-9 { top: 90%; left: 10%; width: 28%; height: 5.5%; }    /* Base */
+  
+  #lm-10 { top: 31%; left: 69.5%; width: 28%; height: 5.5%; } /* Arm */
+  #lm-14 { top: 38.5%; left: 69.5%; width: 28%; height: 5.5%; } /* Extra Box */
+  #lm-11 { top: 46%; left: 69.5%; width: 28%; height: 5.5%; } /* Stage Clips */
+  #lm-12 { top: 55%; left: 69.5%; width: 28%; height: 5.5%; }   /* Coarse Knob */
+  #lm-13 { top: 70%; left: 69.5%; width: 28%; height: 5.5%; }   /* Fine Knob */
+
+  /* PERFECTED COORDINATES FOR ELECTRON MICROSCOPE */
+  #em-1 { top: 9.5%; left: 63%; width: 31%; height: 6%; }   /* Electron Gun */
+  #em-2 { top: 22%; left: 63%; width: 31%; height: 6%; }    /* Lenses R */
+  #em-3 { top: 34%; left: 63%; width: 31%; height: 6%; }    /* Holder R */
+  #em-4 { top: 45%; left: 63%; width: 31%; height: 6%; }    /* Image Viewing */
+  #em-5 { top: 83%; left: 63%; width: 31%; height: 6%; }  /* Control System */
+  
+  #em-6 { top: 51.5%; left: 3.5%; width: 31%; height: 6%; } /* Lenses L */
+  #em-7 { top: 60%; left: 3.5%; width: 31%; height: 6%; } /* Holder L */
+  #em-8 { top: 69%; left: 3.5%; width: 31%; height: 6%; }   /* Vacuum System */
+
+  /* ─── ACTIVITY 2: TRUE VENN DIAGRAM (OVERLAPPING CIRCLES) ─── */
+  .venn-wrapper { position: relative; width: 100%; max-width: 700px; height: 420px; margin: 3rem auto; display: flex; justify-content: center; align-items: center; }
+  
+  .venn-circle { position: absolute; width: 400px; height: 400px; border-radius: 50%; pointer-events: none; z-index: 1; display: flex; flex-direction: column; align-items: center; padding-top: 2rem; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); }
+  .venn-circle.left { left: 0; border: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.08); }
+  .venn-circle.right { right: 0; border: 5px solid #eab308; background: rgba(234, 179, 8, 0.08); }
+  .venn-title { font-weight: 900; font-size: 1.2rem; text-transform: uppercase; text-shadow: 1px 1px 0px white; letter-spacing: 0.5px; text-align: center; }
+  .venn-title.t-left { color: #1d4ed8; }
+  .venn-title.t-right { color: #a16207; }
+
+  .venn-drop-container { position: absolute; inset: 0; display: flex; z-index: 10; }
+  .v-zone { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 5rem; gap: 0.4rem; transition: background 0.3s, border-radius 0.3s; cursor: pointer; }
+  
+  .v-zone.both { flex: 0.7; z-index: 11; padding-top: 3.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 50%; border: 3px dashed rgba(34, 197, 94, 0.5); margin: 0 -20px; }
+  .v-zone.both .venn-title { color: #15803d; margin-bottom: 0.5rem; }
+
+  .v-zone.drag-over { background: rgba(82,183,136,0.3) !important; border-radius: 30px; }
+  .v-zone .draggable-item { width: 85%; white-space: normal; line-height: 1.2; font-size: 0.75rem; padding: 0.4rem; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .lesson-img-right { float: none; margin: 1rem auto; display: block; }
+    
+    /* Scale Venn down for mobile */
+    .venn-wrapper { height: 350px; overflow-x: auto; justify-content: flex-start; padding-bottom: 1rem; margin-left: -1rem; margin-right: -1rem; }
+    .venn-circle { width: 320px; height: 320px; }
+    .venn-circle.right { left: 220px; } 
+    .venn-drop-container { width: 540px; } 
+    .v-zone .draggable-item { font-size: 0.65rem; padding: 0.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 3 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 3: Microscopes</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1.1: Light Microscope</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 1.2: Electron Microscope</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 2: Venn Diagram</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Act 3 & Reflection</div></li>
+      <li class="toc-item" onclick="switchLesson(7)" id="toc-7"><div class="toc-num">7</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which microscope generally has greater magnification?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Light microscope</label><label><input type="radio" name="q1" value="b"> b. Electron microscope</label><label><input type="radio" name="q1" value="c"> c. Hand lens</label><label><input type="radio" name="q1" value="d"> d. Magnifying glass</label></div></div>
+          <div class="quiz-question"><p>2. Which statement best describes a light microscope?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. It uses electrons to form images</label><label><input type="radio" name="q2" value="b"> b. It is commonly used to observe living cells</label><label><input type="radio" name="q2" value="c"> c. It can magnify objects up to one million times</label><label><input type="radio" name="q2" value="d"> d. It requires a vacuum environment</label></div></div>
+          <div class="quiz-question"><p>3. Which statement best describes an electron microscope?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. It is inexpensive and easy to use</label><label><input type="radio" name="q3" value="b"> b. It can observe living cells directly</label><label><input type="radio" name="q3" value="c"> c. It provides very high-resolution images</label><label><input type="radio" name="q3" value="d"> d. It uses sunlight to form images</label></div></div>
+          <div class="quiz-question"><p>4. A researcher wants to study the internal structure of mitochondria in detail. Which microscope would be most suitable?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Light microscope</label><label><input type="radio" name="q4" value="b"> b. Electron microscope</label><label><input type="radio" name="q4" value="c"> c. Hand lens</label><label><input type="radio" name="q4" value="d"> d. Simple microscope</label></div></div>
+          <div class="quiz-question"><p>5. A researcher is comparing two microscopes. Microscope A can observe living cells but has limited resolution. Microscope B produces extremely detailed images but requires non-living samples. Which conclusion is most accurate?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. Microscope A is an electron microscope</label><label><input type="radio" name="q5" value="b"> b. Microscope B is a light microscope</label><label><input type="radio" name="q5" value="c"> c. Microscope A is a light microscope, and Microscope B is an electron microscope</label><label><input type="radio" name="q5" value="d"> d. Both microscopes are electron microscopes.</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 3: Light vs Electron Microscope</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand the difference between a light and an electron microscope, one of the most important foundations in biology. In this lesson, you will explore the advantages and limitations of each microscope in observing cell.</p>
+        <p>A microscope is an essential scientific tool that allows us to see objects too small for the naked eye. The function is to magnify and reveal the fine details of cells and other tiny structures, helping us understand the microscopic world. In this lesson, you will learn about the structure and function of light and electron microscopes.</p>
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Describe the structure and function of the light and electron microscopes.</li>
+          <li>Compare the magnification and resolution of light and electron microscopes.</li>
+          <li>Explain the advantages and limitations of each microscope in cell observation; and</li>
+          <li>Analyze information from secondary sources to support explanations about microscope use in cell study.</li>
+        </ul>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Light Microscope</h2>
+          <img src="Microscope Parts.png" alt="Light Microscope" class="lesson-img-right" style="max-width: 350px;">
+          <p>A light microscope is an instrument used to magnify small objects such as cells and microorganisms that cannot be seen with the naked eye. It uses visible light and lenses to enlarge the image of a specimen, allowing scientists and students to observe fine details.</p>
+          <h3 style="color: var(--green-mid); margin: 1.5rem 0 0.5rem 0;">Parts and Function of a Light Microscope</h3>
+          <ul>
+            <li><strong>Eyepiece (Ocular Lens):</strong> Located at the top of the microscope. Magnifies the image (usually 10×). This is where you look to see the specimen.</li>
+            <li><strong>Nosepiece (Revolving Nosepiece):</strong> Holds the objective lenses. Rotates to change magnification.</li>
+            <li><strong>Objective Lenses:</strong> Lenses of different magnifications attached to the nosepiece.</li>
+            <li><strong>Stage:</strong> Flat platform where the slide is placed. Has clips to hold the slide in place.</li>
+            <li><strong>Light Source / Mirror:</strong> Provides light that passes through the specimen. Essential for making the specimen visible.</li>
+            <li><strong>Condenser:</strong> Focuses light onto the specimen. Improves image clarity.</li>
+            <li><strong>Diaphragm:</strong> Adjusts the amount of light reaching the specimen.</li>
+            <li><strong>Coarse Adjustment Knob:</strong> Moves the stage up and down quickly. Used for initial focusing.</li>
+            <li><strong>Fine Adjustment Knob:</strong> Moves the stage slowly. Used for sharpening the image.</li>
+            <li><strong>Arm:</strong> Supports the upper part of the microscope. Used to carry the microscope.</li>
+            <li><strong>Base:</strong> Bottom part that supports the microscope. Provides stability.</li>
+            <li><strong>Body Tube:</strong> Connects the eyepiece to the objective lenses.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Electron Microscope</h2>
+          <img src="electron microscope.png" alt="Electron Microscope" class="lesson-img-right" style="max-width: 350px;">
+          <p>An electron microscope is a powerful scientific instrument that uses a beam of electrons instead of light to magnify extremely small structures, allowing us to see details inside cells that are invisible under a light microscope.</p>
+          <h3 style="color: var(--green-mid); margin: 1.5rem 0 0.5rem 0;">Parts and Function of Electron Microscope</h3>
+          <ul>
+            <li><strong>Electron Gun:</strong> Produces a beam of electrons using a heated filament (like tungsten). This replaces the light source in a light microscope. Function: Generates the electrons needed to form an image.</li>
+            <li><strong>Electromagnetic Lenses:</strong> Made of magnetic coils that control and focus the electron beam. Function like glass lenses in a light microscope. Function: Focus and direct the electron beam onto the specimen.</li>
+            <li><strong>Specimen Holder (Stage):</strong> Holds the sample in place inside the microscope. The specimen must be very thin (especially in TEM). Function: Positions the specimen for observation.</li>
+            <li><strong>Vacuum System:</strong> Removes air inside the microscope. Prevents electrons from scattering. Function: Maintains a vacuum so electrons travel smoothly.</li>
+            <li><strong>Image Viewing and Recording System:</strong> Converts electron signals into visible images. Can be a fluorescent screen, camera, or computer monitor. Function: Displays and records the magnified image.</li>
+            <li><strong>Control System:</strong> Includes knobs, buttons, and software controls. Adjusts focus, brightness, and magnification. Function: Allows the user to operate and fine-tune the microscope.</li>
+          </ul>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1.1: Identify the Light Microscope Parts</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Identify the parts of the light microscope. Drag the parts from the box into their correct blank spaces on the diagram.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a label to select it, then tap an empty box on the image to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a11-name">Full Name</label><input type="text" id="a11-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="pool" id="a11-pool">
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Eyepiece">Eyepiece</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Body Tube">Body Tube</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Nosepiece">Nosepiece</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Objective Lenses">Objective Lenses</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Stage">Stage</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Stage Clips">Stage Clips</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Condenser">Condenser</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Diaphragm">Diaphragm</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Mirror">Mirror</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Base">Base</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Arm">Arm</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Coarse Adjustment Knob">Coarse Knob</div>
+            <div class="draggable-item a11-draggable" draggable="true" data-match="Fine Adjustment Knob">Fine Knob</div>
+          </div>
+          
+          <div class="puzzle-board light-micro">
+            <img src="Activity 1.1.png" alt="Light Microscope Diagram">
+            <div class="img-drop-zone a11-drop-zone" id="lm-1" data-match="Eyepiece"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-2" data-match="Body Tube"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-3" data-match="Nosepiece"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-4" data-match="Objective Lenses"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-5" data-match="Stage"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-6" data-match="Condenser"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-7" data-match="Diaphragm"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-8" data-match="Mirror"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-9" data-match="Base"><span class="placeholder-text">Drop</span></div>
+            
+            <div class="img-drop-zone a11-drop-zone" id="lm-10" data-match="Arm"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-14" data-match="Objective Lenses"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-11" data-match="Stage Clips"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-12" data-match="Coarse Adjustment Knob"><span class="placeholder-text">Drop</span></div>
+            <div class="img-drop-zone a11-drop-zone" id="lm-13" data-match="Fine Adjustment Knob"><span class="placeholder-text">Drop</span></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a11" onclick="submitActivity11()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1.2: Identify the Electron Microscope</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Identify the parts of the Electron Microscope. Drag the parts into their correct place on the diagram.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a label to select it, then tap an empty box on the image to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a12-name">Full Name</label><input type="text" id="a12-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="pool" id="a12-pool">
+            <div class="draggable-item a12-draggable" draggable="true" data-match="Electron Gun">Electron Gun</div>
+            <div class="draggable-item a12-draggable" draggable="true" data-match="Electromagnetic Lenses">Electromagnetic Lenses</div>
+            <div class="draggable-item a12-draggable" draggable="true" data-match="Specimen Holder">Specimen Holder</div>
+            <div class="draggable-item a12-draggable" draggable="true" data-match="Vacuum System">Vacuum System</div>
+            <div class="draggable-item a12-draggable" draggable="true" data-match="Image Viewing">Image Viewing System</div>
+            <div class="draggable-item a12-draggable" draggable="true" data-match="Control System">Control System</div>
+          </div>
+          
+          <div class="puzzle-board electron-micro">
+            <img src="Activity 1.2.png" alt="Electron Microscope Diagram">
+            <div class="img-drop-zone a12-drop-zone" id="em-1" data-match="Electron Gun"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-2" data-match="Electromagnetic Lenses"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-3" data-match="Specimen Holder"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-4" data-match="Image Viewing"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-5" data-match="Control System"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-6" data-match="Electromagnetic Lenses"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-7" data-match="Specimen Holder"><span class="placeholder-text">Drop Here</span></div>
+            <div class="img-drop-zone a12-drop-zone" id="em-8" data-match="Vacuum System"><span class="placeholder-text">Drop Here</span></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a12" onclick="submitActivity12()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(5)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: A Microscope Comparison</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Compare and contrast the features of light and electron microscopes. Drag the characteristics into the correct area of the Venn diagram. Characteristics shared by both should go in the middle intersection.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box, then tap the circle zone you want to place it in!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Characteristics (Drag or Tap):</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Colored images</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Can observe living cells</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Lower magnification</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Uses light</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="both">Used in laboratories</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="both">Used to observe small objects</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="both">Produce magnified images</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Very high magnification</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Uses electron beam</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Very high resolution</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Cannot view living cells</div>
+        </div>
+
+        <div class="venn-wrapper">
+            <div class="venn-circle left"><div class="venn-title t-left">Light Microscope</div></div>
+            <div class="venn-circle right"><div class="venn-title t-right">Electron Microscope</div></div>
+            
+            <div class="venn-drop-container">
+                <div class="v-zone multi-drop a2-drop-zone" data-match="light" style="padding-right: 20px;"></div>
+                
+                <div class="v-zone both multi-drop a2-drop-zone" data-match="both">
+                    <div class="venn-title">BOTH</div>
+                </div>
+                
+                <div class="v-zone multi-drop a2-drop-zone" data-match="electron" style="padding-left: 20px;"></div>
+            </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(6)">Proceed to Reading ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: From Colorful Cells to Invisible Structures</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read the passage about the light and electron microscope and answer the guide questions below.</p>
+        
+        <div class="reading-box">
+          <p>“Cells are extremely small structures that cannot be seen clearly with the naked eye. Scientists use microscopes to observe cells and understand how living organism’s function. Two of the most important tools used in cell study are the Light Microscope and the Electron Microscope. Each microscope has unique advantages and limitations that help scientists study cells in different ways.</p>
+          <p>The light microscope uses visible light and a series of lenses to magnify objects. It is commonly used in classrooms and laboratories because it is easy to operate and relatively inexpensive. One of the major advantages of a light microscope is that it can be used to observe living cells. This allows scientists and students to see how cells move, grow, and divide in real time. Light microscopes can magnify objects up to about 1000 times, which is enough to observe the basic structures of a cell, such as the nucleus, cell membrane, and cytoplasm.</p>
+          <p>However, the light microscope also has limitations. Because it relies on light to magnify objects, its resolution is limited. Very tiny structures inside the cell, such as viruses or detailed parts of organelles, cannot be seen clearly using this microscope. As a result, scientists sometimes need a more powerful tool to observe smaller cellular components.</p>
+          <p>The electron microscope was developed to overcome these limitations. Instead of using light, it uses a beam of electrons to create an image. Because electrons have much shorter wavelengths than visible light, electron microscopes can produce images with extremely high magnification and resolution. This allows scientists to see very small structures inside cells, including organelles, membranes, and even viruses.</p>
+          <p>Despite its powerful magnification, the electron microscope also has some disadvantages. It is very expensive and requires specialized training to operate. In addition, specimens must be placed in a vacuum and prepared using special chemicals. Because of this process, living cells cannot be observed with an electron microscope. The images produced are usually black and white, although they may be colored later for easier interpretation.</p>
+          <p>Both microscopes play an important role in the study of cells. The light microscope is useful for observing living cells and studying their general structure and behavior. On the other hand, the electron microscope allows scientists to explore the detailed internal structures of cells that cannot be seen with light microscopes. By using both tools, scientists gain a deeper understanding of the complex world inside every cell.”</p>
+        </div>
+
+        <h3 style="color:var(--green-deep); margin: 3rem 0 1rem 0; font-size: 1.8rem;">Guide Questions</h3>
+        <p>Take a moment to reflect on the reading. Type your answers in the boxes below, then click "Reveal Answers" to check your understanding.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. What are the main differences between a light microscope and an electron microscope?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Light microscopes use visible light and lenses to produce colored images and can observe living cells, but they have lower magnification and resolution. Electron microscopes use electron beams, produce very detailed and high-resolution images, but can only observe non-living specimens.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. Why is the light microscope useful for observing living cells?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> The light microscope is useful because it does not require a vacuum and uses light, allowing scientists to observe living cells and their activities in real time.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. Explain one limitation of the light microscope.</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> One limitation is its lower resolution, which means it cannot clearly show very tiny structures inside the cell compared to an electron microscope.</div>
+          </div>
+          <div class="gq-item">
+            <label>4. Why do scientists still use electron microscopes even though they are expensive?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Scientists use electron microscopes because they provide extremely detailed and high-resolution images, allowing them to study very small structures that cannot be seen with a light microscope.</div>
+          </div>
+          <div class="gq-item">
+            <label>5. How do both microscopes help scientists understand cells better?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Both microscopes allow scientists to observe cells and their structures. Light microscopes help study living cells and their functions, while electron microscopes reveal detailed internal structures, giving a more complete understanding of how cells work.</div>
+          </div>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-reveal-gq" onclick="revealGQ()">Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-6" style="display:none;" onclick="completeAndNext(7)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-7">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 3.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A biologist wants to observe the movement of living cells in real time. Which microscope should they choose and why?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Electron microscope, because it produces high-resolution images</label><label><input type="radio" name="pt1" value="b"> b. Light microscope, because it allows observation of living cells</label><label><input type="radio" name="pt1" value="c"> c. Electron microscope, because it uses electrons instead of light</label><label><input type="radio" name="pt1" value="d"> d. Light microscope, because it can observe viruses</label></div></div>
+          <div class="quiz-question"><p>2. A researcher studies the detailed structure of a virus inside a host cell. Which factor makes the electron microscope more suitable than the light microscope?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. Electron microscopes are portable and inexpensive</label><label><input type="radio" name="pt2" value="b"> b. Electron microscopes produce images with much higher magnification and resolution</label><label><input type="radio" name="pt2" value="c"> c. Electron microscopes allow real-time observation of living cells</label><label><input type="radio" name="pt2" value="d"> d. Electron microscopes use visible light for easy viewing</label></div></div>
+          <div class="quiz-question"><p>3. Two microscopes are available in a lab: one light microscope and one electron microscope. Which scenario demonstrates the best use of both microscopes?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. Observing the shape of living cells with a light microscope and examining organelle details with an electron microscope</label><label><input type="radio" name="pt3" value="b"> b. Observing viruses with a light microscope and real-time cell division with an electron microscope</label><label><input type="radio" name="pt3" value="c"> c. Using both microscopes to study only non-living specimens</label><label><input type="radio" name="pt3" value="d"> d. Observing cells with a light microscope and coloring electron microscope images</label></div></div>
+          <div class="quiz-question"><p>4. Which statement best explains why electron microscopes cannot observe living cells?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Electron beams are too weak to pass through cells</label><label><input type="radio" name="pt4" value="b"> b. Specimens must be placed in a vacuum and treated with chemicals</label><label><input type="radio" name="pt4" value="c"> c. They produce colored images only</label><label><input type="radio" name="pt4" value="d"> d. They have lower magnification than light microscopes</label></div></div>
+          <div class="quiz-question"><p>5. A student argues that the light microscope is “better” than the electron microscope because it is cheaper. Which counter-argument best evaluates this claim?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. The cost doesn’t matter if only living cells are studied</label><label><input type="radio" name="pt5" value="b"> b. Light microscopes cannot see very small structures, limiting detailed cell study</label><label><input type="radio" name="pt5" value="c"> c. Electron microscopes are more expensive but produce blurry images</label><label><input type="radio" name="pt5" value="d"> d. Light microscopes are not actually cheaper than electron microscopes</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(6)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module3_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module3_a11_completed') === 'true') lockActivity11();
+    if (localStorage.getItem('module3_a12_completed') === 'true') lockActivity12();
+    if (localStorage.getItem('module3_a2_completed') === 'true') lockActivity2();
+    
+    if (localStorage.getItem('module3_gq_completed') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module3_gq_answers') || '[]');
+        document.querySelectorAll('.gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index];
+            ta.disabled = true;
+        });
+        document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+        document.getElementById('btn-reveal-gq').style.display = 'none';
+        document.getElementById('btn-next-6').style.display = 'inline-block';
+    }
+
+    if (localStorage.getItem('module3_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 7) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'b', q2: 'b', q3: 'c', q4: 'b', q5: 'c' };
+
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module3_quiz_completed', 'true'); localStorage.setItem('module3_quiz_name', name); localStorage.setItem('module3_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module3_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module3_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module3_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module3_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module3_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE (Shared & Multi-drop Support) ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) {
+    ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element');
+    document.body.appendChild(ghostElement); moveGhost(x, y);
+  }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1.1
+  function updateZonesA11() { document.querySelectorAll('.a11-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a11-draggable') !== null)); }
+  setupDragAndDrop('a11-pool', 'a11-draggable', 'a11-drop-zone', updateZonesA11);
+
+  // Init Engine for Act 1.2
+  function updateZonesA12() { document.querySelectorAll('.a12-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a12-draggable') !== null)); }
+  setupDragAndDrop('a12-pool', 'a12-draggable', 'a12-drop-zone', updateZonesA12);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => { const hasItem = z.querySelector('.a2-draggable') !== null; z.querySelector('.placeholder-text').style.display = hasItem ? 'none' : 'block'; }); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+
+  // ─── ACTIVITY 1.1 SUBMISSION ───
+  function submitActivity11() {
+    const name = document.getElementById('a11-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a11-drop-zone').forEach(z => { const item = z.querySelector('.a11-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module3_a11_state', JSON.stringify(state)); localStorage.setItem('module3_a11_name', name); localStorage.setItem('module3_a11_completed', 'true');
+    const score = applyActivity11Visuals(); localStorage.setItem('module3_a11_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 13</h1>`, () => { lockActivity11(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity11Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a11-drop-zone').forEach(zone => {
+      if(zone.id === 'lm-14' && !zone.querySelector('.a11-draggable')) { zone.style.border = '2px dashed var(--green-bright)'; zone.style.backgroundColor = 'rgba(255,255,255,0.6)'; return; }
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a11-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong);">Incorrect</span><br><strong style="font-size:0.6rem;">Correct: ${correctMatch}</strong>`; }
+      } else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><strong style="font-size:0.6rem;">Correct: ${correctMatch}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity11() { 
+    document.getElementById('a11-name').disabled = true; if(localStorage.getItem('module3_a11_name')) document.getElementById('a11-name').value = localStorage.getItem('module3_a11_name'); 
+    const state = JSON.parse(localStorage.getItem('module3_a11_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = document.querySelector(`#a11-pool .a11-draggable[data-match="${matchVal}"]`);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA11(); applyActivity11Visuals();
+    document.querySelectorAll('.a11-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a11-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module3_a11_score') || 0; const btn = document.getElementById('btn-submit-a11'); btn.innerText = `Submitted (Score: ${score}/13)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 1.2 SUBMISSION ───
+  function submitActivity12() {
+    const name = document.getElementById('a12-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a12-drop-zone').forEach(z => { const item = z.querySelector('.a12-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module3_a12_state', JSON.stringify(state)); localStorage.setItem('module3_a12_name', name); localStorage.setItem('module3_a12_completed', 'true');
+    const score = applyActivity12Visuals(); localStorage.setItem('module3_a12_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 8</h1>`, () => { lockActivity12(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity12Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a12-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a12-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong);">Incorrect</span><br><strong style="font-size:0.6rem;">Correct: ${correctMatch}</strong>`; }
+      } else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><strong style="font-size:0.6rem;">Correct: ${correctMatch}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity12() { 
+    document.getElementById('a12-name').disabled = true; if(localStorage.getItem('module3_a12_name')) document.getElementById('a12-name').value = localStorage.getItem('module3_a12_name'); 
+    const state = JSON.parse(localStorage.getItem('module3_a12_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = document.querySelector(`#a12-pool .a12-draggable[data-match="${matchVal}"]`);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA12(); applyActivity12Visuals();
+    document.querySelectorAll('.a12-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a12-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module3_a12_score') || 0; const btn = document.getElementById('btn-submit-a12'); btn.innerText = `Submitted (Score: ${score}/8)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION (VENN) ───
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = Array.from(document.querySelectorAll('.a2-draggable')).map(item => {
+        const parent = item.closest('.a2-drop-zone'); return parent ? parent.getAttribute('data-match') : null;
+    });
+    localStorage.setItem('module3_a2_state', JSON.stringify(state)); localStorage.setItem('module3_a2_name', name); localStorage.setItem('module3_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module3_a2_score', score);
+    showModal("Venn Diagram Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 11</h1>`, () => { lockActivity2(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-draggable').forEach(item => {
+      const correctMatch = item.getAttribute('data-match'); const parentZone = item.closest('.a2-drop-zone');
+      if(parentZone && parentZone.getAttribute('data-match') === correctMatch) { correctCount++; item.style.border = '2px solid var(--green-bright)'; item.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; } 
+      else { item.style.border = '2px solid var(--red-wrong)'; item.style.backgroundColor = 'var(--red-pale)'; let properZone = correctMatch === 'light' ? "Light Microscope" : (correctMatch === 'both' ? "BOTH" : "Electron Microscope"); item.innerHTML += `<br><strong style="font-size:0.6rem; color:var(--red-wrong);">Belongs in: ${properZone}</strong>`; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module3_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module3_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module3_a2_state') || '[]');
+    document.querySelectorAll('.a2-draggable').forEach((item, index) => {
+        if(state[index]) { const zone = document.querySelector(`.a2-drop-zone[data-match="${state[index]}"]`); if(zone) zone.appendChild(item); }
+    });
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module3_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/11)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block'; 
+  }
+
+  // ─── GUIDE QUESTIONS ───
+  function revealGQ() {
+    const gqAnswers = []; document.querySelectorAll('.gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module3_gq_answers', JSON.stringify(gqAnswers)); localStorage.setItem('module3_gq_completed', 'true');
+    document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show')); document.getElementById('btn-reveal-gq').style.display = 'none'; document.getElementById('btn-next-6').style.display = 'inline-block';
+  }
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'b', pt2: 'b', pt3: 'a', pt4: 'b', pt5: 'b' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module3_pt_completed', 'true'); localStorage.setItem('module3_pt_name', name); localStorage.setItem('module3_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-7', postTestAnswers, selections); localStorage.setItem('module3_pt_score', score);
+    showModal("Module 3 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 3! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-7`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-7 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module3_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module3_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module3_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-7', postTestAnswers, selections);
+    const score = localStorage.getItem('module3_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

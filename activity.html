@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity: Cell Theory Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --coral: #e76f51;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --card-bg: rgba(255,255,255,0.92);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--green-pale); color: var(--ink); padding: 2rem; }
+  
+  .back-btn {
+    display: inline-block; text-decoration: none; color: var(--green-mid);
+    font-weight: 600; margin-bottom: 2rem; font-size: 1rem;
+    background: white; padding: 0.5rem 1rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  .back-btn:hover { background: var(--green-bright); color: white; }
+
+  .page-header { text-align: center; margin-bottom: 2rem; }
+  .page-header h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); }
+  
+  .activity-container { max-width: 1000px; margin: 0 auto; background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(26,58,42,0.1); }
+  
+  /* SCORE BAR */
+  .score-bar { background: var(--green-pale); border-radius: 16px; padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+  .score-display { display: flex; align-items: center; gap: 0.75rem; }
+  .score-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--green-deep); }
+  .progress-track { flex: 1; min-width: 160px; height: 8px; background: white; border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green-bright); border-radius: 100px; transition: width 0.5s ease; width: 0%; }
+  
+  /* PIECES POOL */
+  .pieces-pool { background: var(--card-bg); border: 2px dashed rgba(82,183,136,0.35); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
+  .pieces-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; min-height: 70px; }
+  .drag-piece {
+    background: linear-gradient(135deg, var(--green-mid), var(--green-deep)); color: var(--cream);
+    border-radius: 10px; padding: 0.6rem 1.1rem; font-size: 0.875rem; font-weight: 600;
+    cursor: grab; user-select: none; box-shadow: 0 3px 12px rgba(26,58,42,0.3);
+    transition: all 0.15s; display: flex; align-items: center; gap: 0.5rem; border: 2px solid transparent;
+  }
+  .drag-piece.dragging { opacity: 0.4; cursor: grabbing; transform: scale(0.95); }
+  
+  /* MATCHING BOARD */
+  .matching-board { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 680px) { .matching-board { grid-template-columns: 1fr; } }
+  
+  .drop-slot {
+    background: rgba(255,255,255,0.85); border: 2px dashed rgba(82,183,136,0.4);
+    border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; min-height: 58px;
+    display: flex; align-items: center; transition: all 0.2s; position: relative;
+  }
+  .drop-slot.drag-over { border-color: var(--green-bright); background: rgba(82,183,136,0.08); transform: scale(1.01); }
+  .drop-slot.correct { border-color: var(--green-mid); border-style: solid; background: rgba(82,183,136,0.1); }
+  .drop-slot.wrong { animation: shake 0.35s ease; border-color: var(--coral); border-style: solid; }
+  
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+  
+  .discovery-slot { border: 2px solid rgba(82,183,136,0.25); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; min-height: 58px; display: flex; align-items: center; }
+  
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,58,42,0.7); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal-card { background: var(--cream); border-radius: 24px; padding: 3rem; text-align: center; max-width: 420px; width: 90%; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-btn">← Back to Modules</a>
+
+<div class="page-header">
+  <h2>🧩 Timeline Match</h2>
+  <p>Drag each scientist to their correct discovery.</p>
+</div>
+
+<div class="activity-container">
+  <div class="score-bar">
+    <div class="score-display">
+      <div class="score-num" id="score-num">0</div>
+      <div class="score-label">correct</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <button onclick="resetActivity()" style="padding:0.5rem 1rem; border-radius:8px; cursor:pointer;">↺ Reset</button>
+  </div>
+
+  <div class="pieces-pool">
+    <div class="pieces-grid" id="pieces-grid">
+      </div>
+  </div>
+
+  <div class="matching-board">
+    <div class="match-column">
+      <h4>📅 Drop Zone</h4>
+      <div style="display:flex; gap:1rem; align-items:center;">
+        <b>1665</b> <div class="drop-slot" style="flex:1;" data-answer="hooke" id="slot-hooke" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropItem(event)">Drop here</div>
+      </div>
+      <div style="display:flex; gap:1rem; align-items:center;">
+        <b>1674</b> <div class="drop-slot" style="flex:1;" data-answer="leeuwenhoek" id="slot-leeuwenhoek" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropItem(event)">Drop here</div>
+      </div>
+      <div style="display:flex; gap:1rem; align-items:center;">
+        <b>1838</b> <div class="drop-slot" style="flex:1;" data-answer="schleiden" id="slot-schleiden" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropItem(event)">Drop here</div>
+      </div>
+      <div style="display:flex; gap:1rem; align-items:center;">
+        <b>1855</b> <div class="drop-slot" style="flex:1;" data-answer="virchow" id="slot-virchow" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropItem(event)">Drop here</div>
+      </div>
+    </div>
+    <div class="match-column">
+      <h4>🔍 Discovery</h4>
+      <div class="discovery-slot">🔲 Discovered small box-like structures and named them <strong>"cells"</strong></div>
+      <div class="discovery-slot">🦠 Discovered living microorganisms called <strong>"animalcules"</strong></div>
+      <div class="discovery-slot">🌱 Concluded that all <strong>plants</strong> are composed of cells</div>
+      <div class="discovery-slot">⚡ Proposed that new cells arise from <strong>existing cells</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="success-modal">
+  <div class="modal-card">
+    <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎉 Perfect!</h3>
+    <p style="margin-bottom: 2rem;">You mastered the timeline.</p>
+    <a href="index.html" style="display:block; background:var(--green-bright); color:white; padding:1rem; text-decoration:none; border-radius:12px;">Return to Modules</a>
+  </div>
+</div>
+
+<script>
+  let draggedId = null;
+  let draggedEl = null;
+  let correctCount = 0;
+
+  const piecesData = [
+    { id: 'hooke', label: '🔭 Robert Hooke (1665)' },
+    { id: 'leeuwenhoek', label: '🦠 Van Leeuwenhoek (1674)' },
+    { id: 'schleiden', label: '🌿 Matthias Schleiden (1838)' },
+    { id: 'virchow', label: '⚕️ Rudolf Virchow (1855)' }
+  ];
+
+  function initPool() {
+    const pool = document.getElementById('pieces-grid');
+    pool.innerHTML = '';
+    const shuffled = [...piecesData].sort(() => Math.random() - 0.5);
+    shuffled.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'drag-piece';
+      div.draggable = true;
+      div.dataset.id = p.id;
+      div.innerHTML = p.label;
+      div.addEventListener('dragstart', (e) => {
+        draggedEl = e.currentTarget;
+        draggedId = draggedEl.dataset.id;
+        setTimeout(() => draggedEl.classList.add('dragging'), 0);
+      });
+      div.addEventListener('dragend', () => draggedEl && draggedEl.classList.remove('dragging'));
+      pool.appendChild(div);
+    });
+  }
+
+  function dragOver(e) { e.preventDefault(); if (!e.currentTarget.classList.contains('correct')) e.currentTarget.classList.add('drag-over'); }
+  function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+  
+  function dropItem(e) {
+    e.preventDefault();
+    const slot = e.currentTarget;
+    slot.classList.remove('drag-over');
+    if (!draggedId || slot.classList.contains('correct')) return;
+
+    if (draggedId === slot.dataset.answer) {
+      if (draggedEl) draggedEl.remove();
+      const p = piecesData.find(x => x.id === draggedId);
+      slot.innerHTML = `<div class="drag-piece" style="margin:0;">${p.label}</div>`;
+      slot.classList.add('correct');
+      correctCount++;
+      document.getElementById('score-num').textContent = correctCount;
+      document.getElementById('progress-fill').style.width = (correctCount / 4 * 100) + '%';
+      if (correctCount === 4) setTimeout(() => document.getElementById('success-modal').classList.add('show'), 500);
+    } else {
+      slot.classList.add('wrong');
+      setTimeout(() => slot.classList.remove('wrong'), 400);
+    }
+  }
+
+  function resetActivity() {
+    correctCount = 0;
+    document.getElementById('score-num').textContent = 0;
+    document.getElementById('progress-fill').style.width = '0%';
+    document.querySelectorAll('.drop-slot').forEach(slot => {
+      slot.innerHTML = 'Drop here';
+      slot.classList.remove('correct', 'wrong');
+    });
+    initPool();
+  }
+
+  window.onload = initPool;
+</script>
+</body>
+</html>

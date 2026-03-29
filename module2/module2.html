@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2: The Cell</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav {
+    background: var(--green-deep); padding: 1rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2);
+    padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+  }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 16.6%; transition: width 0.4s ease; }
+
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .lesson-img-right { float: right; margin: 0 0 1.5rem 1.5rem; max-width: 280px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 1px solid rgba(82,183,136,0.2); }
+  .clearfix::after { content: ""; clear: both; display: table; }
+  .organelle-section { margin-bottom: 3rem; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.func-drag { text-align: center; font-size: 0.75rem; font-weight: 500; max-width: 250px; line-height: 1.3; }
+  
+  /* Activity 3 Specific Img Drag Styles */
+  .draggable-item.img-drag { padding: 0.25rem; border-radius: 50%; width: 75px; height: 75px; display: flex; justify-content: center; align-items: center; overflow: hidden; background: white; }
+  .draggable-item.img-drag img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: 50%; }
+
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .ghost-element.img-drag { width: 75px; height: 75px; border-radius: 50%; padding: 0.25rem; background: white; }
+  .placeholder-text { font-size: 0.8rem; font-weight: 600; color: rgba(26,58,42,0.6); pointer-events: none; }
+
+  /* ─── ACTIVITY 1: IMAGE MAP DRAG AND DROP ─── */
+  .puzzle-board { position: relative; width: 100%; max-width: 800px; margin: 0 auto; display: block; }
+  .puzzle-board img { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; }
+  
+  .a1-drop-zone { position: absolute; border: 2px dashed rgba(26, 58, 42, 0.5); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.7); transition: all 0.3s; overflow: hidden; cursor: pointer; }
+  .a1-drop-zone.drag-over { background: rgba(82,183,136,0.6); border-color: var(--green-deep); transform: scale(1.05); }
+  .a1-drop-zone.filled { background: white; border: 2px solid var(--green-mid); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .a1-drop-zone.filled .draggable-item { font-size: 0.65rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
+  .a1-drop-zone.filled .placeholder-text { display: none; }
+
+  #dz-1 { top: 2.5%; left: 18%; width: 18%; height: 7%; }  
+  #dz-2 { top: 16%; left: 7%; width: 18%; height: 7%; }   
+  #dz-3 { top: 28%; left: 5%; width: 18%; height: 7%; }   
+  #dz-4 { top: 40%; left: 3%; width: 18%; height: 7%; }   
+  #dz-5 { top: 60%; left: 3%; width: 18%; height: 7%; }   
+  #dz-6 { top: 80%; left: 12%; width: 18%; height: 7%; }  
+  #dz-7 { top: 80%; left: 72%; width: 18%; height: 7%; }  
+  #dz-8 { top: 56%; left: 80%; width: 18%; height: 7%; }  
+  #dz-9 { top: 2.5%; left: 60%; width: 18%; height: 7%; } 
+
+  /* ─── ACTIVITY 2: TABLE DRAG AND DROP ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: left; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; }
+  
+  .a2-drop-zone, .a3-drop-zone { min-height: 60px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a2-drop-zone.drag-over, .a3-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a2-drop-zone.filled, .a3-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a2-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; }
+  .a3-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; }
+  .a2-drop-zone.filled .placeholder-text, .a3-drop-zone.filled .placeholder-text { display: none; }
+
+  /* ─── ACTIVITY 3: MAGNIFYING GLASS CSS ─── */
+  .mag-glass {
+    width: 85px;
+    height: 85px;
+    border: 6px solid #334155; /* Dark frame */
+    border-radius: 50%;
+    position: relative;
+    background: #f8fafc;
+    margin: 10px auto 35px auto; /* Margin bottom for handle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
+    transition: all 0.3s;
+    overflow: visible; /* Needed so handle sticks out */
+  }
+  .mag-glass::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 45px;
+    background: #334155;
+    border-radius: 6px;
+    bottom: -30px;
+    left: -12px;
+    transform: rotate(45deg);
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    z-index: 1;
+    pointer-events: none; /* Stops it from blocking drops */
+  }
+  .mag-glass.drag-over { background: var(--green-pale); border-color: var(--green-mid); }
+  .mag-glass.drag-over::after { background: var(--green-mid); }
+  .mag-glass.filled { background: white; border-color: var(--green-deep); }
+  .mag-glass.filled::after { background: var(--green-deep); }
+  
+  .mag-glass .a3-draggable {
+    width: 100%; height: 100%; border-radius: 50%; padding: 0; border: none; background: transparent;
+  }
+  .mag-glass .a3-draggable img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+  }
+  .mag-glass .placeholder-text { font-size: 0.7rem; font-weight: 700; color: #94a3b8; pointer-events: none; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content {
+    background: white; border-radius: 16px; width: 90%; max-width: 500px;
+    padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .lesson-img-right { float: none; margin: 1rem auto; display: block; }
+    .a1-drop-zone.filled .draggable-item { font-size: 0.4rem; line-height: 1.1; }
+    .placeholder-text { font-size: 0.5rem; }
+    .draggable-item.func-drag { max-width: 100%; font-size: 0.65rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 2 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 2</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Activity 1: Cell Explorer</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Activity 2 & Reflection</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Activity 3: Cell Detective</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. Which organelle is considered as the power house of the cell?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Cytoplasm</label><label><input type="radio" name="q1" value="b"> b. Mitochondria</label><label><input type="radio" name="q1" value="c"> c. Lysosomes</label><label><input type="radio" name="q1" value="d"> d. Cell Membrane</label></div></div>
+          <div class="quiz-question"><p>2. Which organelle is the brain of the cell?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. Ribosomes</label><label><input type="radio" name="q2" value="b"> b. Vacuole</label><label><input type="radio" name="q2" value="c"> c. Nucleus</label><label><input type="radio" name="q2" value="d"> d. Endoplasmic Reticulum</label></div></div>
+          <div class="quiz-question"><p>3. Which organelle contains digestive enzymes that destroy foreign materials in the cell?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. Lysosomes</label><label><input type="radio" name="q3" value="b"> b. Mitochondrion</label><label><input type="radio" name="q3" value="c"> c. Nucleus</label><label><input type="radio" name="q3" value="d"> d. Ribosomes</label></div></div>
+          <div class="quiz-question"><p>4. Which organelle is responsible for the synthesis of phospholipids and steroids?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. Nucleus</label><label><input type="radio" name="q4" value="b"> b. Ribosome</label><label><input type="radio" name="q4" value="c"> c. Rough endoplasmic reticulum</label><label><input type="radio" name="q4" value="d"> d. Smooth endoplasmic reticulum</label></div></div>
+          <div class="quiz-question"><p>5. Which of the following refers to the function of chloroplasts?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. Lipid Synthesis</label><label><input type="radio" name="q5" value="b"> b. Photosynthesis</label><label><input type="radio" name="q5" value="c"> c. Protein Synthesis</label><label><input type="radio" name="q5" value="d"> d. Cellular Respiration</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 2: The Cell</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary material is designed to support and enhance students’ understanding of the core concepts in biology. These materials provide additional explanations, activities, examples, and assessments that help reinforce the lessons discussed in class or presented in the main learning module.</p>
+        
+        <p>In the previous lesson, you learned about the origin of cells and the three postulates of the Cell Theory. In this lesson you will learn the structure and function of each organelle and how they carry out essential functions needed for growth, development, and survival. Cells contain small membrane-bound structures called organelles that performs specific functions.</p>
+        
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>identify the different cell organelles;</li>
+          <li>describe the structure and functions of the cell organelles; and</li>
+          <li>relate the function of cell organelles in city-like illustration.</li>
+        </ul>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Nucleus</h2>
+          <img src="nucleus.png" alt="Nucleus" class="lesson-img-right">
+          <p>The nucleus is important to the life of the cell. It is commonly known as the “brain of the cell”. It contains and stores all the genetic information for manufacturing proteins and responsible for controlling all cellular activities.</p>
+          <ul>
+            <li>The nucleus consists of chromatin, nucleolus, and nuclear envelope.</li>
+            <li>The chromatin is a network of strands that condenses and undergoes coiling into rod-like structures called chromosomes. Chromatin contains DNA (Deoxyribonucleic Acid), histones and some RNA (Ribonucleic Acid).</li>
+            <li>The nucleolus is a dark region of chromatin where a type of RNA, called ribosomal RNA (rRNA), is produced, and joins with proteins to form the subunits of ribosomes.</li>
+            <li>The nuclear envelope is a double membrane that separates the nucleus from the cytoplasm. It has nuclear pores to permit the passage of RNA out of the nucleus into the cytoplasm, and the passage of proteins from then cytoplasm into the nucleus.</li>
+            <li>The nucleus serves as the storage of genetic materials such as DNA and RNA.</li>
+            <li>Nucleus controls other organelles by facilitating cell growth, cell division, and protein synthesis.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Ribosomes</h2>
+          <img src="ribosomes.png" alt="Ribosomes" class="lesson-img-right">
+          <p>The ribosomes are also known as the “protein factories of the cell”.</p>
+          <ul>
+            <li>They are mainly responsible for protein synthesis in the cells.</li>
+            <li>They are usually dispersed in the cytoplasm or attached to the endoplasmic reticulum.</li>
+            <li>Ribosomes are composed of one large subunit and one small subunit.</li>
+            <li>The number of ribosomes in a cell varies depending on its functions. For example, pancreatic cells have many ribosomes because they produce secretions that contain proteins.</li>
+            <li>Ribosomes receive mRNA from the nucleus, and this nucleic acid carries a coded message from DNA. The mRNA carries the correct sequence of amino acids in a protein. Protein synthesized by the cytoplasmic ribosomes are used in the cytoplasm, while proteins synthesized by attached ribosomes end up in the endoplasmic reticulum.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">The Endomembrane System</h2>
+          <img src="endomembrane.png" alt="Endomembrane System" class="lesson-img-right">
+          <p>The endomembrane system consists of the three major organelles that work together to perform different tasks such as packaging, producing, and exporting certain cellular products. The endomembrane system includes the endoplasmic reticulum, Golgi apparatus and several types of vesicles.</p>
+          <ul>
+            <li>The endoplasmic reticulum (ER) consists of complicated system of membranous channels and flattened vesicles which is physically continuous to the outer membrane of the nuclear envelope.</li>
+            <li>There are two types of endoplasmic reticulum: the rough endoplasmic reticulum and smooth endoplasmic reticulum.</li>
+            <li><strong>Rough endoplasmic reticulum</strong> is studded with ribosomes on the side of the membrane that faces the cytoplasm. It is responsible for synthesizing proteins. Rough endoplasmic reticulum forms vesicles in which large molecules are transported to other parts of the cell.</li>
+            <li><strong>Smooth endoplasmic reticulum</strong> which is continuous with rough ER, does not have attached ribosomes. Smooth endoplasmic reticulum is responsible for synthesizing lipids, such as phospholipids and steroids. The function of smooth ER is usually dependent on a particular cell. For example, smooth ER in the liver helps in detoxifying drugs. Usually, smooth ER increases its quantity when a person regularly consumes alcohols.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Golgi Apparatus (Dictyosomes)</h2>
+          <img src="golgi.png" alt="Golgi Apparatus" class="lesson-img-right">
+          <ul>
+            <li>The Golgi apparatus are a stack of curved, flattened sacs, which can be compared to a pile of pancakes.</li>
+            <li>Mostly, one side of the stack (the cis) is directed towards the endoplasmic reticulum, and the other side of the stack (the trans) is directed towards the cell membrane.</li>
+            <li>The Golgi apparatus receives vesicles from the endoplasmic reticulum along the cis face. Once inside the Golgi apparatus, the material is altered in the lumen of the vesicle. The vesicles then start to swell and be released from the trans face. These vesicles may be either exported outside the cell or may be used by the cell for its own use.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Lysosomes</h2>
+          <img src="lysosomes.png" alt="Lysosomes" class="lesson-img-right">
+          <ul>
+            <li>The lysosomes are membrane-bounded vesicles produced by the Golgi apparatus.</li>
+            <li>Lysosomes are very acidic and contain powerful hydrolytic digestive enzymes that require a low–pH environment. Hydrolytic enzymes break down large molecules into small molecules. For example, they break down large carbohydrates into simple sugars that will serve as a nutrient for the cell.</li>
+            <li>Lysosomes are responsible in recycling cellular material and destroying invading viruses and bacteria.</li>
+            <li>Lysosomes also participate in a programmed cell death called apoptosis which is a normal part of development. For example, the fingers of human embryo are at webbed at first, but eventually freed from one another because of lysosomal action.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Energy–Related Organelles</h2>
+          <p>One of the functions of the cell is to convert energy to a form that can be used by the cell. It includes organelles such as mitochondria and chloroplasts.</p>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Mitochondrion</h2>
+          <img src="mitochondrion.png" alt="Mitochondrion" class="lesson-img-right">
+          <p>The mitochondrion (mitochondria, plural) is often called the “powerhouse of the cell.” It produces most of the ATP (Adenosine Triphosphate) which is used by the cell through the process called cellular respiration.</p>
+          <ul>
+            <li>The mitochondrion is a double membrane-bound organelle that is responsible for supplying and storing energy for the cell. It has two membranes, the outer membrane and the inner membrane. The inner membrane is highly convoluted into cristae that project into the matrix. The inner membrane surrounds a matrix containing its own mitochondrial DNA and ribosomes. The matrix is a highly concentrated mixture of enzymes that break down carbohydrates and other nutrient molecules.</li>
+            <li>The mitochondrion is where the synthesis of energy in the form of ATP takes place which is required for other cell organelles to function.</li>
+            <li>Mitochondria also help in the balancing of cations within the cell and assists the process of apoptosis. Apoptosis is also known as “cellular suicide”. It is a convenient way of removing cells that should not be longer part of the cell.</li>
+            <li>Mitochondria in the liver can detoxify ammonia.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Chloroplasts</h2>
+          <img src="chloroplasts.png" alt="Chloroplasts" class="lesson-img-right">
+          <ul>
+            <li>Chloroplasts are plant and algal organelles that are bounded by a double membrane.</li>
+            <li>A chloroplast contains a series of internal membrane or vesicles. It contains DNA and chlorophyll which carry on photosynthesis. Its double membrane encloses a large space called stroma.</li>
+          </ul>
+        </div>
+
+        <div class="organelle-section clearfix">
+          <h2 style="color: var(--green-deep); margin-bottom: 1rem;">Peroxisomes</h2>
+          <img src="peroxisomes.png" alt="Peroxisomes" class="lesson-img-right">
+          <ul>
+            <li>The peroxisomes are membrane-bounded vesicles that encloses enzymes.</li>
+            <li>The enzymes in the peroxisomes are synthesized by free ribosomes and transported into the cytoplasm.</li>
+            <li>Each peroxisome also carries enzymes which results in the formation of hydrogen peroxide (H2O2).</li>
+            <li>Peroxisomes can also detoxify some products of photosynthesis.</li>
+          </ul>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: Cell Explorer</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Label the parts of the cell. Use the organelles inside the box below and drag them to the correct empty spaces on the cell diagram.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a label to select it, then tap an empty box on the image to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div class="dnd-container">
+          <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Rough ER">Rough ER</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Peroxisomes">Peroxisomes</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Mitochondrion">Mitochondrion</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Vesicle">Vesicle</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Lysosome">Lysosome</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Smooth ER">Smooth ER</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Centrioles">Centrioles</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Nucleus">Nucleus</div>
+            <div class="draggable-item a1-draggable" draggable="true" data-match="Golgi apparatus">Golgi apparatus</div>
+          </div>
+          <div class="puzzle-board">
+            <img src="Cell Explorer.png" alt="Cell Diagram to Label">
+            <div class="a1-drop-zone" id="dz-1" data-match="Rough ER"><span class="placeholder-text">1. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-2" data-match="Peroxisomes"><span class="placeholder-text">2. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-3" data-match="Mitochondrion"><span class="placeholder-text">3. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-4" data-match="Vesicle"><span class="placeholder-text">4. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-5" data-match="Lysosome"><span class="placeholder-text">5. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-6" data-match="Smooth ER"><span class="placeholder-text">6. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-7" data-match="Centrioles"><span class="placeholder-text">7. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-8" data-match="Nucleus"><span class="placeholder-text">8. Drop Here</span></div>
+            <div class="a1-drop-zone" id="dz-9" data-match="Golgi apparatus"><span class="placeholder-text">9. Drop Here</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-3" onclick="completeAndNext(3)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Cell City Analogy</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Look at the city-like illustration of the cell. Identify the correct cell organelle AND its corresponding function by dragging both from the box into the correct table rows.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <img src="the cell city.png" alt="The Cell City" style="max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
+        </div>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Answer Pool (Drag or Tap):</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Nucleus">Nucleus</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Mitochondria">Mitochondria</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Ribosomes">Ribosomes</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Vacuole">Vacuole</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Cell Membrane">Cell Membrane</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="Golgi Apparatus">Golgi Apparatus</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="ER">Endoplasmic Reticulum (ER)</div>
+          
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-Nucleus">Controls all activities of the cell; like City Hall manages the city</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-Mitochondria">Produces energy (ATP); like a power plant supplies energy to the city</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-Ribosomes">Produces proteins; like factories manufacture goods</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-Vacuole">Stores water, nutrients, and waste; like warehouses store supplies</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-Cell Membrane">Regulates what enters and exits the cell; like gates control city access</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-Golgi">Packages and distributes materials; like a post office sorts and delivers mail</div>
+          <div class="draggable-item a2-draggable func-drag" draggable="true" data-match="f-ER">Transports materials within the cell; like roads move goods around the city</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr><th>#</th><th>City Analogy</th><th>Cell Organelle</th><th>Function / City Roles</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td><td style="font-weight: 600; color: var(--green-deep);">City Hall</td>
+                <td><div class="a2-drop-zone" data-match="Nucleus"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-Nucleus"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+              <tr>
+                <td>2</td><td style="font-weight: 600; color: var(--green-deep);">Power Plant</td>
+                <td><div class="a2-drop-zone" data-match="Mitochondria"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-Mitochondria"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+              <tr>
+                <td>3</td><td style="font-weight: 600; color: var(--green-deep);">Factory</td>
+                <td><div class="a2-drop-zone" data-match="Ribosomes"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-Ribosomes"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+              <tr>
+                <td>4</td><td style="font-weight: 600; color: var(--green-deep);">Storage Warehouse</td>
+                <td><div class="a2-drop-zone" data-match="Vacuole"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-Vacuole"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+              <tr>
+                <td>5</td><td style="font-weight: 600; color: var(--green-deep);">Security Gate</td>
+                <td><div class="a2-drop-zone" data-match="Cell Membrane"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-Cell Membrane"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+              <tr>
+                <td>6</td><td style="font-weight: 600; color: var(--green-deep);">Post Office</td>
+                <td><div class="a2-drop-zone" data-match="Golgi Apparatus"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-Golgi"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+              <tr>
+                <td>7</td><td style="font-weight: 600; color: var(--green-deep);">Transport System</td>
+                <td><div class="a2-drop-zone" data-match="ER"><span class="placeholder-text">Drop Organelle</span></div></td>
+                <td><div class="a2-drop-zone" data-match="f-ER"><span class="placeholder-text">Drop Function</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect on what you've learned from the Cell City Analogy. Type your answers below, then submit to reveal the correct responses.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. If the mitochondria stopped working, what would happen to the cell? How is this similar to a city losing its power supply?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> If the mitochondria stopped working, the cell would not be able to produce enough energy (ATP) to carry out its functions. As a result, the cell would weaken and eventually die. This is similar to a city losing its power supply because without electricity, machines, transportation, communication, and daily activities would stop, causing the city to shut down.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. What might happen to a city if the government (like the nucleus) stopped functioning properly? How would this affect the cell?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> If the government stopped functioning properly, the city would become disorganized, with no rules or coordination, leading to chaos. Similarly, if the nucleus stopped working, the cell would lose control of its activities since it contains the genetic instructions. This would result in improper functioning and could cause the cell to die.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. Why is it important that all organelles work together to keep the cell alive?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> It is important that all organelles work together because each one has a specific role that supports the cell’s survival. If one organelle fails, it can affect the entire cell. Just like in a city, where different systems (power, transportation, communication) must work together, the cell relies on coordination among organelles to function properly and stay alive.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(5)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Cell Detective Activity</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read the clues below and identify which organelle matches the description. Drag the correct organelle from the box into the magnifying glass next to the clue.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty magnifying glass to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="pool" id="a3-pool">
+          <div class="draggable-item a3-draggable img-drag" draggable="true" data-match="Nucleus"><img src="Activity3_1.png" alt="Nucleus"></div>
+          <div class="draggable-item a3-draggable img-drag" draggable="true" data-match="Mitochondria"><img src="Activity3_2.png" alt="Mitochondria"></div>
+          <div class="draggable-item a3-draggable img-drag" draggable="true" data-match="Cell Membrane"><img src="Activity3_3.png" alt="Cell Membrane"></div>
+          <div class="draggable-item a3-draggable img-drag" draggable="true" data-match="Golgi Apparatus"><img src="Activity3_4.png" alt="Golgi Apparatus"></div>
+          <div class="draggable-item a3-draggable img-drag" draggable="true" data-match="Ribosomes"><img src="Activity3_5.png" alt="Ribosomes"></div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr><th>Clue Number</th><th>Description</th><th>Organelle Image</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: bold; text-align: center; font-size: 1.5rem;">1</td>
+                <td>I am the control center of the cell. I contain genetic material that directs all activities.</td>
+                <td style="width: 200px; text-align: center; vertical-align: middle;">
+                    <div class="a3-drop-zone mag-glass" data-match="Nucleus"><span class="placeholder-text">Drop Here</span></div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; text-align: center; font-size: 1.5rem;">2</td>
+                <td>I produce energy that powers the cell's activities.</td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div class="a3-drop-zone mag-glass" data-match="Mitochondria"><span class="placeholder-text">Drop Here</span></div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; text-align: center; font-size: 1.5rem;">3</td>
+                <td>I control what enters and leaves the cell.</td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div class="a3-drop-zone mag-glass" data-match="Cell Membrane"><span class="placeholder-text">Drop Here</span></div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; text-align: center; font-size: 1.5rem;">4</td>
+                <td>I package and distribute proteins to different parts of the cell.</td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div class="a3-drop-zone mag-glass" data-match="Golgi Apparatus"><span class="placeholder-text">Drop Here</span></div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; text-align: center; font-size: 1.5rem;">5</td>
+                <td>I am the site where proteins are produced.</td>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div class="a3-drop-zone mag-glass" data-match="Ribosomes"><span class="placeholder-text">Drop Here</span></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 2.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A toxin damages the mitochondria of a cell. Which cellular process will be most directly affected?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Protein synthesis</label><label><input type="radio" name="pt1" value="b"> b. Energy production</label><label><input type="radio" name="pt1" value="c"> c. Lipid storage</label><label><input type="radio" name="pt1" value="d"> d. DNA replication</label></div></div>
+          <div class="quiz-question"><p>2. Which cell organelle is responsible for protein synthesis?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. Mitochondria</label><label><input type="radio" name="pt2" value="b"> b. Chloroplasts</label><label><input type="radio" name="pt2" value="c"> c. Nucleus</label><label><input type="radio" name="pt2" value="d"> d. Ribosomes</label></div></div>
+          <div class="quiz-question"><p>3. A scientist damages the Golgi apparatus in a cell. Which function will most likely be affected?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. Modification and packaging of proteins</label><label><input type="radio" name="pt3" value="b"> b. Production of ATP</label><label><input type="radio" name="pt3" value="c"> c. Photosynthesis</label><label><input type="radio" name="pt3" value="d"> d. DNA storage</label></div></div>
+          <div class="quiz-question"><p>4. Which cell organelle is very acidic and contain powerful hydrolytic digestive enzymes that require a low–pH environment.</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Nucleus</label><label><input type="radio" name="pt4" value="b"> b. Endoplasmic Reticulum</label><label><input type="radio" name="pt4" value="c"> c. Lysosomes</label><label><input type="radio" name="pt4" value="d"> d. Ribosomes</label></div></div>
+          <div class="quiz-question"><p>5. In a city-like structure of a cell the cell membrane serves as security gate. Which of the following is the correct explanation to this analogy?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. Because cell membrane produces energy for the city</label><label><input type="radio" name="pt5" value="b"> b. Because the cell membrane produces proteins</label><label><input type="radio" name="pt5" value="c"> c. Because cell membrane controls what enters and leaves the city just like the cell membrane regulates materials entering and exiting the cell.</label><label><input type="radio" name="pt5" value="d"> d. Because cell membrane breaks down waste materials and old structures in the city</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module2_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module2_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module2_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module2_a3_completed') === 'true') lockActivity3();
+    
+    // Check GQ
+    if (localStorage.getItem('module2_gq_completed') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module2_gq_answers') || '[]');
+        document.querySelectorAll('.gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index];
+            ta.disabled = true;
+        });
+        document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+        document.getElementById('btn-next-4').style.display = 'inline-block';
+    }
+
+    if (localStorage.getItem('module2_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 5) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'b', q2: 'c', q3: 'a', q4: 'd', q5: 'b' }; 
+
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0;
+    const selections = {};
+
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+
+    localStorage.setItem('module2_quiz_completed', 'true'); 
+    localStorage.setItem('module2_quiz_name', name);
+    localStorage.setItem('module2_quiz_selections', JSON.stringify(selections));
+    
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module2_quiz_score', score);
+
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true);
+    document.getElementById('q-name').disabled = true;
+    
+    if(localStorage.getItem('module2_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module2_quiz_name');
+    
+    const selections = JSON.parse(localStorage.getItem('module2_quiz_selections') || '{}');
+    
+    for(let q in preTestAnswers) {
+        if(selections[q]) {
+            const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`);
+            if(input) input.checked = true;
+        }
+    }
+    
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+
+    const score = localStorage.getItem('module2_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); 
+    btn.innerText = `Submitted (Score: ${score}/5)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) {
+              score++;
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)';
+              if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)';
+              if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)';
+              if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else {
+            correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)';
+            if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+          }
+      }
+      return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE (Shared) ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) {
+    ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element');
+    document.body.appendChild(ghostElement); moveGhost(x, y);
+  }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const existing = dropZone.querySelector(`.${dragClass}`); if (existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        }
+        draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const existing = zone.querySelector(`.${dragClass}`); if (existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (zone.children.length > 1) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a1-draggable') !== null)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  // Init Engine for Act 3
+  function updateZonesA3() { document.querySelectorAll('.a3-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a3-draggable') !== null)); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION ───
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    // Save State
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(z => {
+        const item = z.querySelector('.a1-draggable');
+        if(item) state[z.id] = item.getAttribute('data-match');
+    });
+    localStorage.setItem('module2_a1_state', JSON.stringify(state));
+    localStorage.setItem('module2_a1_name', name);
+    localStorage.setItem('module2_a1_completed', 'true');
+
+    const score = applyActivity1Visuals();
+    localStorage.setItem('module2_a1_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 9</h1>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match');
+      const item = zone.querySelector('.a1-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(82,183,136,0.3)'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; item.innerHTML = `❌`; }
+      } else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(239,68,68,0.2)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!`; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; 
+    if(localStorage.getItem('module2_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module2_a1_name');
+    
+    // Restore State
+    const state = JSON.parse(localStorage.getItem('module2_a1_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId);
+        // Find the first matching item in the pool
+        const item = document.querySelector(`#a1-pool .a1-draggable[data-match="${matchVal}"]`);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA1();
+    applyActivity1Visuals();
+
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    
+    const score = localStorage.getItem('module2_a1_score') || 0;
+    const btn = document.getElementById('btn-submit-a1'); 
+    btn.innerText = `Submitted (Score: ${score}/9)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-3').style.display = 'inline-block'; 
+  }
+
+
+  // ─── ACTIVITY 2 & REFLECTION SUBMISSION ───
+  const a2_correctText = {
+      "Nucleus": "Nucleus", "f-Nucleus": "Controls all activities...",
+      "Mitochondria": "Mitochondria", "f-Mitochondria": "Produces energy...",
+      "Ribosomes": "Ribosomes", "f-Ribosomes": "Produces proteins...",
+      "Vacuole": "Vacuole", "f-Vacuole": "Stores water...",
+      "Cell Membrane": "Cell Membrane", "f-Cell Membrane": "Regulates what enters...",
+      "Golgi Apparatus": "Golgi Apparatus", "f-Golgi": "Packages and distributes...",
+      "ER": "Endoplasmic Reticulum", "f-ER": "Transports materials..."
+  };
+
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    // Save State
+    const state = [];
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => {
+        const item = zone.querySelector('.a2-draggable');
+        state.push(item ? item.getAttribute('data-match') : null);
+    });
+    localStorage.setItem('module2_a2_state', JSON.stringify(state));
+    localStorage.setItem('module2_a2_name', name);
+    localStorage.setItem('module2_a2_completed', 'true'); 
+    
+    const score = applyActivity2Visuals();
+    localStorage.setItem('module2_a2_score', score);
+    
+    // Save GQ
+    const gqAnswers = [];
+    document.querySelectorAll('.gq-item textarea').forEach(ta => {
+        gqAnswers.push(ta.value);
+        ta.disabled = true;
+    });
+    localStorage.setItem('module2_gq_answers', JSON.stringify(gqAnswers));
+    localStorage.setItem('module2_gq_completed', 'true');
+
+    document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Table Completed & Answers Revealed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 14</h1><p>Your reflection answers have also been revealed on the screen behind this popup!</p>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${item.innerText}</span><br><strong style="font-size:0.7rem;">Correct: ${a2_correctText[correctMatch]}</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed: ${a2_correctText[correctMatch]}</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; 
+    if(localStorage.getItem('module2_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module2_a2_name'); 
+    
+    // Restore State
+    const state = JSON.parse(localStorage.getItem('module2_a2_state') || '[]');
+    document.querySelectorAll('.a2-drop-zone').forEach((zone, index) => {
+        if(state[index]) {
+            const item = document.querySelector(`#a2-pool .a2-draggable[data-match="${state[index]}"]`);
+            if(item) zone.appendChild(item);
+        }
+    });
+    updateZonesA2();
+    applyActivity2Visuals();
+
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    
+    const score = localStorage.getItem('module2_a2_score') || 0;
+    const btn = document.getElementById('btn-submit-a2'); 
+    btn.innerText = `Submitted (Score: ${score}/14)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-4').style.display = 'inline-block'; 
+    document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
+  }
+
+
+  // ─── ACTIVITY 3 SUBMISSION ───
+  const a3_correctText = {
+      "Nucleus": "Nucleus", "Mitochondria": "Mitochondria", "Cell Membrane": "Cell Membrane", "Golgi Apparatus": "Golgi Apparatus", "Ribosomes": "Ribosomes"
+  };
+
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    // Save State
+    const state = [];
+    document.querySelectorAll('.a3-drop-zone').forEach((zone, index) => {
+        const item = zone.querySelector('.a3-draggable');
+        state.push(item ? item.getAttribute('data-match') : null);
+    });
+    localStorage.setItem('module2_a3_state', JSON.stringify(state));
+    localStorage.setItem('module2_a3_completed', 'true'); 
+    localStorage.setItem('module2_a3_name', name);
+    
+    const score = applyActivity3Visuals();
+    localStorage.setItem('module2_a3_score', score);
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockActivity3(); });
+  }
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      const td = zone.parentElement;
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.borderColor = 'var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; } 
+        else { 
+            zone.style.borderColor = 'var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; 
+            let feedback = document.createElement('div');
+            feedback.innerHTML = `<strong style="color:var(--red-wrong); font-size:0.75rem;">Incorrect</strong><br><span style="font-size:0.7rem; color:var(--ink);">Correct: ${a3_correctText[correctMatch]}</span>`;
+            feedback.style.marginTop = "35px";
+            feedback.style.lineHeight = "1.2";
+            if(!td.innerHTML.includes('Incorrect')) td.appendChild(feedback);
+        }
+      } else { 
+          zone.style.borderColor = 'var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; 
+          let feedback = document.createElement('div');
+          feedback.innerHTML = `<strong style="color:var(--red-wrong); font-size:0.75rem;">Missed!</strong><br><span style="font-size:0.7rem; color:var(--ink);">Correct: ${a3_correctText[correctMatch]}</span>`;
+          feedback.style.marginTop = "35px";
+          if(!td.innerHTML.includes('Missed')) td.appendChild(feedback);
+          zone.querySelector('.placeholder-text').style.display = 'none'; 
+      }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; 
+    if(localStorage.getItem('module2_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module2_a3_name'); 
+    
+    // Restore State
+    const state = JSON.parse(localStorage.getItem('module2_a3_state') || '[]');
+    document.querySelectorAll('.a3-drop-zone').forEach((zone, index) => {
+        if(state[index]) {
+            const item = document.querySelector(`#a3-pool .a3-draggable[data-match="${state[index]}"]`);
+            if(item) zone.appendChild(item);
+        }
+    });
+    updateZonesA3();
+    applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    
+    const score = localStorage.getItem('module2_a3_score') || 0;
+    const btn = document.getElementById('btn-submit-a3'); 
+    btn.innerText = `Submitted (Score: ${score}/5)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-5').style.display = 'inline-block';
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'b', pt2: 'd', pt3: 'a', pt4: 'c', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0;
+    const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module2_pt_completed', 'true'); 
+    localStorage.setItem('module2_pt_name', name);
+    localStorage.setItem('module2_pt_selections', JSON.stringify(selections));
+    
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    localStorage.setItem('module2_pt_score', score);
+
+    showModal("Module 2 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 2! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); 
+    document.getElementById('pt-name').disabled = true; 
+    
+    if(localStorage.getItem('module2_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module2_pt_name'); 
+    
+    const selections = JSON.parse(localStorage.getItem('module2_pt_selections') || '{}');
+    
+    for(let q in postTestAnswers) {
+        if(selections[q]) {
+            const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`);
+            if(input) input.checked = true;
+        }
+    }
+
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+
+    const score = localStorage.getItem('module2_pt_score') || 0;
+    const btn = document.getElementById('btn-submit-pt'); 
+    btn.innerText = `Module Completed (Score: ${score}/5)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>

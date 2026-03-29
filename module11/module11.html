@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 11: Cellular Abnormalities</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
+    --green-light: #95d5b2; --green-pale: #d8f3dc; --amber: #e9c46a;
+    --cream: #fefae0; --ink: #1a1a2e; --muted: #6b7280; --bg-color: #f4f9f5;
+    --red-wrong: #ef4444; --red-pale: #fee2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg-color); color: var(--ink); display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAVIGATION ─── */
+  nav { background: var(--green-deep); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: var(--green-light); text-decoration: none; }
+  .nav-brand span { color: var(--amber); }
+  .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 1.5rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .layout-container { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { width: 320px; background: white; border-right: 1px solid rgba(82,183,136,0.2); padding: 2rem; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
+  .progress-container { background: var(--green-pale); height: 6px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-bar { background: var(--green-bright); height: 100%; width: 16.6%; transition: width 0.4s ease; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toc-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; color: var(--muted); font-size: 0.95rem; }
+  .toc-item:hover { background: var(--green-pale); color: var(--green-deep); }
+  .toc-item.active { background: rgba(82,183,136,0.15); border-color: rgba(82,183,136,0.3); color: var(--green-deep); font-weight: 600; }
+  .toc-num { width: 26px; height: 26px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--green-mid); flex-shrink: 0;}
+  .toc-item.completed .toc-num { background: var(--green-bright); color: white; }
+
+  /* ─── LESSON CONTENT ─── */
+  .content-area { flex: 1; padding: 3rem 4rem 6rem; background: var(--bg-color); overflow-y: auto; }
+  .lesson-section { display: none; max-width: 950px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+  .lesson-section.active { display: block; }
+  .lesson-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--green-pale); }
+  .lesson-subtitle { font-family: 'DM Mono', monospace; color: var(--green-mid); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .lesson-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--green-deep); margin-top: 0.5rem; line-height: 1.2; }
+  .lesson-body p { font-size: 1.1rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem; }
+  .lesson-body ul { margin-left: 2rem; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8; color: #374151; }
+  .lesson-body strong { color: var(--green-deep); }
+  
+  .source-box { background: white; border-left: 5px solid var(--amber); padding: 1.5rem; border-radius: 0 12px 12px 0; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .source-box h3 { color: var(--green-deep); margin-bottom: 0.5rem; font-size: 1.2rem; }
+  .source-box p { font-size: 1rem; margin-bottom: 0; line-height: 1.6; }
+
+  /* ─── FORMS & INPUTS ─── */
+  .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--green-deep); }
+  .input-group input[type="text"] { padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 1rem; transition: border-color 0.3s; }
+  .input-group input[type="text"]:focus { border-color: var(--green-mid); outline: none; }
+
+  /* ─── QUIZ STYLES ─── */
+  .quiz-question { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e5e7eb; }
+  .quiz-question p { margin-bottom: 1rem; font-weight: 600; font-size: 1.05rem; }
+  .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
+  .quiz-options label:hover { background: var(--green-pale); }
+  .quiz-options input[type="radio"] { accent-color: var(--green-mid); transform: scale(1.2); }
+
+  /* ─── SHARED DRAG AND DROP STYLES ─── */
+  .dnd-container { margin-top: 2rem; position: relative; }
+  .pool { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 12px; border: 2px dashed var(--green-bright); min-height: 100px; justify-content: center; align-items: center;}
+  
+  .draggable-item { background: var(--green-pale); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid var(--green-mid); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; user-select: none; touch-action: none; text-align: center; }
+  .draggable-item.active-selection { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.4); transform: scale(1.05); z-index: 10; }
+  .draggable-item.dragging { opacity: 0.4; }
+  .ghost-element { position: fixed; pointer-events: none; z-index: 9999; background: var(--green-pale); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--green-deep); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid var(--green-bright); opacity: 0.9; transform: scale(1.05); }
+  .placeholder-text { font-size: 0.8rem; font-weight: 700; color: rgba(26,58,42,0.6); pointer-events: none; text-shadow: 1px 1px 2px white;}
+
+  /* ─── TABLES FOR ACTIVITY 1 & 2 ─── */
+  .table-responsive { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(82,183,136,0.2); }
+  .analysis-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  .analysis-table th { background: var(--green-deep); color: white; padding: 1rem; text-align: center; font-size: 1rem; border: 1px solid rgba(255,255,255,0.2); }
+  .analysis-table td { padding: 0.75rem; border: 1px solid #e5e7eb; vertical-align: middle; text-align: center; }
+  .analysis-table td.row-title { font-weight: 700; color: var(--green-deep); background: var(--green-pale); text-align: left; }
+  .analysis-table td.scenario-cell { text-align: left; font-size: 0.95rem; line-height: 1.5; padding: 1rem;}
+  
+  .a1-drop-zone, .a2-drop-zone { min-height: 80px; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; transition: all 0.3s; cursor: pointer; text-align: center; }
+  .a1-drop-zone.drag-over, .a2-drop-zone.drag-over { background: var(--green-pale); border-color: var(--green-bright); transform: scale(1.02); }
+  .a1-drop-zone.filled, .a2-drop-zone.filled { border: 2px solid var(--green-mid); background: white; }
+  .a1-drop-zone.filled .draggable-item, .a2-drop-zone.filled .draggable-item { box-shadow: none; border: none; background: transparent; padding: 0; width: 100%; max-width: 100%; white-space: normal;}
+  .a1-drop-zone.filled .placeholder-text, .a2-drop-zone.filled .placeholder-text { display: none; }
+  
+  .draggable-item.long-text { font-size: 0.8rem; font-weight: 500; max-width: 320px; line-height: 1.4; }
+
+  /* ─── ACTIVITY 3: FLOWCHART DIAGRAMS ─── */
+  .flowchart-board { position: relative; width: 100%; max-width: 800px; margin: 0 auto 3rem auto; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 2px solid var(--green-pale); overflow: hidden; background: white;}
+  .flowchart-board img { width: 100%; height: auto; display: block; pointer-events: none; }
+  .flowchart-title { background: var(--green-deep); color: white; padding: 1rem; text-align: center; font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+  
+  .a3-drop-zone { position: absolute; border: 2px dashed var(--green-bright); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); transition: all 0.3s; overflow: hidden; cursor: pointer; padding: 0.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+  .a3-drop-zone.drag-over { background: rgba(82,183,136,0.9); border-color: var(--green-deep); transform: scale(1.02); }
+  .a3-drop-zone.filled { background: white; border: 2px solid var(--green-deep); }
+  .a3-drop-zone.filled .draggable-item { font-size: 0.75rem; padding: 0; box-shadow: none; border: none; background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: normal; line-height: 1.3; }
+  .a3-drop-zone.filled .placeholder-text { display: none; }
+
+  /* Approx Coordinates for Flowchart Overlays (Assuming 3:4 vertical aspect ratio) */
+  .flowchart-board .a3-drop-zone { left: 45%; width: 50%; height: 12%; }
+  .a3-dz-1 { top: 22%; }
+  .a3-dz-2 { top: 43%; }
+  .a3-dz-3 { top: 66%; }
+  .a3-dz-4 { top: 86%; }
+
+  /* ─── GUIDE QUESTIONS STYLES ─── */
+  .gq-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1rem; }
+  .gq-item { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); }
+  .gq-item label { font-weight: 600; color: var(--green-deep); display: block; margin-bottom: 0.75rem; font-size: 1.05rem; }
+  .gq-item textarea { width: 100%; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: 'DM Sans'; font-size: 0.95rem; resize: vertical; min-height: 80px; margin-bottom: 1rem;}
+  .gq-answer { display: none; background: var(--green-pale); padding: 1rem; border-left: 4px solid var(--green-bright); border-radius: 4px; font-size: 0.95rem; color: var(--green-deep); line-height: 1.6;}
+  .gq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ─── MODAL (POP-UP) STYLES ─── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 58, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.show .modal-content { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--green-deep); margin-bottom: 1rem; }
+  .modal-body { font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem; }
+  .modal-instruction { background: var(--green-pale); padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: var(--green-deep); border: 1px solid var(--green-mid); margin-top: 1.5rem; }
+
+  /* ─── CONTROLS ─── */
+  .lesson-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); flex-wrap: wrap; gap: 1rem;}
+  .btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-block;}
+  .btn-next { background: var(--green-bright); color: var(--green-deep); display: none; }
+  .btn-submit { background: var(--amber); color: var(--ink); }
+  .btn-modal { background: var(--green-deep); color: white; width: 100%; margin-top: 1rem;}
+  .btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 1.5rem; display: flex; overflow-x: auto; gap: 0.5rem; white-space: nowrap; }
+    .sidebar-title { display: none; }
+    .progress-container { display: none; }
+    .toc-list { flex-direction: row; }
+    .content-area { padding: 1.5rem 1rem; }
+    .draggable-item.long-text { max-width: 100%; font-size: 0.7rem;}
+    .a3-drop-zone.filled .draggable-item { font-size: 0.55rem; line-height: 1.1; }
+    .placeholder-text { font-size: 0.6rem; }
+    
+    .flowchart-board .a3-drop-zone { left: 5%; width: 90%; height: 10%; background: rgba(255,255,255,0.95); }
+    .a3-dz-1 { top: 25%; }
+    .a3-dz-2 { top: 48%; }
+    .a3-dz-3 { top: 70%; }
+    .a3-dz-4 { top: 88%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="result-modal">
+  <div class="modal-content">
+    <h2 class="modal-title" id="modal-title">Results</h2>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-instruction">
+      📸 <strong>Instruction:</strong> Please take a screenshot of this box and your corrected answers on the screen, then send the picture to your teacher.
+    </div>
+    <button class="btn btn-modal" onclick="closeModal()">Close & Continue</button>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <div class="nav-links">
+    <a href="../Index.html">Home</a>
+    <a href="../Index.html#modules">Modules</a>
+  </div>
+</nav>
+
+<div class="layout-container">
+  
+  <aside class="sidebar">
+    <div class="sidebar-title">Module 11 Progress</div>
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <ul class="toc-list">
+      <li class="toc-item active" onclick="switchLesson(1)" id="toc-1"><div class="toc-num">1</div><div>What I Know</div></li>
+      <li class="toc-item" onclick="switchLesson(2)" id="toc-2"><div class="toc-num">2</div><div>Lesson 11: Abnormalities</div></li>
+      <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Cells Gone Wrong</div></li>
+      <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Disease Detectives</div></li>
+      <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Cellular Breakdown</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+    </ul>
+  </aside>
+
+  <main class="content-area">
+
+    <div class="lesson-section active" id="lesson-1">
+      <div class="lesson-header"><div class="lesson-subtitle">Pre-Assessment</div><h1 class="lesson-title">What I Know</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each situation carefully and choose the best answer. Please enter your name below so it appears on your final score screen.</p>
+        <div class="student-info-form"><div class="input-group"><label for="q-name">Full Name</label><input type="text" id="q-name" placeholder="Juan Dela Cruz"></div></div>
+        <form id="quiz-form">
+          <div class="quiz-question"><p>1. What is the main cause of cancer at the cellular level?</p><div class="quiz-options"><label><input type="radio" name="q1" value="a"> a. Lack of oxygen in cells</label><label><input type="radio" name="q1" value="b"> b. Uncontrolled cell division</label><label><input type="radio" name="q1" value="c"> c. Too much water in cells</label><label><input type="radio" name="q1" value="d"> d. Slow metabolism</label></div></div>
+          <div class="quiz-question"><p>2. Which cellular problem is most associated with diabetes?</p><div class="quiz-options"><label><input type="radio" name="q2" value="a"> a. Cells divide too quickly</label><label><input type="radio" name="q2" value="b"> b. Cells cannot respond properly to insulin</label><label><input type="radio" name="q2" value="c"> c. Cells lose their nucleus</label><label><input type="radio" name="q2" value="d"> d. Cells produce too much oxygen</label></div></div>
+          <div class="quiz-question"><p>3. What is a possible consequence of a cell failing to control its cell cycle?</p><div class="quiz-options"><label><input type="radio" name="q3" value="a"> a. The cell will shrink and disappear</label><label><input type="radio" name="q3" value="b"> b. The cell will produce excess insulin</label><label><input type="radio" name="q3" value="c"> c. The cells may form tumors due to uncontrolled division</label><label><input type="radio" name="q3" value="d"> d. The cell will change its DNA structure intentionally</label></div></div>
+          <div class="quiz-question"><p>4. Why is studying diseases at the cellular level important?</p><div class="quiz-options"><label><input type="radio" name="q4" value="a"> a. It helps understand how diseases develop</label><label><input type="radio" name="q4" value="b"> b. It increases cell size</label><label><input type="radio" name="q4" value="c"> c. It prevents cell division</label><label><input type="radio" name="q4" value="d"> d. It changes DNA structure</label></div></div>
+          <div class="quiz-question"><p>5. What is the result if cells with damaged DNA continue to multiply without repair or apoptosis?</p><div class="quiz-options"><label><input type="radio" name="q5" value="a"> a. The cells will eventually correct themselves</label><label><input type="radio" name="q5" value="b"> b. Damaged cells may accumulate and form tumors</label><label><input type="radio" name="q5" value="c"> c. The cells will produce more energy</label><label><input type="radio" name="q5" value="d"> d. The cells will turn into bacteria</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn btn-submit" id="btn-submit-quiz" onclick="submitQuiz()">Submit Answers</button>
+        <button class="btn btn-next" id="btn-next-1" onclick="completeAndNext(1)">Proceed to Lesson ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-2">
+      <div class="lesson-header"><div class="lesson-subtitle">What I Need to Know</div><h1 class="lesson-title">Lesson 11: Cellular Abnormalities</h1></div>
+      <div class="lesson-body">
+        <p>This supplementary module is designed to help you understand Cellular Abnormalities. In this lesson, you will explore how cellular abnormalities lead to diseases such as cancer, diabetes, and genetic disorders.</p>
+        
+        <p>Cellular abnormalities are changes in a cell’s structure, function, or genetic material that disrupt its normal behavior. These may result from mutations, environmental factors, or errors in cell division, leading to malfunctioning cells. Such abnormalities can contribute to diseases, including cancer, when cells grow uncontrollably or fail to function properly.</p>
+
+        <p><strong>After going through this supplementary module, you are expected to:</strong></p>
+        <ul>
+          <li>Identify and interpret information from secondary sources about cellular abnormalities related to diseases.</li>
+          <li>Explain how specific cellular abnormalities such as uncontrolled cell division, malfunctioning cells, genetic mutations lead to diseases such as cancer, diabetes, and genetic disorders.</li>
+          <li>Analyze the impact of these cellular abnormalities on body systems and evaluate their role in disease development and progression.</li>
+        </ul>
+
+        <h2 style="color: var(--green-deep); margin: 2.5rem 0 1rem 0;">Types of Cellular Abnormalities</h2>
+        <p>Cellular abnormalities occur when normal cell processes are disrupted, and these changes can lead to various diseases. Three major types of abnormalities include uncontrolled cell division, malfunctioning cells, and genetic mutations, each affecting the body in different ways.</p>
+        
+        <ul>
+            <li><strong>Uncontrolled cell division</strong> happens when cells divide continuously without proper regulation. Normally, the cell cycle is tightly controlled, but when this control fails—often due to damaged genes—cells keep multiplying. This leads to the formation of tumors and is the main cause of cancer, where abnormal cells can invade nearby tissues and spread throughout the body.</li>
+            <li><strong>Malfunctioning cells</strong> occur when cells are present but do not perform their normal functions properly. For example, in diabetes, cells either do not produce enough insulin or do not respond to it correctly, preventing glucose from entering the cells. As a result, blood sugar levels rise, affecting the body’s ability to maintain balance and leading to long-term health problems.</li>
+            <li><strong>Genetic mutations</strong> are changes in the DNA sequence that can alter how proteins are made or function. These mutations can be inherited or acquired over time. When important proteins are affected, normal cellular processes are disrupted. This can lead to genetic disorders such as cystic fibrosis, where a defective protein causes thick mucus to build up in the lungs and other organs.</li>
+        </ul>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(1)" style="background: white; border: 1px solid #ccc;">← Back</button>
+        <button class="btn btn-next" style="display: block;" onclick="completeAndNext(2)">Mark Complete & Next ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-3">
+      <div class="lesson-header"><div class="lesson-subtitle">What's In</div><h1 class="lesson-title">Activity 1: Cells Gone Wrong</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Investigating Disease Through Evidence. Use information from the secondary sources provided to explain how cellular abnormalities lead to diseases. Drag the correct phrases into the table below.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a phrase to select it, then tap an empty box in the table to place it!</i></p>
+        <div class="student-info-form"><div class="input-group"><label for="a1-name">Full Name</label><input type="text" id="a1-name" placeholder="Juan Dela Cruz"></div></div>
+        
+        <div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:2rem;">
+            <div class="source-box">
+                <h3>Source 1: Cancer (Cell Division Problem)</h3>
+                <p>Cancer occurs when cells divide uncontrollably due to mutations in genes that regulate the cell cycle. These abnormal cells form tumors and can spread to other parts of the body (metastasis). Normally, cell division is controlled, but cancer cells ignore these controls.</p>
+            </div>
+            <div class="source-box">
+                <h3>Source 2: Diabetes (Cell Signaling Problem)</h3>
+                <p>Diabetes is a disease in which the body cannot properly regulate blood sugar levels. In Type 1 diabetes, the immune system destroys insulin-producing cells. In Type 2 diabetes, cells do not respond properly to insulin. This leads to high glucose levels in the blood.</p>
+            </div>
+            <div class="source-box">
+                <h3>Source 3: Genetic Disorder (Mutation Problem)</h3>
+                <p>Genetic disorders are caused by mutations in DNA. For example, cystic fibrosis results from a defective protein that controls salt and water movement in cells. This causes thick mucus to build up in organs like the lungs.</p>
+            </div>
+        </div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Phrases Pool (Drag or Tap):</h3>
+        <div class="pool" id="a1-pool">
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="c-abn">Uncontrolled cell division</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="d-abn">Cells cannot properly respond to insulin or produce enough insulin</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="g-abn">Abnormal or mutated genes affecting cell function</div>
+            
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="c-cau">Mutations in genes that regulate the cell cycle</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="d-cau">Insulin resistance or lack of insulin production</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="g-cau">Inherited mutations or errors in DNA</div>
+
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="c-eff">Formation of tumors, damage to tissues and organs</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="d-eff">High blood sugar levels, damage to organs (eyes, kidneys, nerves)</div>
+            <div class="draggable-item a1-draggable long-text" draggable="true" data-match="g-eff">Impaired body functions, developmental issues, or specific diseases</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th style="width: 15%;">Disease</th>
+                  <th style="width: 25%;">Cellular Abnormality</th>
+                  <th style="width: 30%;">Cause</th>
+                  <th style="width: 30%;">Effect on the Body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-title">Cancer</td>
+                <td><div class="a1-drop-zone" id="dz-c-abn" data-match="c-abn"><span class="placeholder-text">Drop Abnormality</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-c-cau" data-match="c-cau"><span class="placeholder-text">Drop Cause</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-c-eff" data-match="c-eff"><span class="placeholder-text">Drop Effect</span></div></td>
+              </tr>
+              <tr>
+                <td class="row-title">Diabetes</td>
+                <td><div class="a1-drop-zone" id="dz-d-abn" data-match="d-abn"><span class="placeholder-text">Drop Abnormality</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-d-cau" data-match="d-cau"><span class="placeholder-text">Drop Cause</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-d-eff" data-match="d-eff"><span class="placeholder-text">Drop Effect</span></div></td>
+              </tr>
+              <tr>
+                <td class="row-title">Genetic<br>Disorder</td>
+                <td><div class="a1-drop-zone" id="dz-g-abn" data-match="g-abn"><span class="placeholder-text">Drop Abnormality</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-g-cau" data-match="g-cau"><span class="placeholder-text">Drop Cause</span></div></td>
+                <td><div class="a1-drop-zone" id="dz-g-eff" data-match="g-eff"><span class="placeholder-text">Drop Effect</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--green-pale); margin: 3rem 0;">
+
+        <div class="lesson-header"><div class="lesson-subtitle">Reflection</div><h2 class="lesson-title">Guide Questions</h2></div>
+        <p>Take a moment to reflect. Type your answers below.</p>
+        
+        <div class="gq-container">
+          <div class="gq-item">
+            <label>1. How does a small change in a cell lead to a serious disease?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> A small change in a cell, such as a mutation in DNA or a malfunction in cell processes, can affect how the cell functions. As the cell divides, this problem can spread to many cells, leading to tissue damage, organ dysfunction, and eventually serious diseases.</div>
+          </div>
+          <div class="gq-item">
+            <label>2. What do cancer, diabetes, and genetic disorders have in common at the cellular level?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> All of these diseases involve abnormalities in cell function. They are caused by problems such as gene mutations, improper cell signaling, or failure of normal cellular processes, which disrupt the body’s normal functioning.</div>
+          </div>
+          <div class="gq-item">
+            <label>3. Why is it important to understand diseases at the cellular level?</label>
+            <textarea placeholder="Type your answer here..."></textarea>
+            <div class="gq-answer"><strong>Answer:</strong> Understanding diseases at the cellular level helps scientists and doctors identify causes, develop treatments, and prevent diseases by targeting the root of the problem inside the cells.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(2)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a1" onclick="submitActivity1()">Submit Activity & Reveal Answers</button>
+        <button class="btn btn-next" id="btn-next-3" style="display:none;" onclick="completeAndNext(4)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-4">
+      <div class="lesson-header"><div class="lesson-subtitle">What's New</div><h1 class="lesson-title">Activity 2: Disease Detectives</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Cracking Cellular Abnormalities. Read each scenario carefully. Identify the cause of the disease by dragging the correct description from the pool into the table.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap an item in the box to select it, then tap an empty box in the table to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a2-name">Full Name</label><input type="text" id="a2-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Cause of Disease Pool:</h3>
+        <div class="pool" id="a2-pool">
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c1">Uncontrolled cell division due to cell cycle mutation (Cancer)</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c2">Insulin resistance or lack of insulin function (Diabetes)</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c3">Loss of cell cycle control / uncontrolled mitosis (Cancer)</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c4">Genetic mutation affecting protein production (Genetic disorder)</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c5">Failure of cell cycle regulation (Cancer)</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c6">Mitochondrial dysfunction affecting ATP production</div>
+          <div class="draggable-item a2-draggable long-text" draggable="true" data-match="c7">Inherited genetic mutation (Genetic disorder)</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="analysis-table">
+            <thead>
+              <tr>
+                  <th style="width: 50%;">Scenario</th>
+                  <th style="width: 50%;">Cause of Disease</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="scenario-cell">1. A group of cells continues to divide rapidly even when the body does not need new cells, forming a tumor.</td>
+                <td><div class="a2-drop-zone" id="dz-c1" data-match="c1"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+              <tr>
+                <td class="scenario-cell">2. A patient's cells cannot respond properly to insulin, causing high blood sugar levels.</td>
+                <td><div class="a2-drop-zone" id="dz-c2" data-match="c2"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+              <tr>
+                <td class="scenario-cell">3. Cells in the skin keep multiplying without stopping, leading to abnormal tissue growth.</td>
+                <td><div class="a2-drop-zone" id="dz-c3" data-match="c3"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+              <tr>
+                <td class="scenario-cell">4. A mutation in a gene causes the body to produce a defective protein that affects lung function.</td>
+                <td><div class="a2-drop-zone" id="dz-c4" data-match="c4"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+              <tr>
+                <td class="scenario-cell">5. Cells ignore signals that regulate the cell cycle, continuing to divide uncontrollably.</td>
+                <td><div class="a2-drop-zone" id="dz-c5" data-match="c5"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+              <tr>
+                <td class="scenario-cell">6. Muscle cells cannot function properly due to failure in energy production.</td>
+                <td><div class="a2-drop-zone" id="dz-c6" data-match="c6"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+              <tr>
+                <td class="scenario-cell">7. A disorder is passed from parents to offspring due to an inherited DNA defect.</td>
+                <td><div class="a2-drop-zone" id="dz-c7" data-match="c7"><span class="placeholder-text">Drop Cause</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(3)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a2" onclick="submitActivity2()">Submit Activity</button>
+        <button class="btn btn-next" id="btn-next-4" style="display:none;" onclick="completeAndNext(5)">Proceed to Next Activity ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-5">
+      <div class="lesson-header"><div class="lesson-subtitle">What's More</div><h1 class="lesson-title">Activity 3: Cellular Breakdown</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> From Cell Error to System Failure. Analyze the case studies and explain how cellular abnormalities impact the body by completing the flowchart for each disease. Drag the correct phrases into the empty boxes.</p>
+        <p style="color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;">📱 <i>Playing on a phone? Tap a phrase to select it, then tap an empty box on the flowcharts below to place it!</i></p>
+
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <div class="source-box" style="border-left-color: var(--green-bright); background: #f0fdf4;">
+            <h3>🏥 Medical Investigation Scenario</h3>
+            <p>A hospital is investigating patients with different diseases such as cancer, diabetes, and neurodegenerative disorders. Doctors suspect that these conditions all begin with cellular abnormalities (e.g., uncontrolled cell division, malfunctioning organelles, genetic mutations). Your group has been assigned as a medical investigation team to trace how these cellular problems affect entire body systems and lead to disease progression.</p>
+        </div>
+
+        <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Findings Pool (Drag or Tap):</h3>
+        <div class="pool" id="a3-pool">
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="can-1">Uncontrolled cell division due to mutations in genes that regulate the cell cycle</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="can-2">Formation of abnormal masses of cells (tumors) that crowd out normal cells</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="can-3">Organs cannot function properly due to tumor growth and possible spread (metastasis)</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="can-4">Cancer progression leading to severe illness and possible death if untreated</div>
+            
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dia-1">Cells cannot properly respond to insulin or the pancreas does not produce enough insulin</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dia-2">Glucose builds up in the blood instead of entering cells, causing cells to lack energy</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dia-3">Damage to organs such as the eyes, kidneys, nerves, and blood vessels</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dia-4">Chronic high blood sugar, leading to complications like blindness, kidney failure, or nerve damage</div>
+            
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dis-1">Progressive damage or death of nerve cells (neurons) due to protein misfolding or dysfunction</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dis-2">Loss of neural connections and degeneration of brain tissue</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dis-3">Impaired function of the brain and nervous system, affecting memory, movement, and coordination</div>
+            <div class="draggable-item a3-draggable long-text" draggable="true" data-match="dis-4">Progressive decline in cognitive and motor functions, leading to conditions such as Alzheimer's</div>
+        </div>
+
+        <div class="flowchart-board">
+            <div class="flowchart-title" style="background:#b91c1c;">Case Study 1: Cancer</div>
+            <div style="position:relative;">
+                <img src="cancer.png" alt="Cancer Flowchart">
+                <div class="a3-drop-zone a3-dz-1" id="dz-can-1" data-match="can-1"><span class="placeholder-text">Drop Cellular Abnormality</span></div>
+                <div class="a3-drop-zone a3-dz-2" id="dz-can-2" data-match="can-2"><span class="placeholder-text">Drop Tissue Effect</span></div>
+                <div class="a3-drop-zone a3-dz-3" id="dz-can-3" data-match="can-3"><span class="placeholder-text">Drop Organ/System Impact</span></div>
+                <div class="a3-drop-zone a3-dz-4" id="dz-can-4" data-match="can-4"><span class="placeholder-text">Drop Disease Outcome</span></div>
+            </div>
+        </div>
+
+        <div class="flowchart-board">
+            <div class="flowchart-title" style="background:#0369a1;">Case Study 2: Diabetes</div>
+            <div style="position:relative;">
+                <img src="diabetes.png" alt="Diabetes Flowchart">
+                <div class="a3-drop-zone a3-dz-1" id="dz-dia-1" data-match="dia-1"><span class="placeholder-text">Drop Cellular Abnormality</span></div>
+                <div class="a3-drop-zone a3-dz-2" id="dz-dia-2" data-match="dia-2"><span class="placeholder-text">Drop Tissue Effect</span></div>
+                <div class="a3-drop-zone a3-dz-3" id="dz-dia-3" data-match="dia-3"><span class="placeholder-text">Drop Organ/System Impact</span></div>
+                <div class="a3-drop-zone a3-dz-4" id="dz-dia-4" data-match="dia-4"><span class="placeholder-text">Drop Disease Outcome</span></div>
+            </div>
+        </div>
+
+        <div class="flowchart-board">
+            <div class="flowchart-title" style="background:#4338ca;">Case Study 3: Neurodegenerative Disorder</div>
+            <div style="position:relative;">
+                <img src="disorder.png" alt="Neurodegenerative Disorder Flowchart">
+                <div class="a3-drop-zone a3-dz-1" id="dz-dis-1" data-match="dis-1"><span class="placeholder-text">Drop Cellular Abnormality</span></div>
+                <div class="a3-drop-zone a3-dz-2" id="dz-dis-2" data-match="dis-2"><span class="placeholder-text">Drop Tissue Effect</span></div>
+                <div class="a3-drop-zone a3-dz-3" id="dz-dis-3" data-match="dis-3"><span class="placeholder-text">Drop Organ/System Impact</span></div>
+                <div class="a3-drop-zone a3-dz-4" id="dz-dis-4" data-match="dis-4"><span class="placeholder-text">Drop Disease Outcome</span></div>
+            </div>
+        </div>
+
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Investigations</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
+      </div>
+    </div>
+
+    <div class="lesson-section" id="lesson-6">
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-body">
+        <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 11.</p>
+        <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
+
+        <form id="posttest-form">
+          <div class="quiz-question"><p>1. A tumor begins in lung tissue and later spreads to the brain and liver. What does this indicate about the cellular abnormality?</p><div class="quiz-options"><label><input type="radio" name="pt1" value="a"> a. Cells are functioning normally</label><label><input type="radio" name="pt1" value="b"> b. Cells are undergoing controlled division</label><label><input type="radio" name="pt1" value="c"> c. Cells are dividing uncontrollably and spreading (metastasis)</label><label><input type="radio" name="pt1" value="d"> d. Cells are only affecting one organ</label></div></div>
+          <div class="quiz-question"><p>2. If a cell's DNA repair mechanisms fail during the cell cycle, what is the most likely long-term consequence?</p><div class="quiz-options"><label><input type="radio" name="pt2" value="a"> a. The cell will shrink and disappear</label><label><input type="radio" name="pt2" value="b"> b. The cell will start producing extra insulin</label><label><input type="radio" name="pt2" value="c"> c. Mutations will accumulate, possibly leading to cancer</label><label><input type="radio" name="pt2" value="d"> d. The cell will divide faster to compensate</label></div></div>
+          <div class="quiz-question"><p>3. How can malfunctioning insulin response in cells lead to damage in multiple body systems?</p><div class="quiz-options"><label><input type="radio" name="pt3" value="a"> a. It only affects the digestive system</label><label><input type="radio" name="pt3" value="b"> b. It prevents oxygen from entering cells</label><label><input type="radio" name="pt3" value="c"> c. It causes high blood sugar, which damages organs over time</label><label><input type="radio" name="pt3" value="d"> d. It increases cell division</label></div></div>
+          <div class="quiz-question"><p>4. A mutation affects a protein responsible for transporting substances in cells. What is the most likely result?</p><div class="quiz-options"><label><input type="radio" name="pt4" value="a"> a. Cells divide faster</label><label><input type="radio" name="pt4" value="b"> b. Substances cannot move properly, disrupting cell function</label><label><input type="radio" name="pt4" value="c"> c. Cells stop producing energy completely</label><label><input type="radio" name="pt4" value="d"> d. The membrane becomes thicker</label></div></div>
+          <div class="quiz-question"><p>5. Which statement best explains how a small cellular problem can affect an entire body system?</p><div class="quiz-options"><label><input type="radio" name="pt5" value="a"> a. Cells are independent of body systems</label><label><input type="radio" name="pt5" value="b"> b. One cell controls the entire body</label><label><input type="radio" name="pt5" value="c"> c. Cells form tissues and organs, so dysfunction spreads through the system</label><label><input type="radio" name="pt5" value="d"> d. Only large organs are affected by disease</label></div></div>
+        </form>
+      </div>
+      <div class="lesson-controls">
+        <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
+        <button class="btn btn-submit" id="btn-submit-pt" onclick="submitPostTest()">Submit Final Test</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let highestCompleted = 0;
+  let currentModalAction = null; 
+
+  // ─── CHECK LOCAL STORAGE ON PAGE LOAD ───
+  window.onload = () => {
+    if (localStorage.getItem('module11_quiz_completed') === 'true') lockQuiz();
+    if (localStorage.getItem('module11_a1_completed') === 'true') lockActivity1();
+    if (localStorage.getItem('module11_a2_completed') === 'true') lockActivity2();
+    if (localStorage.getItem('module11_a3_completed') === 'true') lockActivity3();
+    if (localStorage.getItem('module11_pt_completed') === 'true') lockPostTest();
+  };
+
+  function showModal(title, bodyHTML, onCloseCallback) {
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('result-modal').classList.add('show');
+    currentModalAction = onCloseCallback;
+  }
+  function closeModal() {
+    document.getElementById('result-modal').classList.remove('show');
+    if(currentModalAction) currentModalAction();
+  }
+
+  function switchLesson(lessonNum) {
+    document.querySelectorAll('.lesson-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`lesson-${lessonNum}`).classList.add('active');
+    document.getElementById(`toc-${lessonNum}`).classList.add('active');
+    document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function completeAndNext(currentLesson) {
+    document.getElementById(`toc-${currentLesson}`).classList.add('completed');
+    if (currentLesson > highestCompleted) {
+      highestCompleted = currentLesson;
+      const progressPercentage = ((highestCompleted) / 6) * 100; 
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+    if(document.getElementById(`toc-${currentLesson + 1}`)) switchLesson(currentLesson + 1);
+  }
+
+  // ─── PRE-QUIZ LOGIC ───
+  const preTestAnswers = { q1: 'b', q2: 'b', q3: 'c', q4: 'a', q5: 'b' };
+  
+  function submitQuiz() {
+    const name = document.getElementById('q-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+    for (let q in preTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    localStorage.setItem('module11_quiz_completed', 'true'); localStorage.setItem('module11_quiz_name', name); localStorage.setItem('module11_quiz_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    localStorage.setItem('module11_quiz_score', score);
+    showModal("Quiz Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 5</h1>`, () => { lockQuiz(); document.getElementById('btn-next-1').style.display = 'inline-block'; });
+  }
+
+  function lockQuiz() {
+    document.querySelectorAll('#lesson-1 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('q-name').disabled = true;
+    if(localStorage.getItem('module11_quiz_name')) document.getElementById('q-name').value = localStorage.getItem('module11_quiz_name');
+    const selections = JSON.parse(localStorage.getItem('module11_quiz_selections') || '{}');
+    for(let q in preTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-1', preTestAnswers, selections);
+    const score = localStorage.getItem('module11_quiz_score') || 0;
+    const btn = document.getElementById('btn-submit-quiz'); btn.innerText = `Submitted (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none";
+    document.getElementById('btn-next-1').style.display = 'inline-block';
+  }
+
+  function applyQuizVisuals(containerId, answersObj, selectionsObj) {
+      let score = 0;
+      for (let q in answersObj) {
+          const correctLabel = document.querySelector(`${containerId} input[name="${q}"][value="${answersObj[q]}"]`).parentElement;
+          const userSelectedValue = selectionsObj[q];
+          if (userSelectedValue) {
+            if (userSelectedValue === answersObj[q]) { score++; correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅';
+            } else {
+              const wrongLabel = document.querySelector(`${containerId} input[name="${q}"][value="${userSelectedValue}"]`).parentElement;
+              wrongLabel.style.backgroundColor = 'var(--red-pale)'; wrongLabel.style.border = '2px solid var(--red-wrong)'; if(!wrongLabel.innerHTML.includes('❌')) wrongLabel.innerHTML += ' &nbsp;❌ <strong style="color:var(--red-wrong)">(Your Answer)</strong>';
+              correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>';
+            }
+          } else { correctLabel.style.backgroundColor = 'var(--green-pale)'; correctLabel.style.border = '2px solid var(--green-bright)'; if(!correctLabel.innerHTML.includes('✅')) correctLabel.innerHTML += ' &nbsp;✅ <strong style="color:var(--green-deep)">(Correct Answer)</strong>'; }
+      } return score;
+  }
+
+  // ─── HYBRID DRAG/DROP ENGINE (Shared & Multi-drop Support) ───
+  let draggedElement = null; let ghostElement = null; let selectedTapItem = null;
+
+  function createGhost(element, x, y) { ghostElement = element.cloneNode(true); ghostElement.classList.add('ghost-element'); document.body.appendChild(ghostElement); moveGhost(x, y); }
+  function moveGhost(x, y) { if(ghostElement) { ghostElement.style.left = x - (ghostElement.offsetWidth / 2) + 'px'; ghostElement.style.top = y - (ghostElement.offsetHeight / 2) + 'px'; } }
+
+  function setupDragAndDrop(poolId, dragClass, dropZoneClass, updateZonesCallback) {
+    const draggables = document.querySelectorAll(`.${dragClass}`);
+    const dropZones = document.querySelectorAll(`.${dropZoneClass}`);
+    const pool = document.getElementById(poolId);
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', () => { draggedElement = item; item.classList.add('dragging'); });
+      item.addEventListener('dragend', () => { item.classList.remove('dragging'); draggedElement = null; updateZonesCallback(); });
+      item.addEventListener('touchstart', (e) => { if(e.target.style.pointerEvents === 'none') return; e.preventDefault(); draggedElement = e.target.closest(`.${dragClass}`); draggedElement.style.opacity = '0.4'; createGhost(draggedElement, e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+      item.addEventListener('touchmove', (e) => { if(!ghostElement) return; e.preventDefault(); moveGhost(e.touches[0].clientX, e.touches[0].clientY); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY); dropZones.forEach(z => z.classList.remove('drag-over')); if(target && target.closest(`.${dropZoneClass}`)) target.closest(`.${dropZoneClass}`).classList.add('drag-over'); }, {passive: false});
+      item.addEventListener('touchend', (e) => {
+        if(!ghostElement || !draggedElement) return;
+        const touch = e.changedTouches[0]; ghostElement.style.display = 'none'; const target = document.elementFromPoint(touch.clientX, touch.clientY); ghostElement.remove(); ghostElement = null; draggedElement.style.opacity = '1'; dropZones.forEach(z => z.classList.remove('drag-over'));
+        if(target) {
+          const dropZone = target.closest(`.${dropZoneClass}`); const poolZone = target.closest(`#${poolId}`);
+          if(dropZone) { const isMulti = dropZone.classList.contains('multi-drop'); const existing = dropZone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing); dropZone.appendChild(draggedElement); }
+          else if (poolZone) { pool.appendChild(draggedElement); }
+        } draggedElement = null; updateZonesCallback();
+      });
+      item.addEventListener('click', (e) => { e.stopPropagation(); if(selectedTapItem) selectedTapItem.classList.remove('active-selection'); selectedTapItem = item; selectedTapItem.classList.add('active-selection'); });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over'); if(!draggedElement) return;
+        const isMulti = zone.classList.contains('multi-drop'); const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== draggedElement) pool.appendChild(existing);
+        zone.appendChild(draggedElement); updateZonesCallback();
+      });
+      zone.addEventListener('click', () => {
+        const isMulti = zone.classList.contains('multi-drop');
+        if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) {
+          const existing = zone.querySelector(`.${dragClass}`); if (!isMulti && existing && existing !== selectedTapItem) pool.appendChild(existing);
+          zone.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback();
+        } else if (!isMulti && zone.children.length > 0) {
+          const existing = zone.querySelector(`.${dragClass}`); if(existing) pool.appendChild(existing); updateZonesCallback();
+        }
+      });
+    });
+
+    pool.addEventListener('dragover', e => e.preventDefault());
+    pool.addEventListener('drop', e => { e.preventDefault(); if(draggedElement && draggedElement.classList.contains(dragClass)) pool.appendChild(draggedElement); updateZonesCallback(); });
+    pool.addEventListener('click', () => { if(selectedTapItem && selectedTapItem.classList.contains(dragClass)) { pool.appendChild(selectedTapItem); selectedTapItem.classList.remove('active-selection'); selectedTapItem = null; updateZonesCallback(); } });
+  }
+
+  // Init Engine for Act 1
+  function updateZonesA1() { document.querySelectorAll('.a1-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a1-draggable') !== null)); }
+  setupDragAndDrop('a1-pool', 'a1-draggable', 'a1-drop-zone', updateZonesA1);
+
+  // Init Engine for Act 2
+  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a2-draggable') !== null)); }
+  setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
+
+  // Init Engine for Act 3
+  function updateZonesA3() { document.querySelectorAll('.a3-drop-zone').forEach(z => z.classList.toggle('filled', z.querySelector('.a3-draggable') !== null)); }
+  setupDragAndDrop('a3-pool', 'a3-draggable', 'a3-drop-zone', updateZonesA3);
+
+
+  // ─── ACTIVITY 1 SUBMISSION (TABLE) ───
+  const a1_correctText = {
+      "c-abn": "Uncontrolled cell division", "c-cau": "Mutations in genes that regulate the cell cycle", "c-eff": "Formation of tumors, damage to tissues...",
+      "d-abn": "Cells cannot properly respond to insulin...", "d-cau": "Insulin resistance or lack of insulin production", "d-eff": "High blood sugar levels, damage to organs...",
+      "g-abn": "Abnormal or mutated genes affecting cell function", "g-cau": "Inherited mutations or errors in DNA", "g-eff": "Impaired body functions, developmental issues..."
+  };
+
+  function submitActivity1() {
+    const name = document.getElementById('a1-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a1-drop-zone').forEach(z => { const item = z.querySelector('.a1-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module11_a1_state', JSON.stringify(state)); localStorage.setItem('module11_a1_name', name); localStorage.setItem('module11_a1_completed', 'true');
+    const score = applyActivity1Visuals(); localStorage.setItem('module11_a1_score', score);
+
+    // Save Guide Questions
+    const gqAnswers = []; document.querySelectorAll('#lesson-3 .gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
+    localStorage.setItem('module11_gq_answers_a1', JSON.stringify(gqAnswers)); localStorage.setItem('module11_gq_completed_a1', 'true');
+    document.querySelectorAll('#lesson-3 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 9</h1><p>Your reflection answers have also been revealed!</p>`, () => { lockActivity1(); document.getElementById('btn-next-3').style.display = 'inline-block'; });
+  }
+
+  function applyActivity1Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a1-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a1-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700';} 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let itemText = item.innerText.split('\n')[0].replace('❌', '').trim(); item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${itemText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep); line-height:1;">Correct:<br>${a1_correctText[correctMatch].substring(0,30)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `Missed!<br><strong style="font-size:0.7rem; color:var(--green-deep); line-height:1;">Correct:<br>${a1_correctText[correctMatch].substring(0,30)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity1() { 
+    document.getElementById('a1-name').disabled = true; if(localStorage.getItem('module11_a1_name')) document.getElementById('a1-name').value = localStorage.getItem('module11_a1_name'); 
+    const state = JSON.parse(localStorage.getItem('module11_a1_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a1-pool .a1-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA1(); applyActivity1Visuals();
+    document.querySelectorAll('.a1-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a1-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module11_a1_score') || 0; const btn = document.getElementById('btn-submit-a1'); btn.innerText = `Submitted (Score: ${score}/9)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-3').style.display = 'inline-block'; 
+    
+    if (localStorage.getItem('module11_gq_completed_a1') === 'true') {
+        const savedGQ = JSON.parse(localStorage.getItem('module11_gq_answers_a1') || '[]');
+        document.querySelectorAll('#lesson-3 .gq-item textarea').forEach((ta, index) => {
+            if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; ta.disabled = true;
+        });
+        document.querySelectorAll('#lesson-3 .gq-answer').forEach(ans => ans.classList.add('show'));
+    }
+  }
+
+  // ─── ACTIVITY 2 SUBMISSION (DETECTIVES TABLE) ───
+  const a2_correctText = {
+      "c1": "Uncontrolled cell division due to cell cycle mutation", "c2": "Insulin resistance or lack of insulin function",
+      "c3": "Loss of cell cycle control / uncontrolled mitosis", "c4": "Genetic mutation affecting protein production",
+      "c5": "Failure of cell cycle regulation", "c6": "Mitochondrial dysfunction affecting ATP production",
+      "c7": "Inherited genetic mutation"
+  };
+
+  function submitActivity2() {
+    const name = document.getElementById('a2-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    
+    const state = {};
+    document.querySelectorAll('.a2-drop-zone').forEach(z => { const item = z.querySelector('.a2-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module11_a2_state', JSON.stringify(state)); localStorage.setItem('module11_a2_name', name); localStorage.setItem('module11_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); localStorage.setItem('module11_a2_score', score);
+    
+    showModal("Activity Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 7</h1>`, () => { lockActivity2(); document.getElementById('btn-next-4').style.display = 'inline-block'; });
+  }
+
+  function applyActivity2Visuals() {
+      let correctCount = 0;
+      document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a2-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '2px solid var(--green-bright)'; zone.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch].substring(0,30)}...</strong>`; }
+      } else { zone.style.border = '2px solid var(--red-wrong)'; zone.style.backgroundColor = 'var(--red-pale)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a2_correctText[correctMatch].substring(0,30)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    }); return correctCount;
+  }
+
+  function lockActivity2() { 
+    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module11_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module11_a2_name'); 
+    const state = JSON.parse(localStorage.getItem('module11_a2_state') || '{}');
+    
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a2-pool .a2-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA2(); applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module11_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/7)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-4').style.display = 'inline-block'; 
+  }
+
+  // ─── ACTIVITY 3 SUBMISSION (FLOWCHARTS) ───
+  const a3_correctText = {
+      "can-1": "Uncontrolled cell division due to mutations...", "can-2": "Formation of abnormal masses of cells...", "can-3": "Organs cannot function properly due to tumor...", "can-4": "Cancer progression leading to severe illness...",
+      "dia-1": "Cells cannot properly respond to insulin...", "dia-2": "Glucose builds up in the blood...", "dia-3": "Damage to organs such as the eyes, kidneys...", "dia-4": "Chronic high blood sugar, leading to complications...",
+      "dis-1": "Progressive damage or death of nerve cells...", "dis-2": "Loss of neural connections and degeneration...", "dis-3": "Impaired function of the brain and nervous...", "dis-4": "Progressive decline in cognitive and motor..."
+  };
+
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const state = {};
+    document.querySelectorAll('.a3-drop-zone').forEach(z => { const item = z.querySelector('.a3-draggable'); if(item) state[z.id] = item.getAttribute('data-match'); });
+    localStorage.setItem('module11_a3_state', JSON.stringify(state)); localStorage.setItem('module11_a3_completed', 'true'); localStorage.setItem('module11_a3_name', name);
+    const score = applyActivity3Visuals(); localStorage.setItem('module11_a3_score', score);
+
+    showModal("Investigations Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 12</h1>`, () => { lockActivity3(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
+  }
+
+  function applyActivity3Visuals() {
+    let correctCount = 0;
+    document.querySelectorAll('.a3-drop-zone').forEach(zone => {
+      const correctMatch = zone.getAttribute('data-match'); const item = zone.querySelector('.a3-draggable');
+      if(item) {
+        if(item.getAttribute('data-match') === correctMatch) { correctCount++; zone.style.border = '3px solid var(--green-bright)'; zone.style.backgroundColor = 'rgba(255,255,255,0.95)'; item.style.color = 'var(--green-deep)'; item.style.fontWeight = '700'; } 
+        else { zone.style.border = '3px solid var(--red-wrong)'; zone.style.backgroundColor = 'rgba(254,226,226,0.95)'; let originalText = item.innerText.split('\n')[0]; item.innerHTML = `<span style="text-decoration:line-through; color:var(--red-wrong); font-size:0.75rem;">${originalText}</span><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch].substring(0,35)}...</strong>`; }
+      } else { zone.style.border = '3px dashed var(--red-wrong)'; zone.style.backgroundColor = 'rgba(254,226,226,0.8)'; zone.querySelector('.placeholder-text').innerHTML = `<strong style="color:var(--red-wrong); font-size:0.7rem;">Missed!</strong><br><strong style="font-size:0.7rem; color:var(--green-deep);">Correct: ${a3_correctText[correctMatch].substring(0,35)}...</strong>`; zone.querySelector('.placeholder-text').style.display = 'block'; }
+    });
+    return correctCount;
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; if(localStorage.getItem('module11_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module11_a3_name'); 
+    const state = JSON.parse(localStorage.getItem('module11_a3_state') || '{}');
+    for (const [zoneId, matchVal] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId); const item = Array.from(document.querySelectorAll(`#a3-pool .a3-draggable`)).find(el => el.getAttribute('data-match') === matchVal);
+        if(zone && item) zone.appendChild(item);
+    }
+    updateZonesA3(); applyActivity3Visuals();
+
+    document.querySelectorAll('.a3-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a3-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module11_a3_score') || 0; const btn = document.getElementById('btn-submit-a3'); btn.innerText = `Submitted (Score: ${score}/12)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block';
+  }
+
+
+  // ─── POST-TEST LOGIC ───
+  const postTestAnswers = { pt1: 'c', pt2: 'c', pt3: 'c', pt4: 'b', pt5: 'c' }; 
+
+  function submitPostTest() {
+    const name = document.getElementById('pt-name').value;
+    if(!name) return alert("Please enter your Full Name before submitting.");
+    let score = 0; const selections = {};
+
+    for (let q in postTestAnswers) {
+      const selectedInput = document.querySelector(`input[name="${q}"]:checked`);
+      if(selectedInput) selections[q] = selectedInput.value;
+    }
+    
+    localStorage.setItem('module11_pt_completed', 'true'); localStorage.setItem('module11_pt_name', name); localStorage.setItem('module11_pt_selections', JSON.stringify(selections));
+    score = applyQuizVisuals('#lesson-6', postTestAnswers, selections); localStorage.setItem('module11_pt_score', score);
+
+    showModal("Module 11 Complete!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">Final Score: ${score} / 5</h1><p>Congratulations on completing Module 11! You can now screenshot your final score.</p>`, () => { lockPostTest(); document.getElementById(`toc-6`).classList.add('completed'); document.getElementById('progress-bar').style.width = `100%`; });
+  }
+
+  function lockPostTest() { 
+    document.querySelectorAll('#lesson-6 input[type="radio"]').forEach(radio => radio.disabled = true); document.getElementById('pt-name').disabled = true; 
+    if(localStorage.getItem('module11_pt_name')) document.getElementById('pt-name').value = localStorage.getItem('module11_pt_name'); 
+    const selections = JSON.parse(localStorage.getItem('module11_pt_selections') || '{}');
+    for(let q in postTestAnswers) { if(selections[q]) { const input = document.querySelector(`input[name="${q}"][value="${selections[q]}"]`); if(input) input.checked = true; } }
+    applyQuizVisuals('#lesson-6', postTestAnswers, selections);
+    const score = localStorage.getItem('module11_pt_score') || 0; const btn = document.getElementById('btn-submit-pt'); btn.innerText = `Module Completed (Score: ${score}/5)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; 
+  }
+
+</script>
+</body>
+</html>
