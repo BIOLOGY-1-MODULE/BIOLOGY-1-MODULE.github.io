@@ -54,10 +54,10 @@
 
   .reading-box { background: white; border-left: 5px solid var(--green-bright); padding: 2rem; border-radius: 0 12px 12px 0; margin-bottom: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
   .reading-box p { font-size: 1.05rem; margin-bottom: 1rem; }
-
-  .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 2rem 0; border: 4px solid var(--green-pale); }
-  .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   
+   .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 2rem 0; border: 4px solid var(--green-pale); }
+  .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
   /* ─── FORMS & INPUTS ─── */
   .student-info-form { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(82,183,136,0.3); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
   .input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -201,11 +201,10 @@
 </div>
 
 <nav>
-  <a href="#" class="nav-brand">🌿 Bio<span>logy 1</span></a>
+  <a href="#" class="nav-brand">🌿 Bio<span>Sphere</span></a>
   <div class="nav-links">
-    <a href="../index.html">Home</a>
-    <a href="../index.html#modules">Modules</a>
-    <a href="../index.html#references">References</a>
+    <a href="index.html">Home</a>
+    <a href="index.html#modules">Modules</a>
   </div>
 </nav>
 
@@ -295,7 +294,7 @@
             <li><strong>Control System:</strong> Includes knobs, buttons, and software controls. Adjusts focus, brightness, and magnification. Function: Allows the user to operate and fine-tune the microscope.</li>
           </ul>
         </div>
-
+        
         <h2 style="color: var(--green-deep); margin: 2.5rem 0 1rem 0;">Watch to Learn More</h2>
         <p>Watch it on YouTube: <a href="https://youtu.be/PAzs3Ooex5k" target="_blank">Difference Between Light and Electron Microscopes</a></p>
         <div class="video-container">
@@ -408,17 +407,17 @@
 
         <h3 style="color:var(--green-deep); margin-bottom: 1rem; font-size: 1.2rem;">Characteristics (Drag or Tap):</h3>
         <div class="pool" id="a2-pool">
-          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Colored images</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Can observe living cells</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Lower magnification</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="light">Uses light</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="both">Used in laboratories</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="both">Used to observe small objects</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="both">Produce magnified images</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Very high magnification</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Uses electron beam</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Very high resolution</div>
-          <div class="draggable-item a2-draggable" draggable="true" data-match="electron">Cannot view living cells</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light" id="v-item-1">Colored images</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light" id="v-item-2">Can observe living cells</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light" id="v-item-3">Lower magnification</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="light" id="v-item-4">Uses light</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="both" id="v-item-5">Used in laboratories</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="both" id="v-item-6">Used to observe small objects</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="both" id="v-item-7">Produce magnified images</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron" id="v-item-8">Very high magnification</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron" id="v-item-9">Uses electron beam</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron" id="v-item-10">Very high resolution</div>
+          <div class="draggable-item a2-draggable" draggable="true" data-match="electron" id="v-item-11">Cannot view living cells</div>
         </div>
 
         <div class="venn-wrapper">
@@ -426,13 +425,13 @@
             <div class="venn-circle right"><div class="venn-title t-right">Electron Microscope</div></div>
             
             <div class="venn-drop-container">
-                <div class="v-zone multi-drop a2-drop-zone" data-match="light" style="padding-right: 20px;"></div>
+                <div class="v-zone multi-drop a2-drop-zone" id="v-zone-light" data-match="light" style="padding-right: 20px;"></div>
                 
-                <div class="v-zone both multi-drop a2-drop-zone" data-match="both">
+                <div class="v-zone both multi-drop a2-drop-zone" id="v-zone-both" data-match="both">
                     <div class="venn-title">BOTH</div>
                 </div>
                 
-                <div class="v-zone multi-drop a2-drop-zone" data-match="electron" style="padding-left: 20px;"></div>
+                <div class="v-zone multi-drop a2-drop-zone" id="v-zone-electron" data-match="electron" style="padding-left: 20px;"></div>
             </div>
         </div>
 
@@ -449,6 +448,8 @@
       <div class="lesson-body">
         <p><strong>Directions:</strong> Read the passage about the light and electron microscope and answer the guide questions below.</p>
         
+        <div class="student-info-form"><div class="input-group"><label for="a3-name">Full Name</label><input type="text" id="a3-name" placeholder="Juan Dela Cruz"></div></div>
+
         <div class="reading-box">
           <p>“Cells are extremely small structures that cannot be seen clearly with the naked eye. Scientists use microscopes to observe cells and understand how living organism’s function. Two of the most important tools used in cell study are the Light Microscope and the Electron Microscope. Each microscope has unique advantages and limitations that help scientists study cells in different ways.</p>
           <p>The light microscope uses visible light and a series of lenses to magnify objects. It is commonly used in classrooms and laboratories because it is easy to operate and relatively inexpensive. One of the major advantages of a light microscope is that it can be used to observe living cells. This allows scientists and students to see how cells move, grow, and divide in real time. Light microscopes can magnify objects up to about 1000 times, which is enough to observe the basic structures of a cell, such as the nucleus, cell membrane, and cytoplasm.</p>
@@ -491,7 +492,7 @@
       </div>
       <div class="lesson-controls">
         <button class="btn" onclick="switchLesson(5)" style="background: white; border: 1px solid #ccc;">← Previous</button>
-        <button class="btn btn-submit" id="btn-reveal-gq" onclick="revealGQ()">Reveal Answers</button>
+        <button class="btn btn-submit" id="btn-reveal-gq" onclick="submitActivity3()">Submit Reflections & Reveal Answers</button>
         <button class="btn btn-next" id="btn-next-6" style="display:none;" onclick="completeAndNext(6)">Proceed to Post-test ➔</button>
       </div>
     </div>
@@ -530,16 +531,7 @@
     if (localStorage.getItem('module3_a12_completed') === 'true') lockActivity12();
     if (localStorage.getItem('module3_a2_completed') === 'true') lockActivity2();
     
-    if (localStorage.getItem('module3_gq_completed') === 'true') {
-        const savedGQ = JSON.parse(localStorage.getItem('module3_gq_answers') || '[]');
-        document.querySelectorAll('.gq-item textarea').forEach((ta, index) => {
-            if(savedGQ[index] !== undefined) ta.value = savedGQ[index];
-            ta.disabled = true;
-        });
-        document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show'));
-        document.getElementById('btn-reveal-gq').style.display = 'none';
-        document.getElementById('btn-next-6').style.display = 'inline-block';
-    }
+    if (localStorage.getItem('module3_a3_completed') === 'true') lockActivity3();
 
     if (localStorage.getItem('module3_pt_completed') === 'true') lockPostTest();
   };
@@ -681,7 +673,16 @@
   setupDragAndDrop('a12-pool', 'a12-draggable', 'a12-drop-zone', updateZonesA12);
 
   // Init Engine for Act 2
-  function updateZonesA2() { document.querySelectorAll('.a2-drop-zone').forEach(z => { const hasItem = z.querySelector('.a2-draggable') !== null; z.querySelector('.placeholder-text').style.display = hasItem ? 'none' : 'block'; }); }
+function updateZonesA2() { 
+  document.querySelectorAll('.a2-drop-zone').forEach(z => { 
+    const hasItem = z.querySelector('.a2-draggable') !== null; 
+    const placeholder = z.querySelector('.placeholder-text');
+    // Only attempt to change the display if the placeholder text actually exists
+    if (placeholder) {
+      placeholder.style.display = hasItem ? 'none' : 'block'; 
+    }
+  }); 
+}
   setupDragAndDrop('a2-pool', 'a2-draggable', 'a2-drop-zone', updateZonesA2);
 
 
@@ -763,39 +764,112 @@
     const name = document.getElementById('a2-name').value;
     if(!name) return alert("Please enter your Full Name before submitting.");
     
-    const state = Array.from(document.querySelectorAll('.a2-draggable')).map(item => {
-        const parent = item.closest('.a2-drop-zone'); return parent ? parent.getAttribute('data-match') : null;
+    const state = {};
+    document.querySelectorAll('.a2-drop-zone').forEach(zone => {
+        const itemIds = Array.from(zone.querySelectorAll('.a2-draggable')).map(el => el.id);
+        state[zone.id] = itemIds;
     });
-    localStorage.setItem('module3_a2_state', JSON.stringify(state)); localStorage.setItem('module3_a2_name', name); localStorage.setItem('module3_a2_completed', 'true'); 
-    const score = applyActivity2Visuals(); localStorage.setItem('module3_a2_score', score);
+
+    localStorage.setItem('module3_a2_state', JSON.stringify(state)); 
+    localStorage.setItem('module3_a2_name', name); 
+    localStorage.setItem('module3_a2_completed', 'true'); 
+    const score = applyActivity2Visuals(); 
+    localStorage.setItem('module3_a2_score', score);
     showModal("Venn Diagram Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:3rem; color:var(--green-deep); margin-bottom:10px;">${score} / 11</h1>`, () => { lockActivity2(); document.getElementById('btn-next-5').style.display = 'inline-block'; });
   }
 
   function applyActivity2Visuals() {
       let correctCount = 0;
       document.querySelectorAll('.a2-draggable').forEach(item => {
-      const correctMatch = item.getAttribute('data-match'); const parentZone = item.closest('.a2-drop-zone');
-      if(parentZone && parentZone.getAttribute('data-match') === correctMatch) { correctCount++; item.style.border = '2px solid var(--green-bright)'; item.style.backgroundColor = '#f0fdf4'; item.style.color = 'var(--green-deep)'; } 
-      else { item.style.border = '2px solid var(--red-wrong)'; item.style.backgroundColor = 'var(--red-pale)'; let properZone = correctMatch === 'light' ? "Light Microscope" : (correctMatch === 'both' ? "BOTH" : "Electron Microscope"); item.innerHTML += `<br><strong style="font-size:0.6rem; color:var(--red-wrong);">Belongs in: ${properZone}</strong>`; }
+        const correctMatch = item.getAttribute('data-match'); 
+        const parentZone = item.closest('.a2-drop-zone');
+        const properZone = correctMatch === 'light' ? "Light Microscope" : (correctMatch === 'both' ? "BOTH" : "Electron Microscope");
+        
+        if(parentZone && parentZone.getAttribute('data-match') === correctMatch) { 
+            correctCount++; 
+            item.style.border = '2px solid var(--green-bright)'; 
+            item.style.backgroundColor = '#f0fdf4'; 
+            item.style.color = 'var(--green-deep)'; 
+        } 
+        else if (parentZone) { 
+            item.style.border = '2px solid var(--red-wrong)'; 
+            item.style.backgroundColor = 'var(--red-pale)'; 
+            if(!item.innerHTML.includes('Belongs in:')) {
+                item.innerHTML += `<br><strong style="font-size:0.6rem; color:var(--red-wrong);">Incorrect. Belongs in: ${properZone}</strong>`; 
+            }
+        } 
+        else {
+            // Left in pool
+            item.style.border = '2px dashed var(--red-wrong)'; 
+            item.style.backgroundColor = 'var(--red-pale)'; 
+            if(!item.innerHTML.includes('Missed!')) {
+                item.innerHTML += `<br><strong style="font-size:0.6rem; color:var(--red-wrong);">Missed! Belongs in: ${properZone}</strong>`; 
+            }
+        }
     }); return correctCount;
   }
 
   function lockActivity2() { 
-    document.getElementById('a2-name').disabled = true; if(localStorage.getItem('module3_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module3_a2_name'); 
-    const state = JSON.parse(localStorage.getItem('module3_a2_state') || '[]');
-    document.querySelectorAll('.a2-draggable').forEach((item, index) => {
-        if(state[index]) { const zone = document.querySelector(`.a2-drop-zone[data-match="${state[index]}"]`); if(zone) zone.appendChild(item); }
-    });
-    updateZonesA2(); applyActivity2Visuals();
-    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
-    const score = localStorage.getItem('module3_a2_score') || 0; const btn = document.getElementById('btn-submit-a2'); btn.innerText = `Submitted (Score: ${score}/11)`; btn.style.backgroundColor = "var(--green-mid)"; btn.style.pointerEvents = "none"; document.getElementById('btn-next-5').style.display = 'inline-block'; 
+    document.getElementById('a2-name').disabled = true; 
+    if(localStorage.getItem('module3_a2_name')) document.getElementById('a2-name').value = localStorage.getItem('module3_a2_name'); 
+    
+    const state = JSON.parse(localStorage.getItem('module3_a2_state') || '{}');
+    for (const [zoneId, itemIds] of Object.entries(state)) {
+        const zone = document.getElementById(zoneId);
+        itemIds.forEach(itemId => {
+            const item = document.getElementById(itemId);
+            if (zone && item) zone.appendChild(item);
+        });
+    }
+
+    updateZonesA2(); 
+    applyActivity2Visuals();
+    document.querySelectorAll('.a2-draggable').forEach(d => { d.setAttribute('draggable', 'false'); d.style.pointerEvents = 'none'; }); 
+    document.querySelectorAll('.a2-drop-zone').forEach(z => z.style.pointerEvents = 'none'); 
+    const score = localStorage.getItem('module3_a2_score') || 0; 
+    const btn = document.getElementById('btn-submit-a2'); 
+    btn.innerText = `Submitted (Score: ${score}/11)`; 
+    btn.style.backgroundColor = "var(--green-mid)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-5').style.display = 'inline-block'; 
   }
 
-  // ─── GUIDE QUESTIONS ───
-  function revealGQ() {
-    const gqAnswers = []; document.querySelectorAll('.gq-item textarea').forEach(ta => { gqAnswers.push(ta.value); ta.disabled = true; });
-    localStorage.setItem('module3_gq_answers', JSON.stringify(gqAnswers)); localStorage.setItem('module3_gq_completed', 'true');
-    document.querySelectorAll('.gq-answer').forEach(ans => ans.classList.add('show')); document.getElementById('btn-reveal-gq').style.display = 'none'; document.getElementById('btn-next-6').style.display = 'inline-block';
+  // ─── ACTIVITY 3 SUBMISSION (REFLECTIONS ONLY) ───
+  function submitActivity3() {
+    const name = document.getElementById('a3-name').value;
+    if(!name) return alert("Please enter your Full Name to submit.");
+    
+    const gqAnswers = []; 
+    document.querySelectorAll('#lesson-6 .gq-item textarea').forEach(ta => { 
+        gqAnswers.push(ta.value); 
+        ta.disabled = true; 
+    });
+    
+    localStorage.setItem('module3_a3_answers', JSON.stringify(gqAnswers)); 
+    localStorage.setItem('module3_a3_completed', 'true'); 
+    localStorage.setItem('module3_a3_name', name);
+    
+    document.querySelectorAll('#lesson-6 .gq-answer').forEach(ans => ans.classList.add('show'));
+
+    showModal("Reflection Completed!", `<p style="font-size:1.2rem; margin-bottom:10px;">Student: <strong>${name}</strong></p><h1 style="font-size:2rem; color:var(--green-deep); margin-bottom:10px;">Answers Saved!</h1><p>Your reflections have been submitted and the suggested answers are now revealed on the screen.</p>`, () => { lockActivity3(); });
+  }
+
+  function lockActivity3() { 
+    document.getElementById('a3-name').disabled = true; 
+    if(localStorage.getItem('module3_a3_name')) document.getElementById('a3-name').value = localStorage.getItem('module3_a3_name'); 
+    
+    const savedGQ = JSON.parse(localStorage.getItem('module3_a3_answers') || '[]');
+    document.querySelectorAll('#lesson-6 .gq-item textarea').forEach((ta, index) => {
+        if(savedGQ[index] !== undefined) ta.value = savedGQ[index]; 
+        ta.disabled = true;
+    });
+    
+    document.querySelectorAll('#lesson-6 .gq-answer').forEach(ans => ans.classList.add('show'));
+    const btn = document.getElementById('btn-reveal-gq'); 
+    btn.innerText = "Submitted & Revealed"; 
+    btn.style.backgroundColor = "var(--muted)"; 
+    btn.style.pointerEvents = "none"; 
+    document.getElementById('btn-next-6').style.display = 'inline-block';
   }
 
   // ─── POST-TEST LOGIC ───
@@ -826,3 +900,4 @@
 </script>
 </body>
 </html>
+
