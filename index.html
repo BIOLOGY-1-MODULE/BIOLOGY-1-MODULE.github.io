@@ -8,7 +8,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://BIOLOGY-1-MODULE.github.io/">
 <meta property="og:title" content="General Biology 1 Learner's Module">
-<meta property="og:description" content="Learn about Cell Biology, Genetics, and Energy Transformation.">
+<meta property="og:description" content="Learn about Cell Biology, Structures, and More!">
 <meta property="og:image" content="https://BIOLOGY-1-MODULE.github.io/preview-v1.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://BIOLOGY-1-MODULE.github.io/preview-v1.png">
@@ -339,7 +339,6 @@ nav {
   margin-bottom:1.25rem;
 }
 
-/* UPDATED: Mod Card Header with Flexbox to accommodate the button */
 .mod-card-header {
   background:linear-gradient(135deg, var(--canopy) 0%, var(--forest) 100%);
   padding:2rem;
@@ -364,7 +363,6 @@ nav {
 }
 .mod-card-header p { font-size:.85rem; color:rgba(183,228,199,.5); margin-top:.3rem; }
 
-/* New Button specific for the header */
 .btn-start {
   margin-left: auto;
   white-space: nowrap;
@@ -419,7 +417,7 @@ nav {
 ───────────────────────────────────────── */
 .dev-wrap {
   max-width:700px; margin:0 auto;
-  padding:0 clamp(1rem,4vw,2.5rem) 5rem;
+  padding:0 clamp(1rem,4vw,2.5rem) 2rem;
 }
 .dev-card {
   background:var(--card);
@@ -448,7 +446,7 @@ nav {
   box-shadow:0 8px 24px rgba(0,0,0,.15);
   display:flex; align-items:center; justify-content:center;
   font-size:2.8rem;
-  object-fit: cover; /* Add this line! */
+  object-fit: cover;
 }
 .dev-body { padding:0 2.5rem 2.5rem; text-align:center; }
 .dev-name {
@@ -473,6 +471,35 @@ nav {
   text-align:left;
 }
 .dev-bio strong { color:var(--moss); }
+
+/* ─────────────────────────────────────────
+   REFERENCES
+───────────────────────────────────────── */
+.ref-wrap {
+  max-width:700px; margin:0 auto;
+  padding:0 clamp(1rem,4vw,2.5rem) 5rem;
+}
+.ref-card {
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:24px; padding:2rem 2.5rem;
+}
+.ref-list {
+  list-style:none; padding:0; margin:0;
+}
+.ref-list li {
+  font-size:.9rem; color:rgba(183,228,199,.75); line-height:1.6;
+  margin-bottom:1rem;
+  padding-left:1.5rem; text-indent:-1.5rem; /* Hanging indent for APA style */
+  word-break: break-word; /* Forces long URLs to wrap */
+  overflow-wrap: anywhere; /* Ensures links don't break the layout on small screens */
+}
+.ref-list li a {
+  color:var(--leaf); text-decoration:none;
+}
+.ref-list li a:hover {
+  text-decoration:underline;
+}
 
 /* ─────────────────────────────────────────
    FOOTER
@@ -547,12 +574,14 @@ footer {
 
   /* card adjustments */
   .mod-card-header { padding:1.5rem; }
-  .btn-start { margin-left: 0; margin-top: 0.5rem; width: 100%; } /* Stack button on mobile */
+  .btn-start { margin-left: 0; margin-top: 0.5rem; width: 100%; } 
   .mod-activities { padding:1.25rem 1.5rem 1.5rem; }
   .act-item { padding:.75rem .9rem; }
   
   .dev-body { padding:0 1.5rem 2rem; }
   .dev-name { font-size:1.5rem; }
+  .ref-wrap { padding: 0 1rem 3rem; }
+  .ref-card { padding:1.5rem; }
 }
 
 @media (max-width: 420px) {
@@ -580,6 +609,7 @@ footer {
     <li><a href="#home" class="active">🏠 Home</a></li>
     <li><a href="#modules">📚 Modules</a></li>
     <li><a href="#dev">👨‍🏫 Author</a></li>
+    <li><a href="#references">📖 References</a></li>
   </ul>
 </nav>
 
@@ -672,6 +702,29 @@ footer {
           Currently teaching at <strong>Rizal High School, Pasig City</strong>, Mr. Redita integrates innovative and interactive teaching strategies to make complex scientific concepts accessible and engaging. He has successfully mentored students in various research projects, enabling them to present their work in school-based and external forums, aspiring to cultivate future scientists and researchers.
         </p>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="references" class="page">
+  <div class="section-header">
+    <h2>📖 References</h2>
+    <p>Sources and materials used in the development of this curriculum.</p>
+  </div>
+  <div class="ref-wrap">
+    <div class="ref-card">
+      <ul class="ref-list">
+        <li>C, R. (2018, March 6). Difference Between Archaea and Bacteria (with Comparison Chart and Similarities). Bio Differences. <a href="https://biodifferences.com/difference-between-archaea-and-bacteria.html" target="_blank">https://biodifferences.com/difference-between-archaea-and-bacteria.html</a>.</li>
+        <li>C, R. (2019, June 3). Difference Between Prokaryotic Cells and Eukaryotic Cells (with Comparison Chart and Explanation of organelles). Bio Differences. <a href="https://biodifferences.com/difference-between-prokaryotic-cells-and-eukaryotic-cells.html" target="_blank">https://biodifferences.com/difference-between-prokaryotic-cells-and-eukaryotic-cells.html</a>.</li>
+        <li>Clark, M. A., Choi, J., & Douglas, M. (n.d.). Microscopy. Khan Academy.</li>
+        <li>Microbe Notes. (2024). Light microscope: Principle, types, parts, diagram.</li>
+        <li>Libre Texts. (2023). Microscopy.</li>
+        <li>ScienceDirect. (2024). Electron microscope.</li>
+        <li>Eggleston, C. (2023, July 18). The cell membrane: Structure and function. TeachMePhysiology. <a href="https://teachmephysiology.com/histology/cell-structures/cell-membrane/" target="_blank">https://teachmephysiology.com/histology/cell-structures/cell-membrane/</a>.</li>
+        <li>Khan Academy. (2016, September 2). Passive transport and active transport across a cell membrane. <a href="https://www.khanacademy.org/test-prep/mcat/cells/transport-across-a-cell-membrane/a/passive-transport-and-active-transport-across-a-cell-membrane-article" target="_blank">https://www.khanacademy.org/test-prep/mcat/cells/transport-across-a-cell-membrane/a/passive-transport-and-active-transport-across-a-cell-membrane-article</a>.</li>
+        <li>Ostwald, M. (n.d.). 4.2 Discovery of cells and cell theory. In Biology: A Human Approach. Pressbooks. Retrieved March 29, 2026, from <a href="https://pressbooks.ccconline.org/acchumanbio/chapter/4-2-discovery-of-cells-and-cell-theory-3/" target="_blank">https://pressbooks.ccconline.org/acchumanbio/chapter/4-2-discovery-of-cells-and-cell-theory-3/</a>.</li>
+        <li>Pedersen, T. (2019, July 11). Prokaryotic vs. Eukaryotic Cells: What's the Difference? LiveScience. <a href="https://www.livescience.com/65922-prokaryotic-vs-eukaryotic-cells.html" target="_blank">https://www.livescience.com/65922-prokaryotic-vs-eukaryotic-cells.html</a>.</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -851,7 +904,6 @@ modules.forEach((mod, i) => {
     </div>
   `).join('');
 
-  // UPDATED: Added the Start Learning button with dynamic routing to module${num}.html
   panel.innerHTML = `
     <div class="mod-card">
       <div class="mod-card-header">
@@ -860,7 +912,7 @@ modules.forEach((mod, i) => {
           <h3>${mod.title}</h3>
           <p>${mod.desc}</p>
         </div>
-        <a href="module${mod.num}/module${mod.num}.html" class="btn btn-primary btn-start">Start Learning →</a>
+        <a href="module${mod.num}.html" class="btn btn-primary btn-start">Start Learning →</a>
       </div>
       <div class="mod-activities">
         <div class="act-section-title">Activities & Assessments</div>
