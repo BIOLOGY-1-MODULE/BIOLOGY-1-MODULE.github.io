@@ -599,6 +599,14 @@
     if (localStorage.getItem('module7_a2_completed') === 'true') lockActivity2();
     if (localStorage.getItem('module7_a3_completed') === 'true') lockActivity3();
     if (localStorage.getItem('module7_pt_completed') === 'true') lockPostTest();
+    // ─── ALLOW HOMEPAGE LINKS TO OPEN SPECIFIC TABS ───
+    const hash = window.location.hash; 
+    if (hash && hash.startsWith('#lesson-')) {
+        const lessonNum = parseInt(hash.replace('#lesson-', ''), 10);
+        if (lessonNum >= 1 && lessonNum <= 6) { 
+            switchLesson(lessonNum);
+        }
+    }
   };
 
   function showModal(title, bodyHTML, onCloseCallback) {
