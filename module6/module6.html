@@ -204,7 +204,7 @@
       <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Act 1: Stages of Mitosis</div></li>
       <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Act 2: Binary Fission</div></li>
       <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Act 3: Comparing Division</div></li>
-      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>What I've Learned</div></li>
     </ul>
   </aside>
 
@@ -460,12 +460,12 @@
       <div class="lesson-controls">
         <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
         <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Table</button>
-        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to Post-test ➔</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to What I've Learned ➔</button>
       </div>
     </div>
 
     <div class="lesson-section" id="lesson-6">
-      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">What I've Learned</h1></div>
       <div class="lesson-body">
         <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 6.</p>
         <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
@@ -782,7 +782,7 @@
   }
 
 
-  // ─── POST-TEST LOGIC ───
+  // ─── What I've Learned LOGIC ───
   const postTestAnswers = { pt1: 'b', pt2: 'c', pt3: 'b', pt4: 'c', pt5: 'c' }; 
 
   function submitPostTest() {
