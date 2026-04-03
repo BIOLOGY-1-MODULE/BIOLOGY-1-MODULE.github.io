@@ -259,7 +259,7 @@
       <li class="toc-item" onclick="switchLesson(3)" id="toc-3"><div class="toc-num">3</div><div>Activity 1: Cell Explorer</div></li>
       <li class="toc-item" onclick="switchLesson(4)" id="toc-4"><div class="toc-num">4</div><div>Activity 2: Cell City Analogy & Reflection</div></li>
       <li class="toc-item" onclick="switchLesson(5)" id="toc-5"><div class="toc-num">5</div><div>Activity 3: Cell Detective</div></li>
-      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>Post-test</div></li>
+      <li class="toc-item" onclick="switchLesson(6)" id="toc-6"><div class="toc-num">6</div><div>What I've Learned</div></li>
     </ul>
   </aside>
 
@@ -619,12 +619,12 @@
       <div class="lesson-controls">
         <button class="btn" onclick="switchLesson(4)" style="background: white; border: 1px solid #ccc;">← Previous</button>
         <button class="btn btn-submit" id="btn-submit-a3" onclick="submitActivity3()">Submit Activity</button>
-        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to Post-test ➔</button>
+        <button class="btn btn-next" id="btn-next-5" style="display:none;" onclick="completeAndNext(5)">Proceed to What I've Learned ➔</button>
       </div>
     </div>
 
     <div class="lesson-section" id="lesson-6">
-      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">Post-test</h1></div>
+      <div class="lesson-header"><div class="lesson-subtitle">Assessment</div><h1 class="lesson-title">What I've Learned</h1></div>
       <div class="lesson-body">
         <p><strong>Directions:</strong> Read each question carefully and select the correct answer to complete Module 2.</p>
         <div class="student-info-form"><div class="input-group"><label for="pt-name">Full Name</label><input type="text" id="pt-name" placeholder="Juan Dela Cruz"></div></div>
@@ -1074,7 +1074,7 @@
   }
 
 
-  // ─── POST-TEST LOGIC ───
+  // ─── What I've Learned LOGIC ───
   const postTestAnswers = { pt1: 'b', pt2: 'd', pt3: 'a', pt4: 'c', pt5: 'c' }; 
 
   function submitPostTest() {
